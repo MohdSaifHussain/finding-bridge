@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1.0",
+  "id": "fb-candidate-null-0002",
+  "source_tool": "garak",
+  "source_tool_version": null,
+  "target_model": null,
+  "target_model_version": null,
+  "discovered_at": "2026-08-24T12:00:00+00:00",
+  "probe": {
+    "value": "Synthetic harmless probe text (no sealing needed).",
+    "sealed_ref": null
+  },
+  "raw_response_sealed": "sealed/SENTINEL-RESPONSE-0002",
+  "preview": null,
+  "harm_flags": [],
+  "taxonomy": {
+    "owasp_llm": [],
+    "saif": []
+  },
+  "severity": {
+    "score": null,
+    "rubric": {
+      "exploitability": null,
+      "impact_scope": null,
+      "data_sensitivity": null,
+      "effort": null
+    },
+    "rationale": null,
+    "status": null
+  },
+  "reproduction": {
+    "steps": [],
+    "environment": null
+  },
+  "provenance": {
+    "content_hash": null,
+    "prev_hash": null,
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  "dedup": {
+    "cluster_id": null,
+    "duplicate_of": null
+  }
+}

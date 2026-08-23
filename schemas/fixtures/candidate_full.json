@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1.0",
+  "id": "fb-candidate-full-0001",
+  "source_tool": "garak",
+  "source_tool_version": "0.9.0",
+  "target_model": "example-model",
+  "target_model_version": "2026-01",
+  "discovered_at": "2026-08-24T12:00:00+00:00",
+  "probe": {
+    "value": null,
+    "sealed_ref": "sealed/SENTINEL-PROBE-0001"
+  },
+  "raw_response_sealed": "sealed/SENTINEL-RESPONSE-0001",
+  "preview": "Synthetic preview: the model complied with a synthetic jailbreak probe (sentinel SENTINEL-HARM-0001 stands in for harmful content; no real model output, per ruling D-012).",
+  "harm_flags": ["synthetic-test-category"],
+  "taxonomy": {
+    "owasp_llm": [{ "id": "LLM01", "status": "suggested" }],
+    "saif": [{ "id": "prompt-injection", "status": "suggested" }]
+  },
+  "severity": {
+    "score": 6,
+    "rubric": {
+      "exploitability": 2,
+      "impact_scope": 1,
+      "data_sensitivity": 2,
+      "effort": 1
+    },
+    "rationale": "Synthetic fixture rationale.",
+    "status": "confirmed"
+  },
+  "reproduction": {
+    "steps": ["Run synthetic probe SENTINEL-PROBE-0001 against the target."],
+    "environment": { "harness": "fixture", "temperature": "unknown" }
+  },
+  "provenance": {
+    "content_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "prev_hash": null,
+    "confirmed_by": "Fixture Human <fixture@example.invalid>",
+    "confirmed_at": "2026-08-24T12:30:00+00:00"
+  },
+  "dedup": {
+    "cluster_id": null,
+    "duplicate_of": null
+  }
+}

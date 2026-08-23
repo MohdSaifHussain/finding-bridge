@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/finding-bridge/schemas/finding.schema.json/0.1.0",
+  "title": "Canonical finding (finding-bridge)",
+  "description": "One AI red-team finding. Charter section 7. Raw harmful content is NEVER inline: raw_response_sealed is a reference into the sealed store. Unknown values are null, never invented (charter: never fabricate).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "source_tool",
+    "source_tool_version",
+    "target_model",
+    "target_model_version",
+    "discovered_at",
+    "probe",
+    "raw_response_sealed",
+    "preview",
+    "harm_flags",
+    "taxonomy",
+    "severity",
+    "reproduction",
+    "provenance",
+    "dedup"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of this canonical schema. Minor bump adds fields; major bump changes or removes them (charter section 7)."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable content-derived id. Derivation is fixed in core/provenance (D3)."
+    },
+    "source_tool": {
+      "type": "string",
+      "minLength": 1,
+      "description": "e.g. garak, manual-transcript."
+    },
+    "source_tool_version": {
+      "type": ["string", "null"]
+    },
+    "target_model": {
+      "type": ["string", "null"]
+    },
+    "target_model_version": {
+      "type": ["string", "null"]
+    },
+    "discovered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of discovery."
+    },
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "sealed_ref"],
+      "description": "The attack/prompt used. If harmful, value is null and sealed_ref points into the sealed store.",
+      "properties": {
+        "value": { "type": ["string", "null"] },
+        "sealed_ref": { "type": ["string", "null"] }
+      }
+    },
+    "raw_response_sealed": {
+      "type": ["string", "null"],
+      "description": "Sealed-store blob reference. Never inline raw harm."
+    },
+    "preview": {
+      "type": ["string", "null"],
+      "description": "Grey-scale/summary safe-to-read rendering."
+    },
+    "harm_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Detected harmful-content categories."
+    },
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owasp_llm", "saif"],
+      "properties": {
+        "owasp_llm": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/taxonomy_entry" }
+        },
+        "saif": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/taxonomy_entry" }
+        }
+      }
+    },
+    "severity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "rubric", "rationale", "status"],
+      "properties": {
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 10
+        },
+        "rubric": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exploitability", "impact_scope", "data_sensitivity", "effort"],
+          "description": "LLM-adapted rubric per charter section 7 (Repello source, Pain-1): CVSS is not well-adapted to LLM flaws.",
+          "properties": {
+            "exploitability": { "$ref": "#/$defs/rubric_dimension" },
+            "impact_scope": { "$ref": "#/$defs/rubric_dimension" },
+            "data_sensitivity": { "$ref": "#/$defs/rubric_dimension" },
+            "effort": { "$ref": "#/$defs/rubric_dimension" }
+          }
+        },
+        "rationale": { "type": ["string", "null"] },
+        "status": {
+          "enum": ["confirmed", "suggested", null],
+          "description": "suggested only ever set by the caged optional AI (charter rule 2); confirmed requires the human gate."
+        }
+      }
+    },
+    "reproduction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["steps", "environment"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "environment": {
+          "type": ["object", "null"],
+          "description": "Free-form environment facts (model endpoint, temperature, harness). Null when unknown."
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content_hash", "prev_hash", "confirmed_by", "confirmed_at"],
+      "description": "Tamper-evident chain (charter). confirmed_by null means NOT a confirmed finding; emission must refuse (contract 3.3).",
+      "properties": {
+        "content_hash": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 hex of canonical content, set by core/provenance."
+        },
+        "prev_hash": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "confirmed_by": {
+          "type": ["string", "null"],
+          "description": "git config user.name + email of the confirming human (ruling D-011)."
+        },
+        "confirmed_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "dedup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cluster_id", "duplicate_of"],
+      "properties": {
+        "cluster_id": { "type": ["string", "null"] },
+        "duplicate_of": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "$defs": {
+    "taxonomy_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["confirmed", "suggested"] }
+      }
+    },
+    "rubric_dimension": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 3
+    }
+  }
+}
