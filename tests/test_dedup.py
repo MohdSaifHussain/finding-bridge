@@ -1,0 +1,80 @@
+"""D5 tests: exact content-hash dedup with positive and negative controls."""
+
+import copy
+import json
+from pathlib import Path
+
+import pytest
+
+from finding_bridge.core import dedup
+from finding_bridge.core import provenance as prov
+
+FIXTURES = Path(__file__).resolve().parent.parent / "schemas" / "fixtures"
+
+
+@pytest.fixture()
+def base() -> dict:
+    return json.loads((FIXTURES / "candidate_null_fields.json").read_text(encoding="utf-8"))
+
+
+def variant(base: dict, *, preview: str | None = None, discovered_at: str | None = None) -> dict:
+    v = copy.deepcopy(base)
+    if preview is not None:
+        v["preview"] = preview
+    if discovered_at is not None:
+        v["discovered_at"] = discovered_at
+    return v
+
+
+def test_same_content_different_time_is_duplicate(base):
+    a = prov.stamp(variant(base, discovered_at="2026-08-24T10:00:00+00:00"))
+    b = prov.stamp(variant(base, discovered_at="2026-08-24T11:00:00+00:00"))
+    marked = dedup.mark_duplicates([a, b])
+    assert marked[0]["dedup"]["duplicate_of"] is None
+    assert marked[1]["dedup"]["duplicate_of"] == marked[0]["id"]
+    assert marked[0]["dedup"]["cluster_id"] == marked[1]["dedup"]["cluster_id"]
+    assert marked[0]["dedup"]["cluster_id"] is not None
+
+
+def test_different_content_not_duplicate(base):
+    a = prov.stamp(variant(base, preview="one"))
+    b = prov.stamp(variant(base, preview="two"))
+    marked = dedup.mark_duplicates([a, b])
+    assert all(f["dedup"]["duplicate_of"] is None for f in marked)
+    assert all(f["dedup"]["cluster_id"] is None for f in marked)
+
+
+def test_inputs_not_mutated(base):
+    a = prov.stamp(base)
+    snapshot = copy.deepcopy(a)
+    dedup.mark_duplicates([a, a])
+    assert a == snapshot
+
+
+def test_order_preserved_and_first_is_canonical(base):
+    findings = [
+        prov.stamp(variant(base, preview="x", discovered_at=f"2026-08-24T1{i}:00:00+00:00"))
+        for i in range(3)
+    ]
+    marked = dedup.mark_duplicates(findings)
+    assert marked[0]["dedup"]["duplicate_of"] is None
+    assert marked[1]["dedup"]["duplicate_of"] == marked[0]["id"]
+    assert marked[2]["dedup"]["duplicate_of"] == marked[0]["id"]
+
+
+def test_unique_findings_drops_duplicates_only(base):
+    dup1 = prov.stamp(variant(base, discovered_at="2026-08-24T10:00:00+00:00"))
+    dup2 = prov.stamp(variant(base, discovered_at="2026-08-24T11:00:00+00:00"))
+    other = prov.stamp(variant(base, preview="distinct"))
+    uniques = dedup.unique_findings([dup1, dup2, other])
+    assert [f["preview"] for f in uniques] == [dup1["preview"], "distinct"]
+
+
+def test_marking_does_not_break_provenance_chain(base):
+    a = prov.stamp(variant(base, discovered_at="2026-08-24T10:00:00+00:00"))
+    b = prov.stamp(
+        variant(base, discovered_at="2026-08-24T11:00:00+00:00"),
+        prev_hash=a["provenance"]["content_hash"],
+    )
+    marked = dedup.mark_duplicates([a, b])
+    assert prov.verify_chain(marked) == []
