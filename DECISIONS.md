@@ -162,3 +162,9 @@ Confirmed explicitly by the director (silence was not acceptance):
 - I5: DECISIONS.md lives at the repo root; `docs/decisions/` is the home of
   future phase contracts and schema migration notes.
 - I6: ratification is dated 2026-08-24 and lands on the charter's status line.
+
+## Corrections
+
+| # | Original claim (quoted) | Correction | What proved it | Direction |
+|---|---|---|---|---|
+| C-001 | "The governed-orchestration skill is **not active** in this session and is not installed/listed here" and, in the closing limits, "not yet installed" (builder's Phase 0 closing report, this session, 2026-08-24) | The skill IS installed at `~/.claude/skills/governed-orchestration` and loaded when invoked with the Skill tool on the director's instruction. What was true: it was absent from the session's listed skills. The builder widened "not listed" into "not installed" without checking the filesystem or attempting invocation: an absence stated without a check, the defect class Phase 0 audited the charter for. | Successful `Skill(governed-orchestration)` invocation, this session, on the director's check-don't-assume instruction. | Toward the less flattering answer for the builder. |
