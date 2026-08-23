@@ -222,6 +222,23 @@ commit-evidence-first). Ratification lands as its own separate commit. A
 ratified contract is never amended in place; it is only extended by numbered
 deviation.
 
+## D-014 — FLARE-AI mapping: provisional-from-paper ruled the best available approach
+
+**Decision (director, this session, 2026-08-24):** no canonical
+machine-readable FLARE-AI schema exists to map against. The builder checked
+ai-reports.org and github.com/ai-flaw-reporting/ai-flaw-reporting; the
+director searched independently and also found none: a two-route confirmed
+absence, not a failed fetch. Ruled: the FLARE-AI column of the mapping table
+is derived from the JSON-LD example vocabulary in arXiv 2606.31567 (the local
+evidence PDF), stays marked PROVISIONAL, and is the project's approach until
+a canonical schema is published.
+
+**Obligation OB-1, narrowed:** from "locate the canonical schema" to "resolve
+the provisional column against the canonical schema when FLARE-AI publishes
+one". Owner: the v1.x FLARE-AI out-adapter phase, which must not close
+without either discharging OB-1 or recording that no canonical schema exists
+at that date.
+
 ## STEP-01 readings, confirmed
 
 R1 (Y): raw sealed content never appears in any emitted artifact, encrypted
