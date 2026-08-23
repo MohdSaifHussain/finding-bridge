@@ -1,8 +1,9 @@
 # STEP-01: v1 proof slice
 
 **Project:** finding-bridge | **Phase:** 1 of the v1 arc | **Date:** 2026-08-24
-**Status:** DRAFT, awaiting director rulings on Q1-Q5 and readings R1-R4.
-Nothing is built until those rulings land.
+**Status:** Ratified by the director 2026-08-24 (rulings D-008 through D-013;
+readings R1-R4 all confirmed Y). In progress from D1. Per D-013 this ratified
+contract is never amended in place; it is only extended by numbered deviation.
 **Depends on:** Phase 0 (ratified charter at commit `8a48a7a`; rulings D-001
 through D-007; specifically the D-002 slice definition, the D-003 drift-test
 condition, and the charter's three non-negotiable rules).
@@ -27,10 +28,10 @@ stated reason code.
 | D1 | Canonical finding schema (`schemas/finding.schema.json`) + fixtures, per charter §7 | JSON Schema draft 2020-12 (https://json-schema.org/specification, fetched before implementation) |
 | D2 | Field-mapping table (canonical -> FLARE-AI schema, canonical -> SARIF 2.1.0) + drift test, in the SAME commit as D1's first schema file | Ruling D-003; SARIF v2.1.0 (OASIS spec, verified 2026-08-24); FLARE-AI schema (arXiv 2606.31567 + ai-reports.org, fetched at build time) |
 | D3 | `core/provenance.py`: SHA-256 hashing, ISO 8601 timestamps, hash chain + verify, with tests | FIPS 180-4 via Python `hashlib`; RFC 3339/ISO 8601 via `datetime` (official Python docs, fetched) |
-| D4 | `core/sealing.py`: seal-by-default, preview generation, explicit unseal + exposure logging, with tests | Charter §6; encryption mechanism per Q3 ruling, official docs fetched and cited before implementation |
+| D4 | `core/sealing.py`: seal-by-default, preview generation, explicit unseal + exposure logging, with tests | Charter §6; Fernet from pyca/cryptography per ruling D-010, official docs fetched and cited before implementation |
 | D5 | `core/dedup.py`: content-hash dedup, with tests | Charter §5.2; same hash standard as D3 |
 | D6 | In-adapter `adapters/in/garak.py` + fixture + round-trip test | garak hitlog JSONL structure per NVIDIA/garak source (`garak/evaluators/base.py`, fetched at build time; same source the merged DefectDojo parser cited) |
-| D7 | Human-gate review flow in CLI (confirm/reject, severity confirm, identity into provenance) | Charter rule 3; identity source per Q4 ruling |
+| D7 | Human-gate review flow in CLI (confirm/reject, severity confirm, identity into provenance) | Charter rule 3; identity from git config user.name + email per ruling D-011 |
 | D8 | Out-adapter `adapters/out/markdown.py` + test: packet carries preview + metadata, never raw harm | CommonMark (https://spec.commonmark.org/, fetched); charter §6 |
 | D9 | Tier re-ask at the review stop, ruled and recorded | Ruling D-001 binding condition; skill tier mechanism |
 | D10 | Phase outcome appended here + DECISIONS entries for material choices | Template 1 outcome skeleton; Template 7 |
@@ -66,6 +67,12 @@ stated reason code.
   (Charter §Adapters.)
 - 3.12 Any framework or format decision fetches its current official source
   first and cites the URL in the commit or decision note. (Skill rule 3.)
+- 3.13 The sealing key lives in a local file outside the repo tree and is
+  never committed; sealing refuses with its own reason code if the key path
+  resolves inside the repo tree. (Ruling D-010.)
+- 3.14 Fixtures are synthetic with harmless sentinel strings; no real harmful
+  model output is ever committed, in any phase, ever. (Ruling D-012,
+  standing safety rule in CLAUDE.md.)
 
 ## 4. Out of scope
 
@@ -89,8 +96,7 @@ stated reason code.
 
 ## 4b. Tier, with a binding re-ask
 
-- Tier for this phase: FULL, proposed per the director's Phase 1 instruction;
-  awaiting the explicit yes as Q1 (the tier is a ruling, not a default).
+- Tier for this phase: FULL, ruled by the director 2026-08-24 (D-008).
 - Re-ask: at the review stop the tier is re-ruled explicitly (this is
   deliverable D9, not a habit). **Default:** drop to STANDARD for the back
   half (D6-D8: adapters, CLI, packet). **Discharge standard, ruled now and
@@ -108,17 +114,18 @@ stated reason code.
 
 - R1: D-002's "markdown packet out". Read as: the packet renders preview and
   structured metadata only; raw sealed content never appears in any emitted
-  artifact, even encrypted inline. **Confirm Y/N.**
+  artifact, even encrypted inline. **Confirmed Y, director, 2026-08-24.**
 - R2: D-003's "in scope from the first schema commit". Read as: the mapping
   table and its drift test land in the same commit as the first schema file,
-  not later in the phase. **Confirm Y/N.**
+  not later in the phase. **Confirmed Y, director, 2026-08-24.**
 - R3: "human gate" in this slice. Read as: a CLI review flow that confirms or
   rejects candidates and confirms severity, recording who and when into
-  provenance; no AI assistance exists in this phase at all. **Confirm Y/N.**
+  provenance; no AI assistance exists in this phase at all. **Confirmed Y,
+  director, 2026-08-24.**
 - R4: "STEP-01" numbering. Read as: phase contracts are named STEP-NN under
   `docs/decisions/`, starting at STEP-01 for this slice; Phase 0 keeps its
   record in DECISIONS.md and the charter amendment log, with no STEP-00 file
-  written after the fact. **Confirm Y/N.**
+  written after the fact. **Confirmed Y, director, 2026-08-24.**
 
 ## 5. Exit checklist
 
