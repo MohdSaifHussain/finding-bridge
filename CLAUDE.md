@@ -56,6 +56,9 @@ trustworthy, and they are the differentiator:
 - **Never fabricate.** If a source field is missing, emit null/unknown — never
   invent taxonomy tags, severities, reproduction steps, or citations.
 - When in doubt on a safety trade-off, prefer *less* exposure and *more* logging.
+- **No real harmful model output is ever committed to this repository, in any
+  phase, ever.** Fixtures use synthetic content with harmless sentinel strings
+  (ruling D-012, standing safety rule).
 
 ## Tech stack & conventions
 

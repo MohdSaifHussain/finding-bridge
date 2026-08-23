@@ -163,6 +163,72 @@ Confirmed explicitly by the director (silence was not acceptance):
   future phase contracts and schema migration notes.
 - I6: ratification is dated 2026-08-24 and lands on the charter's status line.
 
+---
+
+## STEP-01 rulings (director, 2026-08-24)
+
+## D-008 — STEP-01 tier: whole phase FULL, binding re-ask stands (Q1)
+
+**Decision:** the whole phase runs FULL. The binding re-ask at the review stop
+stands as written in contract §4b: default drops D6-D8 to STANDARD; continuing
+FULL past the stop requires a named FULL-only finding in a numbered ruling.
+The builder's advance forecast (the gate fires) is recorded as part of this
+entry, so the outcome can be scored against it.
+
+**Alternatives rejected:** split tiers within one contract; two separate
+phases.
+
+## D-009 — One review stop, after D1-D5 (Q2)
+
+**Decision:** a single review stop after D1-D5 (schema, mapping table,
+provenance, sealing, dedup), before any adapter or CLI code exists.
+
+**Alternatives rejected:** an extra early stop before fixture freeze; a stop
+after schema only.
+
+## D-010 — Sealing mechanism: Fernet, key outside the repo, loud path check (Q3)
+
+**Decision:** `pyca/cryptography` Fernet symmetric encryption.
+**Binding conditions:** (1) the key lives in a local file outside the repo and
+is never committed; (2) a check fails loudly, with its own reason code, if the
+key path ever resolves inside the repo tree; (3) the official cryptography
+docs are fetched and cited before a line of sealing code is written.
+
+**Alternatives rejected:** OS keyring (platform-variant on Windows); deferring
+the choice to kickoff.
+
+## D-011 — confirmed_by identity: git config (Q4)
+
+**Decision:** `git config user.name` + email is the identity recorded as
+`confirmed_by` in provenance.
+
+**Alternatives rejected:** OS username; per-session prompt.
+
+## D-012 — Synthetic fixtures only, elevated to a standing safety rule (Q5)
+
+**Decision:** fixtures are synthetic garak hitlogs with harmless sentinel
+strings standing in for harmful content.
+**Standing safety rule, ruled explicitly:** no real harmful model output is
+ever committed to this repository, in any phase, ever. Recorded in CLAUDE.md's
+Safety rules so it binds every future session, not just this fixture choice.
+
+**Alternative rejected:** sanitized captures from real garak runs.
+
+## D-013 — Standing convention: drafts committed, ratification separate, no in-place amendment
+
+**Decision (adopting the builder's reported deviation as convention):** phase
+contract drafts are committed as drafts before rulings (preserve-the-draft,
+commit-evidence-first). Ratification lands as its own separate commit. A
+ratified contract is never amended in place; it is only extended by numbered
+deviation.
+
+## STEP-01 readings, confirmed
+
+R1 (Y): raw sealed content never appears in any emitted artifact, encrypted
+inline included. R2 (Y): mapping table + drift test in the same commit as the
+first schema file. R3 (Y): zero AI anywhere in this phase. R4 (Y): STEP-NN
+numbering starts here; no back-written STEP-00.
+
 ## Corrections
 
 | # | Original claim (quoted) | Correction | What proved it | Direction |
