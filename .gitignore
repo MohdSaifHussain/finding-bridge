@@ -1,0 +1,9 @@
+# Evidence PDFs are pointed to from the charter's source index, not committed
+# (ruling D-006). Re-fetch from the arXiv URL named there if lost.
+docs/FLARE AI Flaw Reporting for AI.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/

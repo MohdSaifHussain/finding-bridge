@@ -112,3 +112,5 @@ trustworthy, and they are the differentiator:
 - Project charter (requirements, sources, schema): @docs/PROJECT_CHARTER.md
 - Canonical finding schema: `schemas/finding.schema.json`
 - Anthropic CLAUDE.md guidance this file follows: https://code.claude.com/docs/en/memory
+
+Builds run under the governed-orchestration skill; phase contracts in docs/decisions/ are binding under this charter.

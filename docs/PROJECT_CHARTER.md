@@ -4,7 +4,10 @@
 > file; this charter holds the full rationale, sourced requirements, schema, and
 > roadmap. Read `CLAUDE.md` first; come here for the "why" and the evidence.
 
-**Status:** pre-v1 (spec locked, implementation not started)
+**Status:** pre-v1, ratified with amendment log (implementation not started) [Amended: see A1]
+**Ratified:** 2026-08-24, Phase 0, by the project director. Every change ruled in
+Phase 0 is recorded in §11 Amendments (original wording quoted, never silently
+edited) and in DECISIONS.md at the repo root.
 **Last reviewed:** 2026-08-24
 
 ---
@@ -74,10 +77,13 @@ credible after the model changes.
 ### Pain-3 — Analyst wellbeing is unmet, and research explicitly asks for tooling
 
 Red teamers engage directly with harmful, biased, or manipulative outputs and
-face psychological stress, burnout, or trauma; scaling the work without
-deliberate design reproduces those harms at larger scale.
-*Source: "Human Expertise for AI Red-Teaming and Scalable Evaluation", CHI 2026
-Extended Abstracts — https://dl.acm.org/doi/10.1145/3772363.3778702*
+can suffer mental-health harms serious enough to be a workplace-safety concern;
+the field itself frames its core tension as scaling AI red teaming while
+centering human expertise and wellbeing. [Amended: see A6]
+*Sources: "When Testing AI Tests Us", FAccT 2025 (mental-health harms) -
+https://dl.acm.org/doi/10.1145/3715275.3732120 ; "Human Expertise for AI
+Red-Teaming and Scalable Evaluation", CHI 2026 Extended Abstracts workshop
+(field demand) - https://dl.acm.org/doi/10.1145/3772363.3778702*
 
 Crucially, the research does not just name the problem — it asks for the
 solution to be built into tools, and gives design guidance. A Feb 2026 paper
@@ -129,25 +135,34 @@ deterministically stored).
 This tool was validated against the market before spec, specifically to avoid
 re-deriving something that already exists.
 
-- **A real, dated, unfulfilled request for exactly this bridge.** An open feature
-  request on DefectDojo — the most widely used open-source vulnerability
-  management platform — filed May 2026 and still open, asks for a parser to map
-  garak's JSONL output to DefectDojo findings, noting the platform "lacks a
-  dedicated parser for AI-specific vulnerability scanners, making it difficult to
-  aggregate AI red-teaming results alongside traditional infrastructure/appsec
-  scans."
-  *Source: DefectDojo issue #14878 —
-  https://github.com/DefectDojo/django-DefectDojo/issues/14878*
+- **A real, dated request for exactly this bridge, validated by being built.**
+  A feature request on DefectDojo (the most widely used open-source vulnerability
+  management platform), filed 2026-05-15, asked for a parser to map garak's JSONL
+  output to DefectDojo findings. The demand was real enough that a garak parser
+  (PR #15013) was merged on 2026-06-23 and the issue was closed as completed on
+  2026-06-26. The demand signal is therefore validated and fulfilled: the
+  garak-to-DefectDojo lane specifically is now served natively. finding-bridge's
+  differentiation sharpens accordingly: sealing, provenance chaining, the human
+  gate, and multi-destination emission (SARIF, markdown packet, FLARE-AI export)
+  are things the merged parser does not do. [Amended: see A2]
+  *Source: DefectDojo issue #14878 -
+  https://github.com/DefectDojo/django-DefectDojo/issues/14878 (state verified
+  via GitHub API, 2026-08-24)*
 
-- **The public-disclosure hub exists but is explicitly not the analyst's desk.**
-  FLARE-AI (MIT, open-source, ICML 2026) routes a single public flaw report to
-  many recipients — but its own paper positions it as an ecosystem coordination
-  tool, "not a compliance reporting tool," and it is a public web form unsuitable
-  for confidential in-house or pre-disclosure findings. finding-bridge is
-  complementary: it is where findings live *before* disclosure, and it can
-  *export to* FLARE-AI's format.
-  *Sources: FLARE-AI paper, arXiv 2606.31567 — https://arxiv.org/abs/2606.31567 ;
-  MIT announcement — https://airisk.mit.edu/blog/announcing-flare-ai*
+- **The disclosure-coordination system exists but is not the analyst's desk.**
+  FLARE-AI (an MIT-led, 32-organization open-source collaboration; arXiv
+  preprint, June 2026) routes a single flaw report to many recipients. Its paper
+  positions it verbatim as "an ecosystem coordination tool rather than a
+  compliance reporting tool" (meaning it does not format submissions for
+  regulators), and it is stateless by default: reporters can generate and
+  download reports locally without server-side storage and control dissemination
+  themselves, so it does accommodate confidential workflows. The complementarity
+  rests on function, not confidentiality: FLARE-AI is a report-creation and
+  dissemination form with no sealed evidence storage, no provenance chain, and
+  no triage queue. finding-bridge is where findings live *before* disclosure,
+  and it can *export to* FLARE-AI's format. [Amended: see A4, A5]
+  *Sources: FLARE-AI paper, arXiv 2606.31567 - https://arxiv.org/abs/2606.31567 ;
+  MIT announcement - https://airisk.mit.edu/blog/announcing-flare-ai*
 
 - **SARIF is the mature, natively-consumed interchange format for security
   findings — and no bridge exists from AI red-team tools onto it.** GitHub Code
@@ -260,6 +275,13 @@ This is the tool's soul and its clearest novelty; it is directly research-derive
 - Optional session-exposure hints (e.g., a rotation nudge after prolonged
   harmful-content review) — v2, but the schema reserves space now.
 
+**Standing honest limit** [Added: see A7]: the grey-scale evidence is
+secondhand. arXiv 2602.19124 cites image-moderation research for the claim that
+grey-scaling reduces burden while preserving judgment (its reference [48]); it
+is not a red-teaming trial. Treat the grey-scale preview design as
+research-informed, not research-proven, until validated with real red-team
+users.
+
 None of the tools surveyed (garak, PyRIT, promptfoo, DeepTeam, DefectDojo,
 FLARE-AI, commercial platforms) ship any of this. It is the composition —
 universality + provenance + wellbeing sealing — that makes finding-bridge
@@ -294,28 +316,37 @@ Fields (each finding is a JSON object):
 The schema is versioned. Adding a field is a minor bump; changing/removing one is
 a major bump and requires a migration note in `docs/decisions/`.
 
+A field-mapping table from the canonical schema to FLARE-AI's schema and to
+SARIF 2.1.0 is a tracked file from day one, with a test that fails when the
+canonical schema changes without the mapping table changing. Drift must be loud,
+not discovered at export time. [Added: see A9, ruling D-003]
+
 ---
 
 ## 8. Roadmap (checkboxes so Claude Code can track progress)
 
-### v1 — prove the thesis end to end (smallest complete slice)
+### v1 proof slice (ratified scope, ruling D-002: the thin slice that proves the thesis) [Amended: see A8]
 
-- [ ] Canonical finding schema + JSON Schema file + fixtures
-- [ ] `core/provenance` — hashing, timestamps, chain + verification, with tests
-- [ ] `core/sealing` — seal-by-default + preview + unseal logging, with tests
-- [ ] `core/dedup` — content-hash dedup, with tests
-- [ ] In-adapter: `garak` (JSONL → canonical) + round-trip test
-- [ ] In-adapter: `transcript` (raw paste → canonical) + round-trip test
-- [ ] Out-adapter: `sarif` (canonical → SARIF 2.1.0) + validation test
-- [ ] Out-adapter: `markdown` (canonical → finding packet) + test
+- [ ] Canonical finding schema + JSON Schema file + fixtures, including the
+      FLARE-AI/SARIF field-mapping table + drift test (ruling D-003)
+- [ ] `core/provenance` (hashing, timestamps, chain + verification, with tests)
+- [ ] `core/sealing` (seal-by-default + preview + unseal logging, with tests)
+- [ ] `core/dedup` (content-hash dedup, with tests)
+- [ ] In-adapter: `garak` (JSONL to canonical) + round-trip test
+- [ ] Out-adapter: `markdown` (canonical to finding packet) + test
 - [ ] Human-gate review flow in CLI
 - [ ] Full suite green with **no API key set**
 - [ ] README with the time-math table (see §9) and the "feeds, not replaces" framing
 
+### v1 completion (still pre-1.0; each item runs under its own phase contract)
+
+- [ ] In-adapter: `transcript` (raw paste to canonical) + round-trip test
+- [ ] Out-adapter: `sarif` (canonical to SARIF 2.1.0) + validation test.
+      Flagship second output per ruling D-002: the SARIF lane remains unserved
+      by any AI red-team tool, unlike the now-served garak-to-DefectDojo lane.
+
 ### v1.x — reach the users where they already are
 
-- [ ] Contribute a garak parser to DefectDojo (issue #14878) as a launch move and
-      trailer for the standalone tool
 - [ ] Out-adapter: FLARE-AI export format
 - [ ] In-adapter: promptfoo
 - [ ] Optional `--ai` taxonomy suggestions + severity rationale (caged, off by default)
@@ -357,7 +388,11 @@ Primary / official:
 
 Peer-reviewed / preprint (requirements evidence):
 - Third-party flaw disclosure (Longpre et al., ICML 2025): https://arxiv.org/abs/2503.16861
-- FLARE-AI (ICML 2026): https://arxiv.org/abs/2606.31567
+- FLARE-AI (arXiv preprint, June 2026; venue unverified, see Verification
+  limits): https://arxiv.org/abs/2606.31567
+  Local evidence copy: `docs/FLARE AI Flaw Reporting for AI.pdf` (16,357,288
+  bytes, gitignored per ruling D-006; re-fetch from
+  https://arxiv.org/pdf/2606.31567 if the local copy is lost) [Added: see A11]
 - Red-teamer wellbeing / embedded safeguards (Feb 2026): https://arxiv.org/pdf/2602.19124
 - Red-teamer mental health (FAccT 2025): https://dl.acm.org/doi/10.1145/3715275.3732120
 - Human expertise + tooling/wellbeing needs (CHI 2026): https://dl.acm.org/doi/10.1145/3772363.3778702
@@ -375,3 +410,123 @@ Demand signal:
 > Practitioner blogs are used only for workflow/time-cost color and are labelled
 > as such. Any requirement in this charter that lacks a source above should be
 > treated as an assumption to verify, not a fact.
+
+### Verification limits (Phase 0, 2026-08-24) [Added: see A10]
+
+Every source above was fetched and verified on 2026-08-24 (Phase 0). Four
+limits survived that verification and stand until resolved:
+
+1. The CHI 2026 Extended Abstracts entry (10.1145/3772363.3778702) is a
+   workshop abstract. Its existence, venue, and topic were confirmed through
+   second routes (ACM search results, Microsoft Research), but its full text is
+   behind an access wall, so wording beyond the abstract is unverified.
+2. The Google CART careers posting resolves and its URL slug matches the role
+   title, but the posting body could not be retrieved; details are unverified.
+   It is attached to no requirement.
+3. The grey-scale evidence is secondhand (see the standing honest limit in §6):
+   arXiv 2602.19124 cites image-moderation research, not a red-teaming trial.
+4. The FLARE-AI paper's venue ("ICML 2026" in the draft) could not be
+   confirmed; the string "ICML" does not appear in the paper's extracted text.
+   What is provable: arXiv preprint, June 2026, plus the MIT announcement.
+
+---
+
+## 11. Amendments (Phase 0 ratification, 2026-08-24)
+
+This charter was drafted by Claude chat in conversation and preserved unmodified
+at git commit `59c122c` before verification. Nothing in the draft was a ruling
+until ratified. Every change below was caused by a director ruling in Phase 0
+(recorded with reasons and alternatives in DECISIONS.md). Original wording is
+quoted verbatim; nothing was silently edited. Locations in the body text carry
+an `[Amended: see Ax]` or `[Added: see Ax]` marker.
+
+**A1 (status line; ruling: Phase 0 ratification).** Original:
+> **Status:** pre-v1 (spec locked, implementation not started)
+
+Replaced with the ratified-with-amendment-log status. Reason: a chat draft
+cannot lock a spec; only the director can. "Spec locked" was a draft claim,
+never a ruling.
+
+**A2 (§3, DefectDojo demand signal; ruling D-004).** Original:
+> **A real, dated, unfulfilled request for exactly this bridge.** An open feature
+> request on DefectDojo — the most widely used open-source vulnerability
+> management platform — filed May 2026 and still open, asks for a parser to map
+> garak's JSONL output to DefectDojo findings, noting the platform "lacks a
+> dedicated parser for AI-specific vulnerability scanners, making it difficult to
+> aggregate AI red-teaming results alongside traditional infrastructure/appsec
+> scans."
+
+The claim "still open" was false at drafting time: verification on 2026-08-24
+(GitHub API) showed the issue was closed as completed on 2026-06-26 after a
+garak parser (PR #15013) was merged on 2026-06-23. Replaced with the
+validated-and-fulfilled framing and the sharpened differentiation. Per the
+director's condition, the original wrong sentence stays quoted here so a later
+reader sees what was believed and what corrected it.
+
+**A3 (§8 v1.x; ruling D-004).** Original roadmap item:
+> - [ ] Contribute a garak parser to DefectDojo (issue #14878) as a launch move and
+>       trailer for the standalone tool
+
+Dropped: the parser was already contributed by someone else and merged
+(PR #15013, 2026-06-23). The item is moot.
+
+**A4 (§3, FLARE-AI positioning; ruling D-005).** Original (partial):
+> …and it is a public web form unsuitable for confidential in-house or
+> pre-disclosure findings.
+
+Contradicted by the paper itself: FLARE-AI is "stateless by default: reporters
+can generate and download reports locally without server-side storage or
+identity requirements, then optionally disseminate to selected recipients."
+Replaced with complementarity grounded in function (no sealed evidence storage,
+no provenance chain, no triage queue), not confidentiality. The verbatim quote
+"an ecosystem coordination tool rather than a compliance reporting tool" was
+verified, with its narrower context (regulator formatting) now stated.
+
+**A5 (§3 and §10, FLARE-AI attribution; ruling D-005).** Original labels:
+> FLARE-AI (MIT, open-source, ICML 2026)
+and, in the source index:
+> - FLARE-AI (ICML 2026): https://arxiv.org/abs/2606.31567
+
+Relabelled "MIT-led, 32-organization open-source collaboration; arXiv preprint,
+June 2026". The ICML venue could not be verified (see Verification limits, item
+4); the MIT announcement credits 49 experts across 32 organizations.
+
+**A6 (§2 Pain-3, first paragraph; ruling D-005).** Original:
+> Red teamers engage directly with harmful, biased, or manipulative outputs and
+> face psychological stress, burnout, or trauma; scaling the work without
+> deliberate design reproduces those harms at larger scale.
+> *Source: "Human Expertise for AI Red-Teaming and Scalable Evaluation", CHI 2026
+> Extended Abstracts — https://dl.acm.org/doi/10.1145/3772363.3778702*
+
+The stress/burnout/trauma wording could not be confirmed in the CHI workshop
+abstract (full text unreachable); it is properly supported by the FAccT 2025
+paper. Attribution moved to FAccT 2025 for the harms claim; the CHI entry is
+kept for the field-demand claim (its confirmed abstract frames "scaling AI red
+teaming while centering human expertise and well-being").
+
+**A7 (§6, standing honest limit; ruling D-005, director's condition).**
+Addition, no original text replaced. The grey-scaling evidence in arXiv
+2602.19124 is that paper citing image-moderation research, not a red-teaming
+trial. Recorded in §6 as a standing limit so it survives this session.
+
+**A8 (§8, v1 structure; ruling D-002).** Original heading and scope:
+> ### v1 — prove the thesis end to end (smallest complete slice)
+with transcript-in and sarif-out inside the v1 list. Restructured into "v1
+proof slice" (garak in; provenance + sealing + dedup + human gate; markdown
+packet out) and "v1 completion" (transcript-in, sarif-out; each under its own
+phase contract, still pre-1.0). Reason: the smallest slice that exercises the
+whole spine proves the thesis; SARIF-out is the flagship second output because
+that lane remains unserved.
+
+**A9 (§7, schema mapping table; ruling D-003).** Addition, no original text
+replaced. Internal canonical schema retained, with a tracked field-mapping
+table to FLARE-AI's schema and SARIF 2.1.0 and a test that fails on unmapped
+schema change.
+
+**A10 (§10, Verification limits note; director's addition to step 4).**
+Addition, no original text replaced. The four verification limits are recorded
+under the source index so they survive this session.
+
+**A11 (§10, local evidence pointer; ruling D-006).** Addition, no original
+text replaced. The FLARE-AI PDF the director placed in `docs/` is gitignored,
+with a pointer naming the file, its size, and the arXiv URL for re-fetching.
