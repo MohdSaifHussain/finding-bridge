@@ -26,6 +26,15 @@ turn count unchanged (the ruled negative control for the central claim);
 (2) the line-initial collision is pinned by a test asserting the
 DOCUMENTED split behaviour, so the limit is loud, not hidden.
 
+**DEV-14 (stop-one ruling, the case-mismatch shot; D-043.3).** A
+line-initial case-variant of a marker token refuses (invalid-transcript,
+detail: suspected marker with case mismatch, location only), rather than
+being silently swallowed into the preceding turn where it could change
+which turn seals as the probe. Mid-line case variants remain unambiguous
+content. Both directions controlled; the refusal control captured red
+against the pre-fix parser. S3-1 ratified with the standing PROV-at-
+temptation rule; forecast on the tier default scored correct.
+
 **DEV-11 (Q2).** Option (c), analyst-marked turns via flags, is recorded
 as the NAMED future extension - addable later without unmaking (a) - so
 nobody invents it fresh.

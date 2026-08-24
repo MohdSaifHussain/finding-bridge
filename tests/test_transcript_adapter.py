@@ -114,3 +114,32 @@ def test_adapter_does_not_seal_or_stamp():
     candidate = transcript.to_candidate(read("transcript.simple.txt"))
     assert "id" not in candidate and "provenance" not in candidate
     assert candidate["probe"]["sealed_ref"] is None
+
+
+# --- DEV-14 (director's stop-one shot): case-variant markers refuse loudly ---
+
+
+@pytest.mark.parametrize("variant", ["User: hi", "user: hi", "Assistant: yo", "SYSTEM : x"])
+def test_line_initial_case_variant_marker_refused(variant):
+    """Ruled (a): silently swallowing 'User:' into the previous turn is a
+    quiet misattribution that can change which turn seals as the probe.
+    Note: 'SYSTEM :' (space before colon) is NOT a case variant and stays
+    content - see the not-fire control below for what must pass."""
+    if variant == "SYSTEM : x":
+        pytest.skip("space-variant is content, covered by the not-fire control")
+    text = f"USER: real turn\nASSISTANT: reply\n{variant}\nASSISTANT: after"
+    with pytest.raises(transcript.TranscriptAdapterError) as err:
+        transcript.parse_turns(text)
+    assert err.value.reason_code == "invalid-transcript"
+    assert "case mismatch" in err.value.detail
+    assert "line 3" in err.value.detail
+    assert "hi" not in err.value.detail and "yo" not in err.value.detail
+
+
+def test_midline_case_variants_do_not_fire():
+    """The other direction, ruled: mid-line case variants are unambiguous
+    content and must not refuse."""
+    text = "USER: he said User: do it and user: now\nASSISTANT: quoting User: fine"
+    turns = transcript.parse_turns(text)
+    assert len(turns) == 2
+    assert "User:" in turns[0]["content"]

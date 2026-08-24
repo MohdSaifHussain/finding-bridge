@@ -32,6 +32,12 @@ SOURCE_TOOL = "manual-transcript"
 
 ROLE_TOKENS = {"USER:": "user", "ASSISTANT:": "assistant", "SYSTEM:": "system"}
 _MARKER_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):")
+# DEV-14 (director's stop-one ruling): a line-initial CASE-VARIANT of a
+# marker token ("User:", "user:") is far more likely a real turn boundary
+# than real content; silently swallowing it into the previous turn is a
+# quiet misattribution that can change which turn seals as the probe.
+# Refuse loudly. Mid-line case variants remain unambiguous content.
+_CASE_VARIANT_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):", re.IGNORECASE)
 VALID_ROLES = {"user", "assistant", "system"}
 
 
@@ -55,6 +61,13 @@ def _parse_text(text: str) -> list[dict]:
             role = ROLE_TOKENS[token]
             current = {"role": role, "content": line[len(token) :].lstrip()}
             turns.append(current)
+        elif _CASE_VARIANT_RE.match(line):
+            raise TranscriptAdapterError(
+                REASON_INVALID_TRANSCRIPT,
+                f"line {lineno}: suspected marker with case mismatch (markers "
+                "are exact uppercase USER:/ASSISTANT:/SYSTEM: at line start); "
+                "value withheld per D-036",
+            )
         elif current is None:
             if not line.strip():
                 continue  # blank lines before the first marker carry nothing

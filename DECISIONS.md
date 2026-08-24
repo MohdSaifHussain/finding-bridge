@@ -798,6 +798,31 @@ grey-scale evidence is image-moderation research, not a red-teaming
 trial). Wherever user-facing wording lands (README, packet headers, site),
 this row is the wording authority until the feature ships.
 
+## D-043 — Stop-one closes: sequencing rule, the lesson keeper, the case-mismatch ruling (director, 2026-08-24)
+
+1. **S3-1 ratified; the class named:** early-D6 was exactly what the PROV
+   register exists for - a grey-zone call, least-irreversible, recordable
+   with options and reversal cost - and it happened silently and was
+   confessed after. The confession is why it cost nothing this time.
+   **Standing rule: a sequencing deviation goes into PROV at the moment of
+   temptation, not into the findings table at the stop.**
+2. **S3-3's lesson is a keeper**, recorded in docs/LESSONS.md: read a
+   traceback's PATH before reading its stack.
+3. **Case-mismatch (director's adversarial shot at stop one):** a
+   line-initial case-variant of a marker token ("User:", "user:") was
+   silently swallowed as content of the preceding turn - a quiet
+   misattribution that can change which turn seals as the probe; worse
+   than the loud phantom-split limit. **Ruled (a): refuse.** A
+   case-variant marker at column 0 is far more likely a real turn
+   boundary than real content; refusing loudly beats guessing either way.
+   Reason code invalid-transcript, detail names
+   suspected-marker-case-mismatch and the location, never the value.
+   Controls both directions: fires on "User:" at column 0; does NOT fire
+   on mid-line case variants, which are unambiguous content. Recorded on
+   the contract as DEV-14. Escape accounting: this is a FULL director
+   escape for the phase - the builder pointed the reviewer at the marker
+   rule and still missed the case axis.
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
