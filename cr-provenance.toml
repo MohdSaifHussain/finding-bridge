@@ -1,0 +1,14 @@
+# D-027 AUDIT, narrowed to provenance+sealing per the 20-minute budget rule
+# (full-core projection: 425 mutants x ~5-8s > 20 min). Reproduce:
+#   cosmic-ray init cr-provenance.toml cr-provenance.sqlite
+#   cosmic-ray baseline cr-provenance.toml
+#   cosmic-ray exec cr-provenance.toml cr-provenance.sqlite
+#   cr-report cr-provenance.sqlite
+[cosmic-ray]
+module-path = "src/finding_bridge/core/provenance.py"
+timeout = 90.0
+excluded-modules = []
+test-command = "python -m pytest -x -q -p no:cacheprovider tests/test_provenance.py tests/test_properties.py tests/test_pipeline.py tests/test_schema.py tests/test_dedup.py tests/test_sealing.py tests/test_provenance.py"
+
+[cosmic-ray.distributor]
+name = "local"

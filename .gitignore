@@ -10,3 +10,6 @@ __pycache__/
 *.pyc
 *.egg-info/
 .venv/
+
+# Mutation-audit session databases (evidence lives in evidence/, not binaries)
+cr-*.sqlite

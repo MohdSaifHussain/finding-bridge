@@ -9,6 +9,14 @@ prove the scrub happened rather than assert it happened.
 import os
 
 import pytest
+from hypothesis import settings
+
+# AUDIT profile (D-027): per-mutant suite runs during mutation testing use
+# fewer Hypothesis examples so properties stay in the kill set without
+# blowing the 20-minute audit budget. GATE runs keep the default profile.
+settings.register_profile("audit", max_examples=15, deadline=None)
+if os.environ.get("HYPOTHESIS_PROFILE"):
+    settings.load_profile(os.environ["HYPOTHESIS_PROFILE"])
 
 KEY_ENV_MARKERS = ("API_KEY", "APIKEY")
 
