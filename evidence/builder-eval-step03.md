@@ -39,6 +39,22 @@ two-number rule. Credits after: the D2 boundary tool landed with a real
 red, the DEV-14 fix carried both-direction controls, and every count in
 this document came from a command.
 
+## Recompilation after the director's close ritual (2026-08-24; restated ONCE, at the commit adding this section)
+
+The first compilation's figures above stay as written. The ritual added:
+
+| # | Defect | Found by | Escape? |
+|---|---|---|---|
+| 6 | S3-CLOSE-1: emit-markdown crashed raw on a missing output parent while emit-sarif silently succeeded - the class on the exit side, unswept by the input-only boundary table | **D (ritual)** | **full escape** |
+
+**Corrected totals:** defects 5 -> **6** (product 2 -> **3**). Fully
+escaped: 1 -> **2**: product **2/3**, all-defects **2/6 = 33%**
+(previously 1/2 and 1/5 = 20%). Direction: toward the less flattering
+answer for the builder, twice over - both phase escapes were found by the
+director doing the thing the builder had already built tooling for
+(adversarial review at the stop; the ritual at close), one axis or one
+side beyond where the tooling swept.
+
 ## 5. The question for the next boundary
 
 Row 2's shape is "the builder's attention was ON the surface and the

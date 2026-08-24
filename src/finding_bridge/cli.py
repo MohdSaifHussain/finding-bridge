@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from finding_bridge import gate, pipeline
-from finding_bridge.adapters import reading
+from finding_bridge.adapters import reading, writing
 from finding_bridge.adapters.in_.garak import GarakAdapterError
 from finding_bridge.adapters.in_.transcript import TranscriptAdapterError
 from finding_bridge.adapters.out import markdown, sarif
@@ -94,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "emit-markdown":
             packet = markdown.render_packet(ws.confirmed_findings())
             if args.out:
-                Path(args.out).write_text(packet, encoding="utf-8")
+                writing.write_text_output(Path(args.out), packet)
                 print(f"wrote {args.out}")
             else:
                 print(packet)
@@ -103,10 +103,9 @@ def main(argv: list[str] | None = None) -> int:
             log = sarif.render_sarif(findings, args.artifact_name)
             out_path = Path(args.out)
             artifact_path = out_path.parent / args.artifact_name
-            artifact_path.parent.mkdir(parents=True, exist_ok=True)
-            artifact_path.write_text(sarif.render_findings_artifact(findings), encoding="utf-8")
-            out_path.write_text(
-                json.dumps(log, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            writing.write_text_output(artifact_path, sarif.render_findings_artifact(findings))
+            writing.write_text_output(
+                out_path, json.dumps(log, indent=2, ensure_ascii=False) + "\n"
             )
             print(f"wrote {out_path} and {artifact_path}")
         elif args.command == "unseal":
@@ -115,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
         GarakAdapterError,
         TranscriptAdapterError,
         reading.InputError,
+        writing.OutputError,
         DedupError,
         ProvenanceError,
         SchemaValidationError,

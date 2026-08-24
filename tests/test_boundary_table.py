@@ -143,3 +143,61 @@ def test_json_transcript_never_raises_bare_json_error():
     for bad in ("{", "[", '{"messages":', "\x00", "{'single':1}", "[1,2,"):
         with pytest.raises(transcript.TranscriptAdapterError):
             transcript.parse_turns(bad)
+
+
+# --- S3-CLOSE-1 (director's ritual, ruled FULL): the OUTPUT side of the
+# --- class. The table swept input dependencies only; the fifth instance of
+# --- exception-escapes-as-traceback arrived on an emit path. ---
+
+
+from finding_bridge import cli, pipeline  # noqa: E402
+
+
+def _confirmed_workspace(tmp_path: Path) -> list[str]:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    store = str(repo / ".fb-store")
+    key = str(tmp_path / "k" / "fb.key")
+    ws = pipeline.Workspace(Path(store), Path(key), repo)
+    ws.ingest_garak(FIXTURES / "garak.synthetic.hitlog.jsonl")
+    ws.confirm(ws.list_candidates()[0]["id"], "T <t@x.invalid>")
+    return ["--store", store, "--key", key]
+
+
+def test_emit_markdown_creates_missing_parent(tmp_path, capsys):
+    """Ruled: an output path the user named is intent, not accident - both
+    emitters create the parent, agreeing with each other."""
+    args = _confirmed_workspace(tmp_path)
+    out = tmp_path / "deep" / "nested" / "packet.md"
+    assert cli.main([*args, "emit-markdown", str(out)]) == 0
+    assert out.exists()
+
+
+def test_emit_sarif_creates_missing_parent(tmp_path):
+    args = _confirmed_workspace(tmp_path)
+    out = tmp_path / "also" / "missing" / "findings.sarif"
+    assert cli.main([*args, "emit-sarif", str(out)]) == 0
+    assert out.exists()
+
+
+def test_emit_markdown_unwritable_refuses_governed(tmp_path, capsys):
+    """A genuinely unwritable destination (parent is a FILE) refuses with
+    output-unwritable, location-not-value, exit 1 - never a traceback."""
+    args = _confirmed_workspace(tmp_path)
+    blocker = tmp_path / "blocker"
+    blocker.write_text("i am a file", encoding="utf-8")
+    rc = cli.main([*args, "emit-markdown", str(blocker / "packet.md")])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "output-unwritable" in err
+    assert "packet.md" in err
+
+
+def test_emit_sarif_unwritable_refuses_governed(tmp_path, capsys):
+    args = _confirmed_workspace(tmp_path)
+    blocker = tmp_path / "blocker2"
+    blocker.write_text("i am a file", encoding="utf-8")
+    rc = cli.main([*args, "emit-sarif", str(blocker / "f.sarif")])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "output-unwritable" in err

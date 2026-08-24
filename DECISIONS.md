@@ -823,6 +823,23 @@ this row is the wording authority until the feature ships.
    escape for the phase - the builder pointed the reviewer at the marker
    rule and still missed the case axis.
 
+## D-044 — S3-CLOSE-1: the class covered on the exit side (director's ritual, ruled FULL, 2026-08-24)
+
+**Finding (ritual, blocking under STEP-01 precedent):** emit-markdown to a
+missing parent directory died with a raw FileNotFoundError while
+emit-sarif created the directory and succeeded - the two emitters
+disagreed about the same condition and the loser crashed ungoverned.
+Fifth instance of the exception-escapes-as-traceback class, first on an
+OUTPUT path; the boundary table had swept input dependencies only.
+**Ruling executed:** both emitters agree via one shared governed writer
+(adapters/writing.py) - parents created (an output path the user named is
+intent, not accident), genuinely unwritable destinations refuse
+`output-unwritable` (reason code 30), location-not-value. Three controls
+captured red on the pre-fix CLI (markdown missing-parent, both
+unwritable cases) with emit-sarif's create-parent green as the agreement
+control; the boundary table gained its output-dependency section, closing
+the class on the exit side as D2 closed it on entry.
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
