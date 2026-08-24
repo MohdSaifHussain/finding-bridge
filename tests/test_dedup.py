@@ -82,7 +82,19 @@ def test_marking_does_not_break_provenance_chain(base):
 
 def test_unstamped_input_refused(base):
     """R-8: a finding without an id would make canonical_ids[key] None and
-    every duplicate in the group silently canonical."""
+    every duplicate in the group silently canonical. (First version of this
+    test passed the fixture unmodified, which carries an id, so it did not
+    model unstamped input at all and failed to raise.)"""
+    unstamped = copy.deepcopy(base)
+    del unstamped["id"]
     with pytest.raises(dedup.DedupError) as err:
-        dedup.mark_duplicates([copy.deepcopy(base), copy.deepcopy(base)])
+        dedup.mark_duplicates([unstamped, copy.deepcopy(unstamped)])
+    assert err.value.reason_code == "unstamped-finding"
+
+
+def test_none_id_input_refused(base):
+    nulled = copy.deepcopy(base)
+    nulled["id"] = None
+    with pytest.raises(dedup.DedupError) as err:
+        dedup.mark_duplicates([nulled])
     assert err.value.reason_code == "unstamped-finding"
