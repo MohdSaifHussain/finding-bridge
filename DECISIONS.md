@@ -896,11 +896,66 @@ user would receive. Observed: 203 passed, 1 skipped, imported from
 site-packages. Build artifacts are gitignored (caught by reading the
 commit's own file list).
 
+## D-048 — License: Apache-2.0, ratified for the tree (director, STEP-04 stop one)
+
+**Decision:** Apache-2.0. LICENSE file and pyproject metadata added in
+one commit; NOTICE file added, since attribution suits a project whose
+personality is provenance. **Reasons:** an explicit patent grant, which
+matters for organizational security teams; it matches our one runtime
+dependency (rfc8785 is Apache-2.0), so the wheel's license story is
+uniform; the NOTICE mechanism fits. **Alternative rejected:** MIT -
+simpler, but no patent language. **Scope, recorded as ruled:** this is
+ratified FOR THE TREE and is reversible until the day the repo is first
+pushed anywhere public; the act of publishing under it is a separate
+future decision that re-confirms it. Verified in the built wheel:
+`License-Expression: Apache-2.0`, `License-File: LICENSE`. PROV-2 closed.
+
+## D-049 — The marker-variant family, swept and ruled once (director, STEP-04 stop one)
+
+**Family principle:** refuse when the string is more plausibly a marker
+than content, because a quiet misattribution that changes which turn
+seals as the probe is the worst available failure. One table so the next
+variant is a lookup, not a fresh ruling:
+
+| Variant | Example | Ruling |
+|---|---|---|
+| exact token | `USER:` | parse (the grammar) |
+| case | `User:` / `user:` | REFUSE (DEV-14) |
+| space before colon | `USER :` | REFUSE (this ruling) |
+| tab before colon | `USER\t:` | REFUSE |
+| full-width colon | `USER：` | REFUSE |
+| indented marker | `  USER:` | REFUSE |
+| BOM before first marker | `﻿USER:` | TOLERATE and strip: an encoding artifact, never ambiguous, and the file reader already strips it |
+| any of the above MID-LINE | `he said User: go` | content, never fires |
+
+Swept by running each variant before deciding: space, tab, full-width
+colon and indentation ALL silently swallowed into the previous turn
+(3 turns where 4 were meant); BOM refused with a confusing message. One
+reason code, `invalid-transcript`, with a detail naming the shape and the
+line, never the value. Controls both directions for every row. D-045's
+pinned test is superseded by the refusal test and says so - the pin did
+its job by making the behaviour visible until it was decided.
+
+## D-050 — The README install command was broken (director's docs read, W1 defect)
+
+**Finding:** the README told users to run `pip install -e . -c
+constraints.txt`. Run in a fresh venv it FAILS: "The editable requirement
+... cannot be installed when requiring hashes, because there is no single
+file to hash." D-047 had predicted the shape and the builder still shipped
+it in the doc - the first command a new user runs, failing, predicted by
+our own record. **Fix, observed not composed:** `pip install -e .` works
+(verified in a fresh venv; still gets the pinned rfc8785 0.1.4, because
+the pin lives in pyproject and the constraints file only adds hash
+verification). Docs now show the plain editable install plus the wheel
+route for hash verification, and say why. **Check added:**
+tests/test_no_overclaim.py now fails if a known-broken command reappears
+in the docs, and asserts both docs explain the wheel route.
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
 |---|---|---|---|---|---|
-| PROV-2 | pyproject ships WITHOUT a license field or license classifier | (a) omit, all-rights-reserved by legal default, director picks at stop one; (b) builder picks a permissive license | (a): adding a license later is one line; un-granting a wrongly-granted one is practically impossible. A rights decision belongs to the owner. | one pyproject edit once ruled | OPEN, pending ratification at STEP-04 stop one |
+| ~~PROV-2~~ **CLOSED: ratified as Apache-2.0 (D-048)** | pyproject ships WITHOUT a license field or license classifier | (a) omit, all-rights-reserved by legal default, director picks at stop one; (b) builder picks a permissive license | (a): adding a license later is one line; un-granting a wrongly-granted one is practically impossible. A rights decision belongs to the owner. | one pyproject edit once ruled | OPEN, pending ratification at STEP-04 stop one |
 | PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | **RATIFIED (a)** by the director at stop one; note added to OB-6 and §4d via DEV-9: canonical form and schema can change independently and only one has a version - the identity problem's fourth hat |
 
 ## Obligations register (carried by name until discharged)

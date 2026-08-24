@@ -12,11 +12,22 @@ stand-ins, not real model output.
 Python 3.12 or newer.
 
 ```
-pip install -e . -c constraints.txt
+pip install -e .
+```
+
+For a hash-verified install, build a wheel first:
+
+```
+pip install build
+python -m build --wheel
+pip install dist/finding_bridge-0.1.0-py3-none-any.whl -c constraints.txt
 ```
 
 `constraints.txt` pins the exact hash of `rfc8785`, the library that does
 canonical hashing. It sits inside the hash path, so its version is locked.
+`pip` cannot hash-check an install from a source directory, which is why
+the verified route uses a wheel. Either route installs the same pinned
+version (0.1.4).
 
 ## How the pipeline works
 

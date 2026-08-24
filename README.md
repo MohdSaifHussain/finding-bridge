@@ -38,10 +38,23 @@ Python 3.12 or newer.
 ```
 git clone <this repo>
 cd finding-bridge
-pip install -e . -c constraints.txt
+pip install -e .
 ```
 
 This gives you the `finding-bridge` command.
+
+To verify dependency hashes as well, build and install a wheel. This is
+the route we test:
+
+```
+pip install build
+python -m build --wheel
+pip install dist/finding_bridge-0.1.0-py3-none-any.whl -c constraints.txt
+```
+
+Hash verification needs a wheel. `pip` cannot hash-check an install from
+a source directory, so `-c constraints.txt` does not work with
+`pip install -e .`.
 
 ## Five-minute tour
 

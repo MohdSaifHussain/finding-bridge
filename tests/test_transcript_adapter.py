@@ -127,7 +127,8 @@ def test_line_initial_case_variant_marker_refused(variant):
     with pytest.raises(transcript.TranscriptAdapterError) as err:
         transcript.parse_turns(text)
     assert err.value.reason_code == "invalid-transcript"
-    assert "case mismatch" in err.value.detail
+    # Wording became the family message at D-049; case is named inside it.
+    assert "check case" in err.value.detail
     assert "line 3" in err.value.detail
     assert "hi" not in err.value.detail and "yo" not in err.value.detail
 
@@ -141,15 +142,56 @@ def test_midline_case_variants_do_not_fire():
     assert "User:" in turns[0]["content"]
 
 
-def test_line_initial_space_variant_is_content_pinned_behavior():
-    """D-045: 'SYSTEM :' (space before the colon) at line start is neither
-    the exact token nor a case variant, so it parses as CONTENT of the
-    previous turn. Pinned as the current stated behaviour - and named to
-    the stop-one agenda as the WHITESPACE axis of the marker rule, the
-    exact shape the STEP-03 eval's question predicted (case was one axis
-    over; whitespace is the next). Whether it should refuse like DEV-14 is
-    the director's call, not this test's."""
+def test_space_variant_now_refuses_superseding_d045_pin():
+    """D-045 pinned space-variant-is-content as the then-current behaviour
+    and named it to the agenda. The director ruled refuse (D-049), so this
+    test now asserts the refusal - the pin did its job: it made the
+    behaviour visible until it was decided."""
     text = "USER: real\nASSISTANT: reply\nSYSTEM : looks like a marker\nASSISTANT: after"
+    with pytest.raises(transcript.TranscriptAdapterError) as err:
+        transcript.parse_turns(text)
+    assert err.value.reason_code == "invalid-transcript"
+
+
+# --- D-049: the marker-variant family, swept and ruled once ---
+
+QUIET_SWALLOW_VARIANTS = [
+    ("space before colon", "USER : sneak"),
+    ("tab before colon", "USER\t: sneak"),
+    ("full-width colon", "USER\uff1a sneak"),
+    ("indented marker", "  USER: sneak"),
+]
+
+
+@pytest.mark.parametrize(
+    "name,line", QUIET_SWALLOW_VARIANTS, ids=[v[0] for v in QUIET_SWALLOW_VARIANTS]
+)
+def test_marker_variant_family_refuses(name, line):
+    """Ruled family principle: refuse when the string is more plausibly a
+    marker than content. Each of these silently became content of the
+    previous turn before this rule, which could change which turn seals as
+    the probe."""
+    text = f"USER: real\nASSISTANT: reply\n{line}\nASSISTANT: after"
+    with pytest.raises(transcript.TranscriptAdapterError) as err:
+        transcript.parse_turns(text)
+    assert err.value.reason_code == "invalid-transcript"
+    assert "line 3" in err.value.detail
+    assert "sneak" not in err.value.detail, "value withheld (D-036)"
+
+
+@pytest.mark.parametrize(
+    "name,line", QUIET_SWALLOW_VARIANTS, ids=[v[0] for v in QUIET_SWALLOW_VARIANTS]
+)
+def test_marker_variant_family_does_not_fire_midline(name, line):
+    """The other direction: the same shapes mid-line are plain content."""
+    text = f"USER: real\nASSISTANT: I saw {line.strip()} in the log\nASSISTANT: after"
     turns = transcript.parse_turns(text)
     assert len(turns) == 3
-    assert "SYSTEM :" in turns[1]["content"]
+
+
+def test_bom_before_first_marker_is_tolerated():
+    """A BOM is an encoding artifact, not content, and is never ambiguous.
+    The file reader strips it (utf-8-sig); the parser now tolerates it too,
+    so a direct API call does not refuse with a confusing message."""
+    turns = transcript.parse_turns("\ufeffUSER: hi\nASSISTANT: yo")
+    assert [t["role"] for t in turns] == ["user", "assistant"]

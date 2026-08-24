@@ -32,12 +32,27 @@ SOURCE_TOOL = "manual-transcript"
 
 ROLE_TOKENS = {"USER:": "user", "ASSISTANT:": "assistant", "SYSTEM:": "system"}
 _MARKER_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):")
-# DEV-14 (director's stop-one ruling): a line-initial CASE-VARIANT of a
-# marker token ("User:", "user:") is far more likely a real turn boundary
-# than real content; silently swallowing it into the previous turn is a
-# quiet misattribution that can change which turn seals as the probe.
-# Refuse loudly. Mid-line case variants remain unambiguous content.
-_CASE_VARIANT_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):", re.IGNORECASE)
+# The marker-variant family (D-049, ruled once so the next variant is a
+# table lookup, not a fresh ruling). Family principle from the director:
+# REFUSE when the string is more plausibly a marker than content, because
+# silently swallowing a near-marker into the previous turn is a quiet
+# misattribution that can change which turn seals as the probe.
+#
+# Covered variants, each one edit away from the exact token:
+#   case      "User:" / "user:"        -> refuse (DEV-14)
+#   space     "USER :"                 -> refuse
+#   tab       "USER\t:"                -> refuse
+#   full-width colon "USER:"          -> refuse
+#   indented  "  USER:"                -> refuse
+#   BOM       "﻿USER:"            -> TOLERATE: an encoding artifact,
+#                                         never ambiguous, and the file
+#                                         reader already strips it.
+# Mid-line occurrences of any of these are plain content and never fire.
+_NEAR_MARKER_RE = re.compile(
+    r"^[ \t ]*(USER|ASSISTANT|SYSTEM)[ \t ]*[:：]",
+    re.IGNORECASE,
+)
+_BOM = "﻿"
 VALID_ROLES = {"user", "assistant", "system"}
 
 
@@ -54,6 +69,7 @@ class TranscriptAdapterError(Exception):
 def _parse_text(text: str) -> list[dict]:
     turns: list[dict] = []
     current: dict | None = None
+    text = text.removeprefix(_BOM)  # encoding artifact, not content (D-049)
     for lineno, line in enumerate(text.splitlines(), start=1):
         match = _MARKER_RE.match(line)
         if match:
@@ -61,12 +77,14 @@ def _parse_text(text: str) -> list[dict]:
             role = ROLE_TOKENS[token]
             current = {"role": role, "content": line[len(token) :].lstrip()}
             turns.append(current)
-        elif _CASE_VARIANT_RE.match(line):
+        elif _NEAR_MARKER_RE.match(line):
             raise TranscriptAdapterError(
                 REASON_INVALID_TRANSCRIPT,
-                f"line {lineno}: suspected marker with case mismatch (markers "
-                "are exact uppercase USER:/ASSISTANT:/SYSTEM: at line start); "
-                "value withheld per D-036",
+                f"line {lineno}: suspected marker that is not the exact token "
+                "(check case, spaces or tabs before the colon, a full-width "
+                "colon, or indentation; markers are exact uppercase "
+                "USER:/ASSISTANT:/SYSTEM: at line start); value withheld "
+                "per D-036",
             )
         elif current is None:
             if not line.strip():

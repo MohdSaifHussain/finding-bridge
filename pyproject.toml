@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "finding-bridge"
 version = "0.1.0"
 description = "Universal local-first adapter turning AI red-team tool output into standardized, sealed, provenance-stamped findings"
-# License intentionally absent: a rights grant is the director's decision
-# (PROV-2, pending ratification). Until then: all rights reserved by default.
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 3 - Alpha",

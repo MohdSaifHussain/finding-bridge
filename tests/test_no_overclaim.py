@@ -77,3 +77,29 @@ def test_required_statements_present():
     for name, text in (("README", readme), ("USAGE", usage)):
         assert "do not defend against an attacker" in text, f"{name}: OB-4 bound must be stated"
     assert "no ai" in usage.lower(), "the no-AI guarantee must be stated"
+
+
+# --- W1 defect (director's docs read): install commands must be REAL ---
+
+INSTALL_MUST_NOT_APPEAR = [
+    # pip cannot hash-check a source-directory install; this exact line was
+    # in the README and FAILED when the director questioned it (D-048).
+    r"pip install -e \. -c constraints\.txt",
+]
+
+
+@pytest.mark.parametrize("doc", USER_DOCS, ids=lambda p: p.name)
+def test_docs_contain_no_known_broken_command(doc: Path):
+    text = flat(doc_text(doc))
+    for pattern in INSTALL_MUST_NOT_APPEAR:
+        assert not re.search(pattern, text), f"{doc.name} shows a command known to fail: {pattern}"
+
+
+def test_install_docs_explain_the_wheel_route():
+    """Both docs must tell the user why the verified route needs a wheel."""
+    for doc in USER_DOCS:
+        text = flat(doc_text(doc)).lower()
+        assert "python -m build --wheel" in text, f"{doc.name}: wheel route missing"
+        assert "hash-check" in text or "hash verification" in text, (
+            f"{doc.name}: the reason for the wheel route must be stated"
+        )
