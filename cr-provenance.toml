@@ -8,7 +8,7 @@
 module-path = "src/finding_bridge/core/provenance.py"
 timeout = 90.0
 excluded-modules = []
-test-command = "python -m pytest -x -q -p no:cacheprovider tests/test_provenance.py tests/test_properties.py tests/test_pipeline.py tests/test_schema.py tests/test_dedup.py tests/test_sealing.py tests/test_provenance.py"
+test-command = "python -m pytest -x -q -p no:cacheprovider tests"
 
 [cosmic-ray.distributor]
 name = "local"
