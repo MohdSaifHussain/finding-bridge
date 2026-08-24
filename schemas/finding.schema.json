@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/finding-bridge/schemas/finding.schema.json/0.2.0",
+  "$id": "https://github.com/finding-bridge/schemas/finding.schema.json/0.3.0",
   "title": "Canonical finding (finding-bridge)",
   "description": "One AI red-team finding. Charter section 7. Raw harmful content is NEVER inline: raw_response_sealed is a reference into the sealed store. Unknown values are null, never invented (charter: never fabricate).",
   "type": "object",
@@ -25,13 +25,13 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "0.2.0",
-      "description": "Version of this canonical schema. Minor bump adds fields; major bump changes or removes them (charter section 7). 0.2.0 added provenance.attestation_hash (review finding R-1)."
+      "const": "0.3.0",
+      "description": "Version of this canonical schema. Minor bump adds fields; major bump changes or removes them (charter section 7). 0.2.0 added provenance.attestation_hash (review finding R-1). 0.3.0 made discovered_at nullable (D-024, breaking change within pre-1.0; migration note in docs/decisions/schema-0.3.0-migration.md)."
     },
     "id": {
       "type": "string",
       "minLength": 1,
-      "description": "Stable content-derived id. Derivation is fixed in core/provenance (D3)."
+      "description": "Stable content-derived id: 'fb-' + first 16 hex chars (64 bits) of the SHA-256 content hash. Stated limit (R-9): the truncation bounds DISPLAY identity only (birthday collision ~50% near 2^32 findings); dedup keys are recomputed from full content and the full 256-bit hash lives in provenance.content_hash, so the truncation bounds display identity, not dedup correctness. dedup.duplicate_of links by this id."
     },
     "source_tool": {
       "type": "string",
@@ -48,9 +48,9 @@
       "type": ["string", "null"]
     },
     "discovered_at": {
-      "type": "string",
+      "type": ["string", "null"],
       "format": "date-time",
-      "description": "ISO 8601 timestamp of discovery."
+      "description": "ISO 8601 timestamp of discovery, or null when the source does not record one (e.g. garak hitlogs carry no timestamp; the charter forbids inventing one)."
     },
     "probe": {
       "type": "object",
