@@ -259,6 +259,112 @@ b7061c5 (R-2 chain head), cd6f322 (R-3+R-4 keyed refs, ref validation),
 per charter §7 (field added); the drift test was demonstrated firing on that
 real change before the mapping row was added (contract 3.7 demonstration).
 
+## D-017 — Core language: Python, single-language, for v1 (director-initiated, 2026-08-24)
+
+**Decision:** the core is Python, single-language, for v1. **Reasons:** the
+source ecosystem this tool adapts (garak, PyRIT) is Python, so parsers can be
+checked against real source rather than inferred; the users already have
+Python; the project's guarantees are proven by one test suite, one linter
+pair, one packaging story. **Alternatives rejected:** a Go or Rust core
+(better single-binary distribution and faster on large hitlogs, but worse for
+reading adjacent tool source and for outside contribution today); a mixed
+core (doubles the surface where a safety rule can hold in one language and be
+forgotten in the other). **Recorded triggers for revisiting, not
+preferences:** (1) the tool must ship as a single binary to users who do not
+have Python; (2) hitlog volume makes Python ingestion the bottleneck.
+**Binding governance condition:** introducing a second language into the core
+is a charter-level amendment requiring an explicit director ruling; no
+session may treat it as an implementation detail inside a phase.
+
+## D-018 — Plugin adapter pack: parked post-v1, trust boundary fixed now (director-initiated, 2026-08-24)
+
+**Decision:** the polyglot seam is the canonical schema, not the codebase.
+An external adapter pack (adapters in any language) is a post-v1 roadmap
+feature, explicitly out of scope until v1 completes. **Design constraints
+recorded now so they cannot be invented later under pressure:**
+(a) an adapter is an executable that reads its source input and writes
+candidate findings as canonical-schema JSON on stdout, exit 0 on success,
+nonzero with a reason code on refusal; (b) core validates every adapter's
+output against the canonical schema before accepting a single field and
+treats it as untrusted input, with size limits and no execution of anything
+the pack supplies beyond the declared adapter binary; (c) no external adapter
+ever seals, hashes, confirms, or writes provenance — it returns candidates;
+core performs sealing, hashing, and the human gate. Charter rule 1 and
+contract 3.11 hold across the boundary; that is why the boundary is data,
+not a library API. Nothing is built for this in v1. Charter roadmap carries
+it with these constraints attached (amendment A12).
+
+## D-019 — Build defaults ratified as decisions, each with its rejected alternative (ruled 2026-08-24)
+
+1. **Hash exclusions** (`id`, `provenance`, `dedup` excluded from content
+   hash). Alternative rejected: hashing all fields with provenance nulled
+   (breaks the attestation design and makes the hash depend on triage
+   state). The exclusion is safe only paired with the R-1 attestation guard;
+   the test asserts the pair.
+2. **Dedup key excludes `discovered_at`.** Alternative rejected: including
+   the timestamp (every re-discovery of identical content would be unique,
+   defeating the Pain-4 purpose).
+3. **Structural preview only in v1.** Alternative rejected: semantic
+   grey-scale summarization (requires either exposing content or AI in the
+   evidence path, forbidden by charter rule 1).
+
+## D-020 — Format assertion enabled everywhere (#6, ruled 2026-08-24)
+
+**Decision:** every validator the project uses runs with
+`Draft202012Validator.FORMAT_CHECKER` and the `rfc3339-validator` dependency,
+so `date-time` asserts instead of annotating. **Source:** JSON Schema
+Validation 2020-12 §7 ("MUST be disabled by default", §7.2.1
+format-annotation vocabulary) and python-jsonschema validate docs ("The
+date-time format requires the rfc3339-validator package... Without it,
+validation succeeds silently"), both fetched 2026-08-24. A provenance
+timestamp nothing checks is a silence-shaped failure; negative control: a
+malformed timestamp must fail validation.
+
+## D-021 — R-8 fix ruled; the finding is the sentence (ruled 2026-08-24)
+
+**Decision:** `mark_duplicates` refuses unstamped input (reason code
+`unstamped-finding`) with a negative control. Root cause of the miss,
+recorded verbatim as the finding per the director: "my tests always stamped
+first, which is exactly why my suite missed it" — the suite exercised only
+the path the builder imagined, so the None-id collapse was invisible.
+
+## D-022 — Exposure log: append-only two-row protocol (#4, ruled 2026-08-24)
+
+**Decision:** keep the pre-write (no read can happen unlogged). Every unseal
+appends an attempt row with an id; after the decrypt attempt, a second row
+references it with the outcome (succeeded / failed with reason code). Rows
+are never mutated. Controls both ways: successful unseal = attempt+success
+rows; tampered blob = attempt+failure rows and no plaintext.
+
+## D-023 — Key file permissions (R-7, ruled 2026-08-24)
+
+**Decision:** chmod 0o600 on key creation where the OS honors it; the
+Windows operator step (icacls) documented in the docstring; the Windows ACL
+gap recorded as an honest limit. The chmod call must not imply a guarantee
+it does not deliver on Windows, the platform this project is developed on.
+
+## D-024 — Schema 0.3.0: discovered_at becomes nullable (this session, for D6)
+
+**Decision:** the garak hitlog (fetched from NVIDIA/garak main, 2026-08-24)
+carries NO timestamp field, and the charter forbids inventing one, so
+`discovered_at` becomes `["string","null"]`. Changing a field is a major
+bump per charter §7; within pre-1.0 development this maps to the 0.x minor
+position per semver's initial-development convention, so 0.2.0 -> 0.3.0,
+with the required migration note at docs/decisions/schema-0.3.0-migration.md.
+**Alternatives rejected:** jumping to 1.0.0 (signals a stability that does
+not exist; v1 completion is defined by the roadmap, not by this field);
+stamping ingest time as discovery time (fabrication of the exact class the
+charter forbids); using file mtime (an approximation presented as a fact).
+
+## Obligations register (carried by name until discharged)
+
+| ID | Obligation | Owner | Trigger / due |
+|---|---|---|---|
+| OB-1 | Resolve provisional FLARE-AI mapping against a canonical schema | v1.x FLARE-AI out-adapter phase | when FLARE-AI publishes one; phase cannot close silent (D-014) |
+| OB-2 | Key rotation path via MultiFernet (docs: rotate() re-encrypts under primary key, preserving the token timestamp) | v1-completion phase | phase close |
+| OB-3 | Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons | v1-completion phase, before the SARIF adapter ships | cannot be discharged by silence; explicit entry either way (director condition) |
+| OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
+
 ## STEP-01 readings, confirmed
 
 R1 (Y): raw sealed content never appears in any emitted artifact, encrypted
@@ -270,4 +376,6 @@ numbering starts here; no back-written STEP-00.
 
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
+| C-002 | Director's R-1 wording: "src/finding_bridge/core/provenance.py:20 excludes the whole 'provenance' object from the hash [...] A field anyone can rewrite silently is not a record" — framing the exclusion as the defect. | The exclusion is load-bearing, correct design (the hash cannot contain the object that stores it; dedup is mutable triage state). The defect was the ABSENT second guard over the excluded fields; the remedy (attestation hash) is unchanged. Ruled by the director on the builder's precision note 1. | The fix keeps the exclusion and adds the attestation; test_provenance.py:45-64 asserts the exclusion+guard pair. | Toward the more precise answer; remedy unchanged. |
+| C-003 | Director's R-10 wording: "The 'zero API keys' guarantee is currently claimed, not demonstrated." | Narrows to: demonstrated once ad hoc, never enforced in the suite. Evidence the ad hoc demonstration is recoverable from: (1) this session's transcript (URL in every commit trailer, Claude-Session line), where the run `env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY ... python -m pytest -q` returned "14 passed"; (2) commit 5ecdce4's message, which asserted "suite passes with API-key env scrubbed" contemporaneously. The contractual requirement (scrub as an enforced suite property, shown in the director's run) was genuinely unmet until commit 712b610. | Session transcript + commit 5ecdce4 message; enforcement landed in 712b610. | Toward the more flattering answer for the builder; accepted by the director only with this citation, per the higher burden rule. |
 | C-001 | "The governed-orchestration skill is **not active** in this session and is not installed/listed here" and, in the closing limits, "not yet installed" (builder's Phase 0 closing report, this session, 2026-08-24) | The skill IS installed at `~/.claude/skills/governed-orchestration` and loaded when invoked with the Skill tool on the director's instruction. What was true: it was absent from the session's listed skills. The builder widened "not listed" into "not installed" without checking the filesystem or attempting invocation: an absence stated without a check, the defect class Phase 0 audited the charter for. | Successful `Skill(governed-orchestration)` invocation, this session, on the director's check-don't-assume instruction. | Toward the less flattering answer for the builder. |

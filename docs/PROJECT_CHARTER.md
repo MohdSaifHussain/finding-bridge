@@ -351,6 +351,24 @@ not discovered at export time. [Added: see A9, ruling D-003]
 - [ ] In-adapter: promptfoo
 - [ ] Optional `--ai` taxonomy suggestions + severity rationale (caged, off by default)
 
+### Post-v1, parked by ruling (not before v1 completes) [Added: see A12]
+
+- [ ] External adapter pack: in/out adapters writable in any language. The
+      polyglot seam is the canonical schema, not the codebase. Binding design
+      constraints fixed at parking time (ruling D-018): an adapter is an
+      executable emitting canonical-schema JSON on stdout (exit 0 success,
+      nonzero + reason code on refusal); core validates adapter output
+      against the schema before accepting a single field and treats it as
+      untrusted input (size limits, nothing executed beyond the declared
+      adapter binary); no external adapter ever seals, hashes, confirms, or
+      writes provenance. Charter rule 1 and the pure-translation rule hold
+      across the boundary.
+- Governance note (ruling D-017): the v1 core is Python, single-language.
+  Introducing a second language into the core is a charter-level amendment
+  requiring an explicit director ruling, never an implementation detail
+  inside a phase. Recorded revisit triggers: single-binary distribution
+  demand, or Python ingestion becoming the hitlog bottleneck.
+
 ### v2 — depth
 
 - [ ] In-adapter: PyRIT
@@ -530,3 +548,9 @@ under the source index so they survive this session.
 **A11 (§10, local evidence pointer; ruling D-006).** Addition, no original
 text replaced. The FLARE-AI PDF the director placed in `docs/` is gitignored,
 with a pointer naming the file, its size, and the arXiv URL for re-fetching.
+
+**A12 (§8, post-v1 parked roadmap + language governance; rulings D-017 and
+D-018, 2026-08-24).** Addition, no original text replaced. Parks the
+external adapter pack as post-v1 with its trust-boundary constraints fixed
+at parking time, and records that the v1 core is single-language Python with
+a charter-level amendment required for any second core language.

@@ -175,3 +175,31 @@ tests, and D7 is the deliverable that writes the very field R-1 showed was
 unprotected. The builder's forecast is scored: partly wrong (predicted a
 full drop). Recorded here as a numbered deviation, not a quiet edit, per
 D-013.
+
+**DEV-2 (canonical JSON form diverges from RFC 8785 JCS; ruled at round-2
+close, R-5).** The content-hash serialization (provenance.py
+canonical_content_bytes, dedup.py dedup_key) uses Python
+`json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=False)`, not
+RFC 8785. Two named divergences and their reachability:
+1. Key ordering: JCS sorts property names by UTF-16 code units; Python
+   sorts by code point. They disagree only when a key mixes characters at
+   or above U+E000 with supplementary-plane characters. Reachable in this
+   schema ONLY through keys of `reproduction.environment`, the sole
+   free-form object; every schema-fixed key is ASCII and pinned by the
+   drift test.
+2. Number serialization: JCS requires ECMA-262 7.1.12.1 shortest-round-trip
+   serialization, which Python's json does not guarantee for every double.
+   Reachable via non-integer `severity.score` floats.
+JCS deliberately performs no Unicode normalization, so current "as is"
+string handling already matches it. Discharge path: OB-3 (adopt JCS with
+fetched official sources, or re-affirm this deviation with reasons) before
+the SARIF adapter ships; cannot be discharged by silence (director
+condition).
+
+**DEV-3 (charter layout name `adapters/in/` is not importable Python).**
+The charter's §5.2 layout names `adapters/in/`; `in` is a Python keyword and
+cannot be a module path. Implemented as `adapters/in_/` with `adapters/out/`
+unchanged. A naming deviation forced by the language, recorded rather than
+silently absorbed; charter text left as is (the amendment log already
+governs charter changes, and this is an implementation-layer rendering of
+the same design).
