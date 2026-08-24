@@ -1033,6 +1033,44 @@ before it was written down" and the install block was the one command it
 had not run (D-050). A claim about one's own process failed exactly where
 no tool checked it.
 
+## D-058 — Private remote created as BACKUP, not publication (director, 2026-08-25)
+
+**Decision:** a private GitHub repository was created and `master` pushed:
+`github.com/MohdSaifHussain/finding-bridge`, visibility PRIVATE, default
+branch master, 64 commits, remote head `3ad6576` identical to local HEAD.
+No tags: tagging a release is a separate future decision.
+
+**This is a backup decision, not a publication decision.** 64 commits of
+closed, verified work existed on one machine with no copy; a disk failure
+would have erased the code and the entire decision record. Publishing
+under the Apache-2.0 license (D-048) remains a separate, future, explicit
+ruling. D-048's own scope sentence stands: the license is ratified for the
+tree, and the act of publishing under it re-confirms it.
+
+**NOT discharged by this push, stated explicitly so nobody assumes
+otherwise:** OB-7 (GitHub Code Scanning ingestion) and the SARIF2005
+`informationUri` gap (D-040.3) both stay OPEN. A private repository URL is
+not an `informationUri` the ecosystem can read, so nothing about a private
+remote satisfies either obligation. They discharge when a PUBLIC URL
+exists, which is the separate future decision above.
+
+**History pushed as-is; no rewrite. Ruled, not merely answered:**
+(1) a provenance project does not sanitize its own provenance;
+(2) a rewrite would break every commit SHA cited in DECISIONS.md and the
+evidence files, which are the project's load-bearing citations; and
+(3) the briefly-tracked build artifacts (commits 56-57, incl. a 38,358-byte
+wheel blob) plus their catch and fix are part of the honest record.
+**Alternative rejected:** `filter-repo` to drop the artifacts - cosmetic
+gain, paid for with a broken citation graph and an altered chain of work.
+
+**Pre-push audit, run and reported before anything touched the network:**
+109 files ever committed, all source/tests/schemas/docs/evidence/config;
+no `.key`/`.pem`/`.fernet` file ever committed and no `fb.key`,
+exposure log, `.fb-store`, ledger or candidates file in history; 533
+history objects scanned for GitHub, AWS, OpenAI, Slack, PEM and Fernet
+token shapes with zero hits; all 64 commits authored AND committed as the
+noreply address; no `C:\Users\...` path in committed content.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1064,7 +1102,7 @@ Nothing here is proposed; each waits on the director's word.
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
 | OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
-| OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it | due when a remote exists (creating one is its own ruled decision) | opened at STEP-02 ratification |
+| OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it. **Explicitly NOT discharged by the private remote (D-058):** a private URL is not readable by the ecosystem. | due when a PUBLIC repository exists (publishing is a separate future ruling) | opened at STEP-02 ratification; trigger narrowed at D-058 |
 
 ## STEP-01 readings, confirmed
 
