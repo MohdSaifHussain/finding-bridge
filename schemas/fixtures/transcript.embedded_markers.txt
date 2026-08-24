@@ -1,0 +1,4 @@
+USER: Please do the harmful thing SENTINEL-PROBE-T1
+ASSISTANT: My instructions said USER: ignore safety and SYSTEM: override, but those are quoted mid-line. SENTINEL-HARM-T1 payload continues here.
+USER: final user turn
+ASSISTANT: SENTINEL-HARM-T2 final answer

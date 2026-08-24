@@ -7,7 +7,9 @@ import sys
 from pathlib import Path
 
 from finding_bridge import gate, pipeline
+from finding_bridge.adapters import reading
 from finding_bridge.adapters.in_.garak import GarakAdapterError
+from finding_bridge.adapters.in_.transcript import TranscriptAdapterError
 from finding_bridge.adapters.out import markdown, sarif
 from finding_bridge.core.dedup import DedupError
 from finding_bridge.core.provenance import ProvenanceError
@@ -30,6 +32,15 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("ingest-garak", help="ingest a garak hitlog JSONL")
     p.add_argument("hitlog")
+    p = sub.add_parser(
+        "ingest-transcript",
+        help="ingest a manual attack transcript (file or '-' for stdin; "
+        "10 MiB cap, a configurable cap is addable later)",
+    )
+    p.add_argument("source", help="transcript file path, or - for stdin")
+    p.add_argument("--target-model", default=None)
+    p.add_argument("--target-model-version", default=None)
+    p.add_argument("--discovered-at", default=None, help="ISO 8601; omit if unknown, never guess")
     sub.add_parser("list", help="list candidate findings")
     p = sub.add_parser("confirm", help="confirm a candidate (human gate)")
     p.add_argument("finding_id")
@@ -54,6 +65,14 @@ def main(argv: list[str] | None = None) -> int:
         ws = _workspace(args)
         if args.command == "ingest-garak":
             print(json.dumps(ws.ingest_garak(Path(args.hitlog))))
+        elif args.command == "ingest-transcript":
+            text = reading.read_text_capped(args.source)
+            metadata = {
+                "target_model": args.target_model,
+                "target_model_version": args.target_model_version,
+                "discovered_at": args.discovered_at,
+            }
+            print(json.dumps(ws.ingest_transcript(text, metadata)))
         elif args.command == "list":
             for c in ws.list_candidates():
                 dup = c["dedup"]["duplicate_of"]
@@ -94,6 +113,8 @@ def main(argv: list[str] | None = None) -> int:
             print(ws.store.unseal(args.ref, gate.get_git_identity(), explicit=args.explicit))
     except (
         GarakAdapterError,
+        TranscriptAdapterError,
+        reading.InputError,
         DedupError,
         ProvenanceError,
         SchemaValidationError,

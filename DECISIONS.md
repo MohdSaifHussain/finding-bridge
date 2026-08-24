@@ -782,6 +782,22 @@ it can fail - discharged by the REAL missing-file red observed at
 ratification (raw FileNotFoundError traceback through the CLI on a
 nonexistent ingest path: unguarded-boundary instance live in the tree).
 
+## D-042 — Pitch wording: never claim the semantic summary until it ships (director, 2026-08-24)
+
+**Standing rule for all user-facing wording, recorded before any marketing
+exists (never-overclaim applied to our own pitch):** v1's preview is
+structural metadata only (length, lines, keyed digest, harm flags), so the
+v1 wording is **"sealed, with a safe metadata preview"** - never "a safe
+greyed-out summary". A meaning-level summary cannot be produced
+deterministically without exposing content or invoking AI, which charter
+rule 1 forbids in that path (already in structural_preview's docstring).
+The grey-scale SEMANTIC summary is a future feature whose natural home is
+the caged `--ai` flag (prose suggestion only, human-confirmed at the gate,
+charter rule 2), carrying Amendment A7's research caveat alongside (the
+grey-scale evidence is image-moderation research, not a red-teaming
+trial). Wherever user-facing wording lands (README, packet headers, site),
+this row is the wording authority until the feature ships.
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |

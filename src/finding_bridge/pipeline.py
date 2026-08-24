@@ -17,7 +17,7 @@ evidence), per the contract.
 import json
 from pathlib import Path
 
-from finding_bridge.adapters.in_ import garak
+from finding_bridge.adapters.in_ import garak, transcript
 from finding_bridge.core import dedup as dedup_mod
 from finding_bridge.core import provenance as prov
 from finding_bridge.core import sealing
@@ -111,6 +111,40 @@ class Workspace:
         duplicates = sum(1 for f in merged if f["dedup"]["duplicate_of"] is not None)
         return {
             "ingested": len(processed),
+            "total_candidates": len(merged),
+            "duplicates_marked": duplicates,
+        }
+
+    def ingest_transcript(self, text: str, metadata: dict | None = None) -> dict:
+        """One transcript to one sealed, stamped candidate (STEP-03 D3).
+
+        Reading and capping happen at the CLI boundary (adapters/reading);
+        this method takes decoded text and runs the same seal/stamp/dedup
+        spine as garak ingest."""
+        candidate = transcript.to_candidate(text, metadata)
+        raw_probe = candidate.pop("_raw_probe", None)
+        raw_response = candidate.pop("_raw_response", None)
+        raw_context = candidate.pop("_raw_context", None)
+        if raw_probe is not None:
+            candidate["probe"]["sealed_ref"] = self.store.seal(raw_probe)
+        if raw_context is not None:
+            env = candidate["reproduction"]["environment"] or {}
+            env["context_sealed_ref"] = self.store.seal(raw_context)
+            candidate["reproduction"]["environment"] = env
+        if raw_response is not None:
+            candidate["raw_response_sealed"] = self.store.seal(raw_response)
+            candidate["preview"] = self.store.structural_preview(
+                raw_response, candidate["harm_flags"]
+            )
+        merged = dedup_mod.mark_duplicates(
+            _read_jsonl(self.candidates_path) + [prov.stamp(candidate)]
+        )
+        for finding in merged:
+            validate_finding(finding)
+        _write_jsonl(self.candidates_path, merged)
+        duplicates = sum(1 for f in merged if f["dedup"]["duplicate_of"] is not None)
+        return {
+            "ingested": 1,
             "total_candidates": len(merged),
             "duplicates_marked": duplicates,
         }

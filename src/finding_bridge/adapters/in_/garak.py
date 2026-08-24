@@ -20,6 +20,8 @@ import json
 import math
 from pathlib import Path
 
+from finding_bridge.adapters.reading import read_text_capped
+
 REASON_INVALID_HITLOG = "invalid-hitlog"
 
 # S2-1 boundary (D-038): the largest integer exactly representable in an
@@ -154,7 +156,11 @@ def parse_hitlog(path: Path) -> list[dict]:
     Refuses unreadable input with reason code invalid-hitlog and the line
     number; empty lines are skipped."""
     candidates = []
-    text = Path(path).read_text(encoding="utf-8-sig")
+    # D5 (STEP-03): capped, governed read shared with the transcript
+    # adapter; missing files, oversize input and non-UTF-8 refuse with
+    # reason codes instead of raw tracebacks (the ratification-observed
+    # FileNotFoundError leak, closed).
+    text = read_text_capped(str(Path(path)))
     for lineno, line in enumerate(text.splitlines(), start=1):
         if not line.strip():
             continue
