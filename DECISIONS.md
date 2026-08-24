@@ -479,6 +479,25 @@ The ceiling matters as much as the coverage: every check is code that must
 be maintained, and checks rot like everything else. That is why the D-027
 budgets are binding numbers, not aspirations.
 
+Director's acknowledgement, recorded with the addendum: the builder's
+distinction at close (the ritual's hand tamper surfaced attestation-tampered
+and head-mismatch, while the literal chain-broken mode stayed test-covered
+only) was correct and correctly handled - "the difference between a check
+being covered and a check being demonstrated." Nothing reopened for it.
+
+**Tool evaluation results (3.12 fetches, all 2026-08-24):**
+- mutmut: UNSUITABLE here, reported plainly - official docs state "Mutmut
+  must be run on a system with fork support... on windows, you must run
+  inside WSL" (mutmut.readthedocs.io); the only WSL distro on this machine
+  is docker-desktop, not a general Linux environment.
+- cosmic-ray: ADOPTED for AUDIT - version 8.7.0, released 2026-08-09 (PyPI,
+  actively maintained), installs and runs on this Windows / Python 3.14
+  machine (cosmic-ray.readthedocs.io).
+- Hypothesis: ADOPTED for GATE properties - version 6.165.10, "known to
+  work and regularly tested on macOS, Windows, Linux", supports all live
+  CPython versions (hypothesis.readthedocs.io/en/latest/compatibility.html).
+- Atheris: not evaluated now; due when OB-5 triggers.
+
 ## D-028 — Store-local finding ids: stated limit now, OB-2 blocked on OB-6 (director, at STEP-01 close, 2026-08-24)
 
 **Finding (director's own control, no ritual row called for it):** the same
