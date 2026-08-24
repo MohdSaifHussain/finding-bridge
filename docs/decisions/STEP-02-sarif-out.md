@@ -1,9 +1,12 @@
 # STEP-02: SARIF out-adapter, with identity resolved first
 
 **Project:** finding-bridge | **Phase:** 2 | **Date:** 2026-08-24
-**Status:** DRAFT, awaiting director rulings on Q1-Q4 and readings R1-R4.
-Nothing is built until those rulings land (opening-act work - property
-tests, mutation audit, collection guard - is complete and committed).
+**Status:** RATIFIED by the director 2026-08-24, subject to the amendments
+recorded as deviations DEV-4 through DEV-8 below (D-033; never in-place
+edits). Rulings: Q1 (a) amended, Q2 approved amended, Q3 (a) with five
+binding conditions, Q4 split confirmed; readings R1-R4 all Y (R4 amended).
+In progress from D1 under the D-034 standing delegation: two stops (after
+D3, and phase close), Section C bright lines override everything.
 **Depends on:** STEP-01 (closed; canonical schema 0.3.0, sealed store,
 provenance chain with attestation + head, ledger workspace, ruling D-030),
 D-027 opening act (ratchet 87.2 percent, 287 of 329, provenance and
@@ -97,7 +100,9 @@ both, and finds no sealed content in the emitted SARIF.
 ## 4c. Readings
 
 - R1: SARIF-out consumes only the confirmed ledger, refusing unconfirmed
-  findings with `unconfirmed`, exactly as markdown does. **Confirm Y/N.**
+  findings with `unconfirmed`, exactly as markdown does. **Confirmed Y,
+  director, 2026-08-24 (as are R2, R3, R4 below; R3 and R4 with the
+  amendments recorded in DEV-6/DEV-7).**
 - R2: "OB-3 comes due at the start" read as: D1 is completed AND ruled
   before any sarif.py code is written; the review stop then covers D1-D3
   together. **Confirm Y/N.**
@@ -158,3 +163,48 @@ comes due, the answer was thought once, calmly, in advance.
 - [ ] Outcome appended; obligations and limits carried by name (OB-1,
       OB-2-blocked-on-OB-6, OB-4, OB-5, OB-6, the GitHub-ingestion
       obligation if R3 confirms, and all standing limits).
+
+## 6. Deviations (ratification amendments, D-033; global DEV numbering continues from STEP-01)
+
+**DEV-4 (Q1 addition, binding).** The emitted SARIF carries an explicit
+disambiguation property (run-level and result-level) stating that the
+physical location refers to the FINDING RECORD, not to a defective
+artifact: SARIF convention reads result.locations as "where the defect
+is"; ours means "where the record of the defect is", and a downstream
+reader would otherwise assume the first. Named risk, carried to OB-7
+rather than discovered later: GitHub Code Scanning associates alerts with
+files in the analyzed repository, so choice (a) assumes the emitted
+findings artifact lives in the scanned repository; acceptable given
+sealing (preview and metadata only), tested when OB-7 comes due.
+
+**DEV-5 (Q2 addition, binding).** The Multitool route must prove it can
+fail: a deliberately invalid SARIF is fed to it and its rejection captured
+as a negative control beside the passing run. The resolved Multitool
+version is recorded in the evidence.
+
+**DEV-6 (Q3 binding conditions).** RFC 8785 adoption carries: (1) exact
+version pinned with a hash, never floating - this sits inside the hash
+path and a silent minor bump would change canonical bytes; (2) the RFC's
+own test vectors committed as a PERMANENT test suite, detecting
+behavioural change from any source (library, us, or a Python version);
+(3) golden canonical vectors re-pinned in the SAME commit as adoption -
+loud exactly once, silent forever after; (4) behaviour verified across
+our actual value space (nulls, nested objects, floats in severity.score,
+non-ASCII in reproduction.environment), and confirmation that nothing
+relies on leniency for non-string keys, which the library rejects by
+raising; (5) the recorded dependency is THE STANDARD, not the library:
+RFC 8785 is frozen, so the canonical form remains fully defined and
+reimplementable if the package ever vanished - the reason adopting a
+standard beats freezing our own form. DEV-2 (STEP-01) is discharged by
+adoption. Migration note per charter §7.
+
+**DEV-7 (R4 amendment).** The npx Multitool invocation pins an explicit
+package version in the command, recorded in evidence: npx resolves
+floating versions, and unpinned validation is not reproducible.
+
+**DEV-8 (gate budget, D-032; amends requirement 3.7's reporting).** The
+audit collection guard moved from GATE to AUDIT cadence
+(tests_audit/test_audit_guard.py; `python -m pytest tests_audit` is the
+first step of every audit). Gate wall clock is reported as an absolute
+AND a delta from the previous close. Post-move gate: 6.83s (from the
+director-measured 17.7s).
