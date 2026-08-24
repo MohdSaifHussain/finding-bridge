@@ -31,7 +31,7 @@
     "id": {
       "type": "string",
       "minLength": 1,
-      "description": "Stable content-derived id: 'fb-' + first 16 hex chars (64 bits) of the SHA-256 content hash. Stated limit (R-9): the truncation bounds DISPLAY identity only (birthday collision ~50% near 2^32 findings); dedup keys are recomputed from full content and the full 256-bit hash lives in provenance.content_hash, so the truncation bounds display identity, not dedup correctness. dedup.duplicate_of links by this id."
+      "description": "Stable content-derived id: 'fb-' + first 16 hex chars (64 bits) of the SHA-256 content hash. Stated limit (R-9): the truncation bounds DISPLAY identity only (birthday collision ~50% near 2^32 findings); dedup keys are recomputed from full content and the full 256-bit hash lives in provenance.content_hash, so the truncation bounds display identity, not dedup correctness. dedup.duplicate_of links by this id. Stated limit (C-004/D-028): ids are STORE-LOCAL, not content-identity across stores - sealed refs are keyed per store and sit inside the hashed content, so the same finding ingested into two stores carries two different ids; cross-store correlation by id does not work in v1."
     },
     "source_tool": {
       "type": "string",

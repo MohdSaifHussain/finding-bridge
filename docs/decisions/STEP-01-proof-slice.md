@@ -1,9 +1,13 @@
 # STEP-01: v1 proof slice
 
 **Project:** finding-bridge | **Phase:** 1 of the v1 arc | **Date:** 2026-08-24
-**Status:** Ratified by the director 2026-08-24 (rulings D-008 through D-013;
-readings R1-R4 all confirmed Y). In progress from D1. Per D-013 this ratified
-contract is never amended in place; it is only extended by numbered deviation.
+**Status:** CLOSED, 2026-08-24, by the director's explicit word after their
+independent phase-close ritual at commit `72a9cbb`. D1-D10 shipped; the exit
+criterion met as written: the director ran the pipeline on the bundled
+fixture with no real key set, read the packet by eye, found preview and
+metadata and no raw harm, and every negative path refused with its stated
+reason code. Ratified 2026-08-24 (D-008..D-013; readings R1-R4 confirmed);
+extended only by numbered deviations DEV-1..DEV-3 per D-013.
 **Depends on:** Phase 0 (ratified charter at commit `8a48a7a`; rulings D-001
 through D-007; specifically the D-002 slice definition, the D-003 drift-test
 condition, and the charter's three non-negotiable rules).
@@ -129,29 +133,45 @@ stated reason code.
 
 ## 5. Exit checklist
 
-- [ ] `pytest` green with key-bearing env vars scrubbed (3.1); the scrub is
+- [x] `pytest` green with key-bearing env vars scrubbed (3.1); the scrub is
       shown in the run the director performs, not asserted.
-- [ ] `ruff check` clean AND `ruff format --check` clean, run as two named
+      - Director's run: ANTHROPIC_API_KEY=dummy set, 105 passed 1 skipped,
+        exit 0, 1.32 seconds.
+- [x] `ruff check` clean AND `ruff format --check` clean, run as two named
       commands (3.9).
-- [ ] Happy path: pipeline on the bundled fixture emits a markdown packet;
+      - Director observed both, exit 0 each.
+- [x] Happy path: pipeline on the bundled fixture emits a markdown packet;
       the director reads it by eye and finds preview + metadata, and finds
       the sealed sentinel string absent (3.4).
-- [ ] Positive control: the sealed sentinel string IS present in the sealed
+      - Director read packet.md by eye; sentinel absent, with their own
+        positive control (the detector fires on the fixture itself).
+- [x] Positive control: the sealed sentinel string IS present in the sealed
       store (proves the absence check can detect).
-- [ ] Negative: chain verify on a tampered store exits nonzero with reason
+      - Director-run explicit unseal recovered it, two exposure rows.
+- [x] Negative: chain verify on a tampered store exits nonzero with reason
       code `chain-broken` (3.6).
-- [ ] Negative: emit of an unconfirmed finding refuses with reason code
-      `unconfirmed` (3.3).
-- [ ] Negative: unseal without the explicit flag refuses with reason code
+      *(restated: the director's hand tamper surfaced `attestation-tampered`
+      and `head-mismatch`; the literal `chain-broken` mode is test-covered
+      at test_provenance.py test_recomputed_tamper_breaks_chain; all are
+      distinct modes of the 3.6 family)*
+- [x] Negative: emit of an unconfirmed finding refuses with reason code
+      `unconfirmed` (3.3). - Test-covered; CLI path observed.
+- [x] Negative: unseal without the explicit flag refuses with reason code
       `unseal-not-explicit`; with the flag, the exposure log gains a
       who/when/finding row the director reads (3.5).
-- [ ] Negative: drift test fails on a schema change without a mapping-table
+      - Director observed both, including attempt+outcome rows (D-022).
+- [x] Negative: drift test fails on a schema change without a mapping-table
       change, demonstrated and reverted (3.7).
-- [ ] Null-field fixture emits null/unknown, nothing invented (3.8).
-- [ ] Tier re-ask ruled at the stop and recorded (D9).
-- [ ] Outcome section appended; obligations and limits carried forward by
+      *(exceeded spec: demonstrated on the real attestation_hash change and
+      it additionally caught the unbumped schema version)*
+- [x] Null-field fixture emits null/unknown, nothing invented (3.8).
+      - Director read the packet: nulls render as "unknown".
+- [x] Tier re-ask ruled at the stop and recorded (D9). - DEV-1.
+- [x] Outcome section appended; obligations and limits carried forward by
       name, including: exact-hash dedup only (no clustering), and the
       Phase 0 verification limits, unchanged.
+      - §7 below; the dedup limit carries its D-025 correction with the
+        original quoted.
 
 ## 6. Deviations
 
@@ -263,7 +283,21 @@ unique; a BOM-prefixed ledger with forged confirmed_by (Notepad simulation)
 gave exit 1 `attestation-tampered: ...`, a governed refusal, not a crash.
 
 GATE suite wall-clock at this close (per D-027, reported every close):
-**1.3 seconds** for 105 passed + 1 skipped.
+**1.3 seconds** builder-observed, **1.32 seconds** in the director's own
+close run, for 105 passed + 1 skipped.
+
+**Director's close verification (2026-08-24, their run, their words the
+authority):** Finding A verified by reading the stored dedup fields
+directly, not the list output (pair shares cluster cl-6e5ebc43d3311315,
+duplicate_of set on the second, record 3 null/null). Finding B verified as
+the REAL case: the ledger's first three bytes read EF BB BF before
+verifying; result attestation-tampered, exit 1, no traceback. Checks that
+exceeded specification, noted per the director: (1) a genuinely malformed
+line refused with "store-unreadable: ledger.jsonl line 2 is not valid
+JSON: Expecting property name enclosed in double quotes" - file, line
+number AND parse error, more than D-026 specified; (2) the drift test's
+version-pin catch (noted at 3.7 above); (3) the chain head caught an
+accidentally duplicated record - insertion detection nothing had claimed.
 
 ### Defects found by running it, not by inspection
 1. The R-8 negative control tested nothing (fixture already carried an id);
@@ -324,4 +358,13 @@ crossing; scoped OUT of v1 and named as such).
   install; wheel packaging would need schemas as package data (new).
 - DEV-2: canonical JSON is not RFC 8785; two named divergences, discharge
   via OB-3.
+- **Finding ids are store-local, not content-identity** (director's control
+  at close, C-004): sealed refs are HMAC-keyed under the store's key (R-3)
+  and sit inside the hashed content, so the same hitlog ingested into two
+  stores yields different ids for identical findings. Consequences: no
+  cross-store correlation by id (two analysts' stores, or two stores
+  emitting into one tracker, will not match); and key rotation as scoped in
+  OB-2 would change every ref, hash, id, attestation and the head - OB-2 is
+  therefore BLOCKED on OB-6 (identity stability under rotation) and no
+  rotation path is built before OB-6 resolves.
 

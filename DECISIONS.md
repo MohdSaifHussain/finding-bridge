@@ -430,15 +430,36 @@ or Windows-unsuitable tool is reported with an alternative, not forced; any
 layer that cannot name a specific failure in this codebase it would have
 caught is reported for dropping.
 
+## D-028 — Store-local finding ids: stated limit now, OB-2 blocked on OB-6 (director, at STEP-01 close, 2026-08-24)
+
+**Finding (director's own control, no ritual row called for it):** the same
+fixture ingested into two stores under two keys produced six different ids
+for three identical findings. Finding ids are store-local, not
+content-identity. Root cause is the director's own R-3 ruling working as
+designed: HMAC-keyed sealed refs sit inside the hashed content, so the
+store key propagates into every content_hash and id. The R-3 fix removed a
+real confirmation oracle; this is its cost, recorded as C-004.
+
+**Decision:** (1) for v1 this is a stated limit, not a defect: recorded in
+the phase outcome and in the schema's id description, wherever finding
+identity is described. (2) OB-6 opened: resolve identity stability under
+key rotation BEFORE any rotation path is built; OB-2 is blocked on it.
+Candidate direction to evaluate when due, explicitly not decided now:
+separate the ref-derivation key from the encryption key, so encryption
+rotates under MultiFernet while ref identity stays pinned. Discovering
+this during a rotation would be the worst possible time; STEP-02 does not
+quietly start either obligation.
+
 ## Obligations register (carried by name until discharged)
 
 | ID | Obligation | Owner | Trigger / due |
 |---|---|---|---|
 | OB-1 | Resolve provisional FLARE-AI mapping against a canonical schema | v1.x FLARE-AI out-adapter phase | when FLARE-AI publishes one; phase cannot close silent (D-014) |
-| OB-2 | Key rotation path via MultiFernet (docs: rotate() re-encrypts under primary key, preserving the token timestamp) | v1-completion phase | phase close |
+| OB-2 | Key rotation path via MultiFernet (docs: rotate() re-encrypts under primary key, preserving the token timestamp). **BLOCKED on OB-6 since the STEP-01 close (D-028):** as scoped, rotation would re-derive the ref key and break every id, hash, attestation and the head. | v1-completion phase, after OB-6 | phase close |
 | OB-3 | Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons | v1-completion phase, before the SARIF adapter ships | cannot be discharged by silence; explicit entry either way (director condition) |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
 | OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
+| OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
 
 ## STEP-01 readings, confirmed
 
@@ -452,5 +473,6 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-002 | Director's R-1 wording: "src/finding_bridge/core/provenance.py:20 excludes the whole 'provenance' object from the hash [...] A field anyone can rewrite silently is not a record" — framing the exclusion as the defect. | The exclusion is load-bearing, correct design (the hash cannot contain the object that stores it; dedup is mutable triage state). The defect was the ABSENT second guard over the excluded fields; the remedy (attestation hash) is unchanged. Ruled by the director on the builder's precision note 1. | The fix keeps the exclusion and adds the attestation; test_provenance.py:45-64 asserts the exclusion+guard pair. | Toward the more precise answer; remedy unchanged. |
+| C-004 | Director's R-3 ruling (round 2): key the refs "so refs stay stable within a store and the cross-corpus oracle disappears" - stated the benefit; the identity cost went unstated. | The keyed refs sit inside hashed content, so finding ids became store-local, not content-identity: identical findings in two stores carry different ids, and rotation as scoped in OB-2 would break every id and attestation. Recorded as the director's own correction, at their instruction, in the same manner as the builder's. Consequences ruled in D-028 (stated limit + OB-6 gate). | The director's two-store control at the STEP-01 close: six different ids for three identical findings. | Toward the less flattering answer for the director's ruling: the fix was right and its cost was real and unstated. |
 | C-003 | Director's R-10 wording: "The 'zero API keys' guarantee is currently claimed, not demonstrated." | Narrows to: demonstrated once ad hoc, never enforced in the suite. Evidence the ad hoc demonstration is recoverable from: (1) this session's transcript (URL in every commit trailer, Claude-Session line), where the run `env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY ... python -m pytest -q` returned "14 passed"; (2) commit 5ecdce4's message, which asserted "suite passes with API-key env scrubbed" contemporaneously. The contractual requirement (scrub as an enforced suite property, shown in the director's run) was genuinely unmet until commit 712b610. | Session transcript + commit 5ecdce4 message; enforcement landed in 712b610. | Toward the more flattering answer for the builder; accepted by the director only with this citation, per the higher burden rule. |
 | C-001 | "The governed-orchestration skill is **not active** in this session and is not installed/listed here" and, in the closing limits, "not yet installed" (builder's Phase 0 closing report, this session, 2026-08-24) | The skill IS installed at `~/.claude/skills/governed-orchestration` and loaded when invoked with the Skill tool on the director's instruction. What was true: it was absent from the session's listed skills. The builder widened "not listed" into "not installed" without checking the filesystem or attempting invocation: an absence stated without a check, the defect class Phase 0 audited the charter for. | Successful `Skill(governed-orchestration)` invocation, this session, on the director's check-don't-assume instruction. | Toward the less flattering answer for the builder. |
