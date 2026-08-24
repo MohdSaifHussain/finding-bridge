@@ -13,6 +13,9 @@ dependencies = [
     "cryptography>=43",
 ]
 
+[project.scripts]
+fb = "finding_bridge.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8",

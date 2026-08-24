@@ -2,6 +2,9 @@
 # (ruling D-006). Re-fetch from the arXiv URL named there if lost.
 docs/FLARE AI Flaw Reporting for AI.pdf
 
+# Local finding workspace (sealed blobs, candidates, ledger): never committed
+.fb-store/
+
 # Python
 __pycache__/
 *.pyc
