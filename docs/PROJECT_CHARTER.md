@@ -351,6 +351,25 @@ not discovered at export time. [Added: see A9, ruling D-003]
 - [ ] In-adapter: promptfoo
 - [ ] Optional `--ai` taxonomy suggestions + severity rationale (caged, off by default)
 
+### Identity lifecycle: the OB-2 supersession phase [Added: see A13]
+
+- [ ] **First deliverable: a `supersession` record type in the canonical
+      schema** (major bump, migration note), carrying event type, old and
+      new chain heads, the old-id-to-new-id map, old and new canonical
+      form versions (D-055), the reason, and a human attestation.
+- [ ] Epoch-aware `verify_chain`: walk to a supersession record, verify
+      its attestation, continue under the new epoch's rules.
+- [ ] A human-gated CLI command that performs a supersession.
+- [ ] Key rotation implemented AS a supersession event, never standalone
+      (D-052), with the ref key split from the encryption key (D-053) and
+      the ref key's permanence recorded as a stated limit.
+- [ ] Controls: rotation verifying clean across the join; a forged
+      supersession failing; a claimed-but-unperformed remap failing.
+- Phase runs FULL, no re-ask inversion, and its contract quotes the
+  identity paper's limit: multi-epoch verification complexity is the part
+  most likely to be underestimated. Trigger: before the first production
+  store exists, or the director's explicit call.
+
 ### Post-v1, parked by ruling (not before v1 completes) [Added: see A12]
 
 - [ ] External adapter pack: in/out adapters writable in any language. The
@@ -548,6 +567,13 @@ under the source index so they survive this session.
 **A11 (§10, local evidence pointer; ruling D-006).** Addition, no original
 text replaced. The FLARE-AI PDF the director placed in `docs/` is gitignored,
 with a pointer naming the file, its size, and the arXiv URL for re-fetching.
+
+**A13 (§8, the OB-2 supersession phase; rulings D-051 through D-057,
+2026-08-25).** Addition, no original text replaced. Folds the identity
+family's ruled mechanism into the roadmap: the supersession record type is
+the OB-2 phase's first deliverable, rotation is an instance of it, the
+canonical form carries its own version, and the phase inherits the
+identity paper's quoted limit.
 
 **A12 (§8, post-v1 parked roadmap + language governance; rulings D-017 and
 D-018, 2026-08-24).** Addition, no original text replaced. Parks the

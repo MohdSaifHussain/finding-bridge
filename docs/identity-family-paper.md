@@ -1,7 +1,27 @@
 # Finding identity: rotation, canonical form, and cross-store matching
 
-**Status: analysis only. Nothing here is built. It ends in numbered
-questions for the director's ruling.**
+**Status: RATIFIED AS ANALYSIS by the director, 2026-08-25, at the STEP-04
+close. All six questions ruled: D adopted (D-051), OB-2 unblocked with
+binding conditions (D-052), B adopted inside D (D-053), E parked (D-054),
+canonical form v1 versioned (D-055), C closed with a reopening bar
+(D-056). Nothing here is built yet.**
+
+**The ratification carries this paper's own honest limits, quoted so they
+travel with the ruling:**
+
+> - No prototype was built, so all cost estimates are judgement, not
+>   measurement.
+> - Option C's oracle risk is argued, not demonstrated. If the director
+>   wants C reconsidered, the right next step is a concrete attack
+>   write-up, not a debate.
+> - The multi-epoch verification complexity in D is the part most likely
+>   to be underestimated here.
+> - None of this is urgent while no production store exists. The reason to
+>   decide now is that the decision is cheap now and expensive later,
+>   which is the same reason the RFC 8785 adoption happened when it did.
+
+The third limit is binding on the OB-2 phase: its contract must quote it,
+and that phase runs FULL with no re-ask inversion (D-052).
 
 Written for STEP-04 W4. It develops the one-paragraph sketch in STEP-02
 §4d into a decision-ready proposal.

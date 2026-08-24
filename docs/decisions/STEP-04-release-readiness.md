@@ -1,7 +1,14 @@
 # STEP-04: release-readiness arc (W1 docs, W2 packaging, W3 FLARE-AI, W4 identity paper)
 
 **Project:** finding-bridge | **Phase:** 4 | **Date:** 2026-08-25
-**Status:** RATIFIED at drafting - the director pre-ruled scope and
+**Status:** CLOSED, 2026-08-25, by the director's explicit word after
+their ritual (63 commits, 226+1; FLARE PROVISIONAL block and sentinel
+absence observed; the whitespace-marker refusal observed naming the whole
+variant family, which the director judged better than the single-variant
+refusal ruled; and the README install line run by both of us in fresh
+venvs - the one command that had never been run has now been run twice).
+All six identity questions ruled (D-051..D-056); the process-claim rule
+recorded (D-057). Previously: RATIFIED at drafting - the director pre-ruled scope and
 decisions in the arc authorization (recorded as DEV-15 below), Sections
 B-G of the standing authorization unchanged, two declared stops. v1
 completion closed at STEP-03; this arc makes it usable, installable,

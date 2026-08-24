@@ -951,6 +951,102 @@ route for hash verification, and say why. **Check added:**
 tests/test_no_overclaim.py now fails if a known-broken command reappears
 in the docs, and asserts both docs explain the wheel route.
 
+## D-051 — Identity lifecycle: Option D, the supersession event, adopted (director, STEP-04 close)
+
+**Decision:** the supersession event is the identity-lifecycle mechanism.
+Every identity-changing event becomes a human-confirmed ledger record,
+chained like any finding, committing to: event type, old head, new head,
+the old-id-to-new-id map, the reason, the confirming human, and an
+attestation over all of it. Verification walks THROUGH it: history before
+verifies under the old rules, after under the new, and the join itself is
+attested. **Deciding reason (the paper's own):** rotation and
+canonical-form change become instances of ONE mechanism, so the third
+instance of the class arrives with a home instead of a fresh invention.
+**Alternatives rejected:** A (accept it) leaves OB-2 permanently blocked
+and a key compromise fatal; C (content-derived identity) reopens the R-3
+oracle, see D-056; E alone does not address lifecycle. **Adopted now;
+nothing built.**
+
+## D-052 — OB-2 unblocked as a decision, with binding conditions (director, STEP-04 close)
+
+**Decision:** OB-2 (key rotation) is unblocked and moves into its own
+future phase contract. **Binding conditions:** (1) rotation is implemented
+AS a supersession event, never as a standalone path; (2) the phase's
+controls include the three the paper names - a rotation that verifies
+clean across the join, a forged supersession record that fails, and a
+supersession claiming a remap it did not perform, failing. **Trigger, not
+a date:** before the first production store exists, or on the director's
+explicit call, whichever comes first. **Tier: FULL, with no re-ask
+inversion**, because the paper's own honest limit stands and the phase
+contract must quote it: *"The multi-epoch verification complexity in D is
+the part most likely to be underestimated here."*
+
+## D-053 — Option B adopted inside D: split the ref key from the encryption key (director, STEP-04 close)
+
+**Decision:** sealed refs derive from a ref key separate from the
+encryption key, so rotation re-encrypts blobs under a new encryption key
+while refs, hashes and ids stay fixed. Adopted as part of D because it
+shrinks the first supersession event's remap, possibly to zero, making it
+cheaper to build and to verify. **Binding:** the ref key's permanence is a
+STATED LIMIT recorded wherever the split is recorded - the frozen thing
+moved, and we say so plainly rather than claiming it vanished.
+**Alternative rejected:** one key for both, which is today's design and
+the reason rotation breaks every id.
+
+## D-054 — Option E parked as OB-6's named answer, gated on real demand (director, STEP-04 close)
+
+**Decision:** the shared-key correlation digest (HMAC over the plaintext
+digest under a correlation key exchanged out of band) is PARKED, not ruled
+out. It is the register's named answer to OB-6. **Gate, per the charter's
+own demand law:** built when a real user asks to correlate across stores,
+and not before. Nobody proposes it fresh; nobody builds it speculatively.
+**Alternative rejected:** building it now (inventing demand, which the
+charter's evidence rules forbid).
+
+## D-055 — The canonical form gets its own version number (director, STEP-04 close)
+
+**Decision:** canonical form **v1 = RFC 8785**, as adopted at OB-3's
+discharge. Carried as a constant, written into the chain head so every
+store declares which form its hashes speak, and every future supersession
+event states old and new form versions. **This closes the fourth hat:**
+the canonical form and the schema can change independently, and until now
+only the schema had a version axis. The axis now exists, cheaply, before
+anything moves along it. **Alternative rejected:** overloading the schema
+version (they change independently; one number cannot describe two axes).
+
+## D-056 — Option C closed, with a stated reopening bar (director, STEP-04 close)
+
+**Decision:** content-derived identity (unkeyed plaintext digest inside
+the hashed content) is CLOSED. The R-3 oracle fix is settled law, and C
+reopens it in exactly the currency this project refuses to spend.
+**Reopening bar, adopted from the paper's own standard:** only a written
+concrete attack analysis demonstrating the mitigation safe, brought as its
+own numbered question, reopens it. Absent that, C is not proposed again.
+
+## D-057 — Process claims must name their check or say "unchecked" (director, STEP-04 close)
+
+**Standing rule, ruled by naming rather than solving:** any future
+"I did X for all Y" claim in a report must either name the check that
+enforces it, or carry the word **unchecked** beside it. Costs one word and
+ends the class. **Origin:** the builder wrote "every command was run
+before it was written down" and the install block was the one command it
+had not run (D-050). A claim about one's own process failed exactly where
+no tool checked it.
+
+## Open work after the STEP-04 close (the record, so no one needs memory)
+
+Nothing here is proposed; each waits on the director's word.
+
+| Item | State |
+|---|---|
+| `--ai` caged feature (taxonomy suggestions, severity rationale) | roadmap, unstarted |
+| Tracker-JSON out-adapter | roadmap, unstarted |
+| OB-2 supersession phase | UNBLOCKED (D-052), awaiting trigger |
+| OB-5 coverage-guided fuzzing | trigger unfired |
+| OB-7 GitHub ingestion | waits on a remote, which is the director's decision alone |
+| OB-6 cross-store correlation | Option E parked (D-054), gated on real user demand |
+| Semantic preview (grey-scale summary) | future `--ai` job; never claimed until it ships (D-042) |
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |

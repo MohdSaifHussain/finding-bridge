@@ -66,6 +66,12 @@ Seven rows is a small denominator. The classes are the builder's. Row 2's
 attribution is genuinely arguable either way. Anything after the compile
 commit belongs to no eval.
 
+**Dated addendum (2026-08-25, at the close):** the director ruled row 1's
+class by NAMING rather than solving (D-057): any future "I did X for all
+Y" claim must name its check or carry the word "unchecked". The candidate
+tool below (execute the docs' examples in a test) is therefore optional,
+not owed - the rule already ends the class at one word's cost.
+
 ## 7. The question for the next boundary
 
 Row 1's class is "the builder claimed a process it did not follow". Is
