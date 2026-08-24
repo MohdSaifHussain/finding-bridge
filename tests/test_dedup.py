@@ -113,3 +113,32 @@ def test_environment_difference_does_not_defeat_dedup(base):
     assert marked[1]["dedup"]["duplicate_of"] == marked[0]["id"]
     assert marked[0]["dedup"]["cluster_id"] is not None
     assert prov.content_hash(sa) != prov.content_hash(sb), "content hash still sees the change"
+
+
+# --- close-audit kill tests (STEP-02; red demonstrated by the mutation run) ---
+
+
+def test_cluster_id_format_is_cl_plus_16_hex(base):
+    """Kills dedup L21 NumberReplacers: the documented cluster-id format is
+    cl- plus exactly 16 hex chars; nothing previously pinned the length."""
+    import re
+
+    a = prov.stamp(variant(base, discovered_at="2026-08-24T10:00:00+00:00"))
+    b = prov.stamp(variant(base, discovered_at="2026-08-24T11:00:00+00:00"))
+    marked = dedup.mark_duplicates([a, b])
+    assert re.fullmatch(r"cl-[0-9a-f]{16}", marked[0]["dedup"]["cluster_id"])
+
+
+def test_steps_difference_prevents_duplicate(base):
+    """Kills dedup L50 NotEq->Lt: under the mutant, 'steps' (which sorts
+    after 'environment') is dropped from the dedup key, so findings
+    differing ONLY in reproduction steps would silently merge - evidence
+    the dedup key must keep. The NotEq->Gt variant is domain-equivalent:
+    the schema pins reproduction's keys to exactly steps and environment
+    (additionalProperties false), and the drift test guards that."""
+    a = copy.deepcopy(base)
+    b = copy.deepcopy(base)
+    b["reproduction"]["steps"] = ["a genuinely different reproduction step"]
+    marked = dedup.mark_duplicates([prov.stamp(a), prov.stamp(b)])
+    assert marked[1]["dedup"]["duplicate_of"] is None
+    assert marked[1]["dedup"]["cluster_id"] is None
