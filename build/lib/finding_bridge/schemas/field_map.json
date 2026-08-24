@@ -1,0 +1,49 @@
+{
+  "description": "Field-mapping table: canonical finding schema to SARIF 2.1.0 and FLARE-AI (ruling D-003). Keys are dotted leaf paths of finding.schema.json under the leaf rule documented in tests/test_schema.py; the drift test fails when schema and this table diverge in either direction. A null target means 'no fitting target field, stated deliberately', which is a recorded decision, not an omission.",
+  "canonical_schema_version": "0.3.0",
+  "sources": {
+    "sarif": "OASIS SARIF v2.1.0 (https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html, fetched 2026-08-24). Fields SARIF lacks use the spec's property-bag mechanism (result.properties).",
+    "flare_ai": "PROVISIONAL. Derived from the JSON-LD example and field vocabulary in arXiv 2606.31567 (local evidence: docs/FLARE AI Flaw Reporting for AI.pdf). No canonical machine-readable schema was locatable at ai-reports.org or github.com/ai-flaw-reporting/ai-flaw-reporting (both fetched 2026-08-24). The director searched independently (2026-08-24) and also found none: a two-route confirmed absence. Provisional-from-paper ruled the project's approach (D-014). Carried obligation OB-1 (narrowed by D-014): resolve against a canonical schema when FLARE-AI publishes one; owner is the v1.x FLARE-AI out-adapter phase."
+  },
+  "map": {
+    "schema_version": { "sarif": "run.tool.driver.properties.canonicalSchemaVersion", "flare_ai": "flare:rawReport (version annotation)" },
+    "id": { "sarif": "result.partialFingerprints['findingBridge/id']", "flare_ai": "schema:identifier" },
+    "source_tool": { "sarif": "result.properties.sourceTool", "flare_ai": "flare:detectionMethod" },
+    "source_tool_version": { "sarif": "result.properties.sourceToolVersion", "flare_ai": "flare:detectionMethod (version annotation)" },
+    "target_model": { "sarif": "result.properties.targetModel", "flare_ai": "flare:aiSystem (schema:SoftwareApplication schema:name)" },
+    "target_model_version": { "sarif": "result.properties.targetModelVersion", "flare_ai": "flare:aiSystem (version)" },
+    "discovered_at": { "sarif": "result.properties.discoveredAt", "flare_ai": "schema:dateCreated" },
+    "probe.value": { "sarif": "result.properties.probe", "flare_ai": "flare:stepsToReproduce" },
+    "probe.sealed_ref": { "sarif": "result.properties.probeSealedRef", "flare_ai": "flare:evidence (sealed reference only)" },
+    "raw_response_sealed": { "sarif": "result.properties.rawResponseSealedRef", "flare_ai": "flare:evidence (sealed reference only)" },
+    "preview": { "sarif": "result.message.text", "flare_ai": "schema:description" },
+    "harm_flags": { "sarif": "result.properties.harmFlags", "flare_ai": "flare:specificHarmTypes" },
+    "taxonomy.owasp_llm": { "sarif": "result.taxa + run.taxonomies (OWASP LLM Top 10 as a SARIF taxonomy)", "flare_ai": "flare:classification" },
+    "taxonomy.saif": { "sarif": "result.taxa + run.taxonomies (SAIF risk map as a SARIF taxonomy)", "flare_ai": "flare:ThreatClassification" },
+    "severity.score": { "sarif": "result.level (banded) + result.rank (0-100 scaled)", "flare_ai": "flare:severity" },
+    "severity.rubric.exploitability": { "sarif": "result.properties.rubric.exploitability", "flare_ai": "flare:severity (rubric detail)" },
+    "severity.rubric.impact_scope": { "sarif": "result.properties.rubric.impactScope", "flare_ai": "flare:impacts" },
+    "severity.rubric.data_sensitivity": { "sarif": "result.properties.rubric.dataSensitivity", "flare_ai": "flare:severity (rubric detail)" },
+    "severity.rubric.effort": { "sarif": "result.properties.rubric.effort", "flare_ai": "flare:attackerResources" },
+    "severity.rationale": { "sarif": "result.properties.severityRationale", "flare_ai": "flare:severity (rationale annotation)" },
+    "severity.status": { "sarif": "result.properties.severityStatus", "flare_ai": null },
+    "reproduction.steps": { "sarif": "result.properties.reproductionSteps", "flare_ai": "flare:stepsToReproduce" },
+    "reproduction.environment": { "sarif": "result.properties.reproductionEnvironment", "flare_ai": null },
+    "provenance.content_hash": { "sarif": "result.partialFingerprints['findingBridge/contentHash']", "flare_ai": "flare:Evidence (hash annotation)" },
+    "provenance.prev_hash": { "sarif": "result.properties.provenancePrevHash", "flare_ai": null },
+    "provenance.confirmed_by": { "sarif": "result.properties.confirmedBy", "flare_ai": "schema:author (schema:Person)" },
+    "provenance.confirmed_at": { "sarif": "result.properties.confirmedAt", "flare_ai": null },
+    "provenance.attestation_hash": { "sarif": "result.properties.provenanceAttestation", "flare_ai": null },
+    "dedup.cluster_id": { "sarif": "result.properties.dedupClusterId", "flare_ai": null },
+    "dedup.duplicate_of": { "sarif": "result.properties.duplicateOf", "flare_ai": null }
+  },
+  "null_target_notes": {
+    "severity.status": "FLARE-AI has no confirmed/suggested distinction in the vocabulary extracted from the paper; stating it would invent a field.",
+    "reproduction.environment": "No fitting FLARE-AI field in the extracted vocabulary; environment facts fold into flare:stepsToReproduce prose at export time if ever needed.",
+    "provenance.prev_hash": "Chain linkage is internal provenance; FLARE-AI reports are single documents with no chain concept in the extracted vocabulary.",
+    "provenance.attestation_hash": "Internal gate-record integrity (R-1); no counterpart in the extracted vocabulary.",
+    "provenance.confirmed_at": "schema:dateCreated is taken by discovered_at; adding a second date field would be invention. Revisit under OB-1.",
+    "dedup.cluster_id": "Internal triage state; no counterpart in the extracted vocabulary.",
+    "dedup.duplicate_of": "Internal triage state; no counterpart in the extracted vocabulary."
+  }
+}
