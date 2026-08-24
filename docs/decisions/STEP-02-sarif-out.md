@@ -202,6 +202,22 @@ adoption. Migration note per charter §7.
 package version in the command, recorded in evidence: npx resolves
 floating versions, and unpinned validation is not reproducible.
 
+**DEV-9 (stop-one rulings extending §4d and the S2 scope).** The
+identity-family paragraph gains, at the director's instruction, its fourth
+hat: the canonical form and the schema are separate things that can each
+change independently, and today only one of them carries a version; had
+stores existed, the JCS adoption would have needed a version signal on an
+axis we do not have (noted for OB-6). Also recorded here: S2-1 promoted
+from analysis to OBSERVATION (director's hostile hitlog through the CLI:
+`rfc8785._impl.FloatDomainError: nan is not representable in JCS`, raw
+traceback, exit 1, no reason code, internal paths shown to the user); its
+fix is FULL at both layers per D-038; the unguarded-boundary class and the
+error-messages-are-an-emission-surface rule are D-036; gate timing method
+is median-of-three with the command shown (this close's figure per the
+director's own runs: 10.6s, delta -7.1s from 17.7s); integral-float
+collapse (6 hashes as 6.0) is ruled acceptable and stated in the schema
+description for severity.score.
+
 **DEV-8 (gate budget, D-032; amends requirement 3.7's reporting).** The
 audit collection guard moved from GATE to AUDIT cadence
 (tests_audit/test_audit_guard.py; `python -m pytest tests_audit` is the

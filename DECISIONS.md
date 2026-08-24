@@ -652,11 +652,72 @@ one output's concern into the evidence model. If D4 implementation
 falsifies this, that work is FULL under the ratified tier line and comes
 back at the re-ask forecast's named condition.
 
+## D-036 — The unguarded-boundary class, named; error messages are an emission surface (director, stop one, 2026-08-24)
+
+**The class, named so it can be checked at every new boundary instead of
+counted as coincidences:** UNGUARDED BOUNDARY - untrusted input reaches an
+internal component and the component's own exception escapes as a raw
+traceback instead of a governed refusal with a reason code. Instances to
+date: (1) STEP-01 Finding B, BOM/corrupt store files crashing json.loads
+(fix: store-unreadable); (2) the corrupt head.json variant of the same;
+(3) S2-1, hostile hitlog values (NaN, Infinity, 2^53+1) crashing
+rfc8785 in the hash path - CONFIRMED REACHABLE by the director through
+the CLI, traceback quoted in the S2-1 evidence. The check at every new
+boundary: what exceptions can the component below raise, and does each
+surface as a reason code?
+
+**Standing rule (error messages are an emission surface):** when a refusal
+originates from untrusted source content, the detail names the LOCATION
+(file, line, field path) and the reason, NEVER the value. The charter's
+"sealed content never appears in any emitted artifact" includes error
+output; today's refusals were safe by luck, and the S2-1 fix is exactly
+where instinct would echo an offending value that sits beside harmful
+model output. Control required: a malformed hitlog with a sentinel harm
+string beside the invalid field; the sentinel must appear nowhere in the
+refusal output, with the positive control finding it in the file itself.
+
+**Audit of the existing 24 reason codes against the rule (builder,
+2026-08-24):** one echoer found - `schema-invalid` used
+jsonschema.ValidationError.message, which EMBEDS the offending instance
+value (e.g. a rejected string is quoted verbatim); if a harmful string
+failed schema validation its content would echo. Fixed: detail now built
+from json_path + validator name, never the instance. All others clean:
+invalid-hitlog and store-unreadable use JSONDecodeError.msg (generic text,
+no content) plus line numbers; provenance details carry hashes and
+indices; sealing details carry paths and refs (keyed digests);
+unknown-id/malformed-ref echo OPERATOR-supplied arguments, which the rule
+does not cover (they are not source content) - noted, not fixed.
+
+## D-037 — Standing rule: when the builder may reset its own commits (director, 2026-08-24)
+
+Reset without asking ONLY when all four hold: local and unpushed; nothing
+references them; no ratified record is lost; the reset is reported in the
+same report. Any one fails: stop and ask. Anything pushed: never in scope.
+S2-2's cleanup is ratified under this rule.
+
+## D-038 — S2-1 fix ruled: both layers, all of it FULL (director, stop one, 2026-08-24)
+
+(b) primary: the ingest boundary refuses non-JCS-representable numbers
+(NaN, Infinity, integers beyond 2^53-1) with `invalid-hitlog` and a
+location-not-value detail. (a) backstop: canonical_content_bytes (and the
+dedup key via the shared helper) translate rfc8785 domain errors to
+ProvenanceError `uncanonicalizable`, so no future adapter can reach the
+hash path unguarded. The whole fix is FULL under the ratified line,
+adapter half included: it sits in the identity path, and over-ceremony
+there beats discovering under-ceremony. Controls: the three values, red
+before green, at both layers, plus the no-echo control (D-036).
+
+## C-006 (correction, director's own, at their instruction)
+
+| # | Original | Correction | What proved it | Direction |
+|---|---|---|---|---|
+| C-006 | The Q3(a) ruling adopted RFC 8785 with five conditions covering pinning, vectors, goldens, value space and standard-over-library - none of which foresaw the failure mode of unrepresentable values. | Before JCS, json.dumps serialized NaN as the non-standard token `NaN` and the hash silently succeeded (a silent wrong answer). Adoption turned that into a crash on untrusted input (S2-1). The direction of the change was right - silently hashing an unrepresentable value was worse - but the cost was the ruling's to foresee and was not. Adoption unimpeached; the regression was introduced by the ruling. | The director's own hostile hitlog through the CLI: FloatDomainError traceback, exit 1, no reason code. | Toward the less flattering answer for the ruling. |
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
 |---|---|---|---|---|---|
-| PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | OPEN, pending ratification at stop one |
+| PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | **RATIFIED (a)** by the director at stop one; note added to OB-6 and §4d via DEV-9: canonical form and schema can change independently and only one has a version - the identity problem's fourth hat |
 
 ## Obligations register (carried by name until discharged)
 

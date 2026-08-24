@@ -98,7 +98,8 @@
         "score": {
           "type": ["number", "null"],
           "minimum": 0,
-          "maximum": 10
+          "maximum": 10,
+          "description": "Stated behaviour (ruled at STEP-02 stop one): canonical serialization is RFC 8785, so integral floats collapse to integers - a score of 6.0 hashes identically to 6, and two findings differing only in that respect are the same finding."
         },
         "rubric": {
           "type": "object",
