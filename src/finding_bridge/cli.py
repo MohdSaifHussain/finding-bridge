@@ -8,7 +8,7 @@ from pathlib import Path
 
 from finding_bridge import gate, pipeline
 from finding_bridge.adapters.in_.garak import GarakAdapterError
-from finding_bridge.adapters.out import markdown
+from finding_bridge.adapters.out import markdown, sarif
 from finding_bridge.core.dedup import DedupError
 from finding_bridge.core.provenance import ProvenanceError
 from finding_bridge.core.schema import SchemaValidationError
@@ -38,6 +38,13 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("verify", help="verify the confirmed ledger chain + head")
     p = sub.add_parser("emit-markdown", help="emit confirmed findings as a packet")
     p.add_argument("out", nargs="?", help="output file (stdout if omitted)")
+    p = sub.add_parser("emit-sarif", help="emit confirmed findings as SARIF 2.1.0")
+    p.add_argument("out", help="output .sarif path")
+    p.add_argument(
+        "--artifact-name",
+        default="findings.fb.jsonl",
+        help="findings record file written beside the SARIF; SARIF locations point at its lines",
+    )
     p = sub.add_parser("unseal", help="explicitly unseal one reference (logged)")
     p.add_argument("ref")
     p.add_argument("--explicit", action="store_true", help="required; unsealing is deliberate")
@@ -72,6 +79,17 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"wrote {args.out}")
             else:
                 print(packet)
+        elif args.command == "emit-sarif":
+            findings = ws.confirmed_findings()
+            log = sarif.render_sarif(findings, args.artifact_name)
+            out_path = Path(args.out)
+            artifact_path = out_path.parent / args.artifact_name
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(sarif.render_findings_artifact(findings), encoding="utf-8")
+            out_path.write_text(
+                json.dumps(log, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+            print(f"wrote {out_path} and {artifact_path}")
         elif args.command == "unseal":
             print(ws.store.unseal(args.ref, gate.get_git_identity(), explicit=args.explicit))
     except (
@@ -83,6 +101,7 @@ def main(argv: list[str] | None = None) -> int:
         gate.GateError,
         pipeline.PipelineError,
         markdown.MarkdownAdapterError,
+        sarif.SarifAdapterError,
     ) as exc:
         print(f"{exc.reason_code}: {exc.detail}", file=sys.stderr)
         return 1

@@ -713,6 +713,32 @@ before green, at both layers, plus the no-echo control (D-036).
 |---|---|---|---|---|
 | C-006 | The Q3(a) ruling adopted RFC 8785 with five conditions covering pinning, vectors, goldens, value space and standard-over-library - none of which foresaw the failure mode of unrepresentable values. | Before JCS, json.dumps serialized NaN as the non-standard token `NaN` and the hash silently succeeded (a silent wrong answer). Adoption turned that into a crash on untrusted input (S2-1). The direction of the change was right - silently hashing an unrepresentable value was worse - but the cost was the ruling's to foresee and was not. Adoption unimpeached; the regression was introduced by the ruling. | The director's own hostile hitlog through the CLI: FloatDomainError traceback, exit 1, no reason code. | Toward the less flattering answer for the ruling. |
 
+## D-039 — D4-D6 build decisions under Section B (builder, 2026-08-24, alternatives named)
+
+1. **Severity banding to SARIF level:** null -> "none", 0-3 "note", 4-6
+   "warning", 7-10 "error"; rank = score x 10. Alternative rejected:
+   mapping null to "warning" as a cautious default (invents a judgement
+   the human gate has not made).
+2. **ruleId = the finding's first harm flag**, declared in driver.rules;
+   omitted when no flags exist. Alternative rejected: a synthetic generic
+   rule id for flagless findings (an invented classification).
+3. **Findings artifact is JSON Lines** (one canonical finding per line),
+   so SARIF region.startLine = finding index + 1 points at a line that
+   genuinely contains that finding. Alternative rejected: pretty-printed
+   JSON array (line ranges become format-dependent and fragile).
+4. **logicalLocation.kind = "aiModel"** (open enum; none of the spec's
+   suggested kinds fits an AI model). Alternative rejected: overloading
+   "module".
+5. **Multitool route at AUDIT cadence** (tests_audit/), own-schema route
+   in GATE - D-032's principle; npx startup and network per run.
+   Alternative rejected: per-commit Multitool (budget theatre).
+6. **Multitool negative control asserts on console error text** (`error
+   JSON0001`), not exit code: measured 2026-08-24, the npm Multitool 5.6.0
+   exits 0 even on input it itself reports as a JSON syntax error, and
+   silently accepts version-less SARIF. Recorded as a measured ecosystem
+   limit in evidence/sarif-validation-step02.md. Alternative rejected:
+   trusting the exit code (vacuous control - it never fails).
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
