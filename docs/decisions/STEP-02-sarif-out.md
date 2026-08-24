@@ -164,6 +164,71 @@ comes due, the answer was thought once, calmly, in advance.
       OB-2-blocked-on-OB-6, OB-4, OB-5, OB-6, the GitHub-ingestion
       obligation if R3 confirms, and all standing limits).
 
+## 7. Outcome (assembled 2026-08-24; awaiting the director's stop-two ritual)
+
+Shipped: D1-D8 all present. 163 tests + 1 deliberate skip in GATE; 7 at
+AUDIT cadence (collection guard + both Multitool directions); ruff both
+halves clean. GATE wall clock: median-of-three **11.58s** (11.26/11.58/
+11.66; `ANTHROPIC_API_KEY=dummy python -m pytest -q`), **delta +1.0s**
+from the previous close's 10.6s (director-measured) for ~28 new tests.
+Reason-code count: 25, all with both controls.
+
+### Exit checklist, builder-side evidence (director rows in the ritual)
+- [x] D1 ruled and landed before sarif.py existed: git history shows
+      `59c9232` (JCS adoption) five commits before `D4-D6`.
+- [x] GATE green with keys scrubbed; wall clock above.
+- [x] ruff check AND ruff format --check clean.
+- [ ] Happy path + local consumer render: DIRECTOR's ritual rows.
+- [x] Positive control: explicit unseal recovers sentinels (suite).
+- [x] Negative: sentinels absent from emitted SARIF AND findings artifact
+      (suite + CLI grep exit 1, observed).
+- [x] Negative: corrupted SARIF fails BOTH validator routes with distinct
+      signals (own route: ValidationError; Multitool: `error JSON0001`
+      console line - see the measured exit-code limit in
+      evidence/sarif-validation-step02.md).
+- [x] Negative: emit over unconfirmed refuses (`unconfirmed`).
+- [x] Drift test: no D3 schema growth occurred (D-035), so the STEP-01
+      real-change demonstration stands as the standing evidence.
+- [x] Close-time mutation audit with BOTH denominators:
+      evidence/mutation-audit-step02-close.md - old scope 287/329 = 87.2%
+      vs same-modules-now 286/325 = 88.0% (ratchet held, +0.8); NEW
+      full-core baseline **85.9%, 360 of 419**.
+- [x] Tier re-ask: discharged by default at stop one, forecast correct.
+- [x] Obligations and limits carried by name (below).
+
+### Defects found by running, not by reading (this phase)
+1. S2-1: found by builder self-review reading the library's error surface,
+   CONFIRMED REACHABLE by the director's hostile hitlog through the CLI
+   (traceback quoted in DEV-9); fixed FULL at both layers, red-first.
+2. The guard's own -p parse bug: fourth instance of the gate-half-run
+   family and THE FIRST CAUGHT BEFORE IT REACHED THE RECORD (director's
+   practice note, recorded as ruled: a defect class that starts getting
+   caught earlier is the only real evidence a practice is working).
+3. Multitool exits 0 on its own reported JSON syntax errors: found by
+   running the negative control against the real tool; control redesigned
+   onto the signal that exists (console error text), limit recorded.
+4. Dedup first audit: steps dropped from the dedup key under one mutant
+   (evidence-merging gap) and cluster-id length pinned by nothing - both
+   killed, verified by re-run (17 -> 14 survivors).
+
+### Obligations carried, by name
+OB-1 (FLARE-AI canonical schema, v1.x); OB-2 (rotation, BLOCKED on OB-6);
+OB-4 (trust anchor, trigger: first trust-boundary crossing); OB-5
+(fuzzing, trigger: first foreign-volume parsing); OB-6 (identity
+stability; now carries the fourth hat: canonical form and schema version
+independently, only one axis versioned); OB-7 (GitHub ingestion incl. the
+DEV-4 repository-location assumption). OB-3 and DEV-2: DISCHARGED.
+
+### Honest limits (carried unchanged unless marked new)
+All STEP-01 limits stand (unsigned head with OB-4 bound, structural
+preview, Fernet timestamp leak, Windows ACL gap, 64-bit display ids,
+store-local ids, exact-hash dedup, schema-as-repo-file packaging, Phase 0
+verification limits). New this phase: the Multitool exit-code limit
+(evidence file); equivalence claims in mutation audits are reasoned, not
+machine-verified; the npm Multitool pin (5.6.0) is reproducible but its
+first run needs the network; integral floats collapse under JCS (stated
+in the schema description, ruled acceptable).
+
 ## 6. Deviations (ratification amendments, D-033; global DEV numbering continues from STEP-01)
 
 **DEV-4 (Q1 addition, binding).** The emitted SARIF carries an explicit
