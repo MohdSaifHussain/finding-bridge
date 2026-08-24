@@ -42,13 +42,26 @@ def test_hash_is_deterministic(finding):
     assert prov.content_hash(finding) == prov.content_hash(copy.deepcopy(finding))
 
 
-def test_hash_ignores_provenance_dedup_and_id(finding):
+def test_hash_exclusions_are_covered_by_other_guards(finding):
+    """content_hash excludes id/provenance/dedup BY DESIGN (circularity and
+    triage state), but per review R-1 that exclusion is only safe because a
+    second guard covers each excluded field: id via id-mismatch, dedup by
+    being non-evidence, and the gate record via the attestation hash. This
+    test asserts the pair, not the exclusion alone."""
     before = prov.content_hash(finding)
     changed = copy.deepcopy(finding)
     changed["id"] = "fb-other"
     changed["provenance"]["confirmed_by"] = "someone"
     changed["dedup"]["cluster_id"] = "c1"
     assert prov.content_hash(changed) == before
+    stamped = prov.stamp(finding)
+    stamped["id"] = "fb-other"
+    assert prov.REASON_ID_MISMATCH in {f["reason_code"] for f in prov.verify_chain([stamped])}
+    confirmed = prov.confirm(prov.stamp(finding), "A <a@example.invalid>")
+    confirmed["provenance"]["confirmed_by"] = "someone else"
+    assert prov.REASON_ATTESTATION_TAMPERED in {
+        f["reason_code"] for f in prov.verify_chain([confirmed])
+    }
 
 
 def test_hash_changes_on_content_change(finding):
@@ -127,3 +140,66 @@ def test_stamped_fixture_still_validates_against_schema(finding):
     schema = json.loads((FIXTURES.parent / "finding.schema.json").read_text(encoding="utf-8"))
     stamped = prov.stamp(finding)
     Draft202012Validator(schema).validate(stamped)
+
+
+# --- R-1: the human-gate record itself is tamper-evident ---
+
+
+def test_confirmed_by_tamper_detected(finding):
+    chain = make_chain(finding)
+    chain[1] = prov.confirm(chain[1], "Real Analyst <real@example.invalid>")
+    chain[1]["provenance"]["confirmed_by"] = "Forged Analyst <forged@example.invalid>"
+    codes = {f["reason_code"] for f in prov.verify_chain(chain)}
+    assert "attestation-tampered" in codes
+
+
+def test_confirmed_at_tamper_detected(finding):
+    chain = make_chain(finding)
+    chain[1] = prov.confirm(chain[1], "Real Analyst <real@example.invalid>")
+    chain[1]["provenance"]["confirmed_at"] = "1999-01-01T00:00:00+00:00"
+    codes = {f["reason_code"] for f in prov.verify_chain(chain)}
+    assert "attestation-tampered" in codes
+
+
+def test_confirmation_without_attestation_detected(finding):
+    chain = make_chain(finding)
+    chain[1]["provenance"]["confirmed_by"] = "Injected <i@example.invalid>"
+    chain[1]["provenance"]["confirmed_at"] = "2026-08-24T13:00:00+00:00"
+    codes = {f["reason_code"] for f in prov.verify_chain(chain)}
+    assert "attestation-missing" in codes
+
+
+def test_spurious_attestation_on_unconfirmed_detected(finding):
+    chain = make_chain(finding)
+    chain[0]["provenance"]["attestation_hash"] = "a" * 64
+    codes = {f["reason_code"] for f in prov.verify_chain(chain)}
+    assert "attestation-spurious" in codes
+
+
+def test_confirmed_chain_verifies_clean(finding):
+    """Positive control: a properly confirmed chain still verifies."""
+    chain = make_chain(finding)
+    chain[1] = prov.confirm(chain[1], "Real Analyst <real@example.invalid>")
+    assert prov.verify_chain(chain) == []
+
+
+def test_confirm_refuses_tampered_content(finding):
+    stamped = prov.stamp(finding)
+    stamped["preview"] = "edited after stamping"
+    with pytest.raises(prov.ProvenanceError) as err:
+        prov.confirm(stamped, "Analyst <a@example.invalid>")
+    assert err.value.reason_code == "content-tampered"
+
+
+def test_confirm_refuses_double_confirm(finding):
+    confirmed = prov.confirm(prov.stamp(finding), "A <a@example.invalid>")
+    with pytest.raises(prov.ProvenanceError) as err:
+        prov.confirm(confirmed, "B <b@example.invalid>")
+    assert err.value.reason_code == "already-confirmed"
+
+
+def test_stamp_refuses_confirmed_finding(finding):
+    confirmed = prov.confirm(prov.stamp(finding), "A <a@example.invalid>")
+    with pytest.raises(prov.ProvenanceError) as err:
+        prov.stamp(confirmed)
+    assert err.value.reason_code == "restamp-confirmed"

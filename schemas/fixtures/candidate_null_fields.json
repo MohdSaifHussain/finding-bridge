@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "id": "fb-candidate-null-0002",
   "source_tool": "garak",
   "source_tool_version": null,
@@ -36,7 +36,8 @@
     "content_hash": null,
     "prev_hash": null,
     "confirmed_by": null,
-    "confirmed_at": null
+    "confirmed_at": null,
+    "attestation_hash": null
   },
   "dedup": {
     "cluster_id": null,

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "id": "fb-candidate-full-0001",
   "source_tool": "garak",
   "source_tool_version": "0.9.0",
@@ -36,7 +36,8 @@
     "content_hash": "0000000000000000000000000000000000000000000000000000000000000000",
     "prev_hash": null,
     "confirmed_by": "Fixture Human <fixture@example.invalid>",
-    "confirmed_at": "2026-08-24T12:30:00+00:00"
+    "confirmed_at": "2026-08-24T12:30:00+00:00",
+    "attestation_hash": "1111111111111111111111111111111111111111111111111111111111111111"
   },
   "dedup": {
     "cluster_id": null,
