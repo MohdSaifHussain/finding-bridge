@@ -200,6 +200,81 @@ condition).
 The charter's §5.2 layout names `adapters/in/`; `in` is a Python keyword and
 cannot be a module path. Implemented as `adapters/in_/` with `adapters/out/`
 unchanged. A naming deviation forced by the language, recorded rather than
-silently absorbed; charter text left as is (the amendment log already
-governs charter changes, and this is an implementation-layer rendering of
-the same design).
+silently absorbed.
+
+## 7. Outcome (assembled 2026-08-24 at commit `fa3eb53`; awaiting the director's phase-close ritual)
+
+Shipped: D1-D10 all present. 98 tests green plus 1 deliberate skip (the
+Windows key-permissions gap, which IS the recorded limit), `ruff check` and
+`ruff format --check` both clean, full suite green with ANTHROPIC_API_KEY
+deliberately set and scrubbed by the suite itself. Schema at 0.3.0 (two
+bumps, both recorded against charter §7: 0.2.0 added attestation_hash per
+R-1; 0.3.0 made discovered_at nullable per D-024 with a migration note).
+Added beyond contract, named as added: `pipeline.py` (deterministic wiring
+of §5.3, kept out of cli.py for testability), `gate.py`, the CLI `fb` entry
+point, and `core/schema.py` as the single validating entry.
+
+### Exit checklist, evidenced
+- [x] pytest green with key vars scrubbed: enforced in-suite (conftest
+      autouse + guard test), demonstrated red-first (assert
+      ['ANTHROPIC_API_KEY'] == [] failed pre-fix); the director's run below
+      sets a fake key on purpose.
+- [x] ruff check AND ruff format --check, two named commands, both clean.
+- [x] Happy path: CLI smoke observed this session: ingest 3, keyed
+      previews, confirm under real git identity, "chain verifies clean",
+      packet with zero sentinel content.
+- [x] Positive control: explicit unseal recovers the sentinel and writes
+      attempt+outcome rows (test_explicit_unseal_recovers_sentinel_and_logs).
+- [x] Negative: tampered ledger fails verify (attestation-tampered;
+      content-tampered and chain-broken each have their own control).
+- [x] Negative: emit of unconfirmed refuses (`unconfirmed`).
+- [x] Negative: unseal without the explicit flag refuses
+      (`unseal-not-explicit`), exposure log unchanged; with it, the
+      append-only two-row exposure record (D-022).
+- [x] Negative: drift test demonstrated on a REAL schema change
+      (attestation_hash): failure output captured; it also caught the
+      unbumped schema version, exceeding what 3.7 asked (noted per the
+      director's round-2 close).
+- [x] Null-field handling: garak adapter emits null for version/timestamp;
+      fixture and tests prove nothing is invented.
+- [x] Tier re-ask ruled and recorded (DEV-1: D6/D8 STANDARD, D7 FULL,
+      discharged by R-1 quoted).
+- [x] Outcome appended; obligations and limits carried below.
+
+### Defects found by running it, not by inspection
+1. The R-8 negative control tested nothing (fixture already carried an id);
+   pytest caught it AFTER commit `a9251d4` landed red because the gate run
+   and commit were chained in one command. Both recorded in the eval.
+2. The sentinel control fired on the packet: garak `goal`/`triggers` carried
+   harmful-capable text into candidates in the clear. Fixed by sealing them
+   as a context blob (`context_sealed_ref`). No prior test or review row had
+   named this class.
+
+### Obligations carried, by name
+OB-1 (FLARE-AI canonical schema, v1.x), OB-2 (MultiFernet rotation,
+v1-completion), OB-3 (JCS adopt-or-reaffirm before SARIF ships; no silent
+discharge), OB-4 (external trust anchor; due at first trust-boundary
+crossing; scoped OUT of v1 and named as such).
+
+### Honest limits (carried forward unchanged unless marked new)
+- Phase 0 verification limits, unchanged (charter §10).
+- Exact-hash dedup only; for garak that means re-ingestion dedup, since
+  every hit carries a unique attempt_id (new, this phase).
+- Preview is structural metadata, not semantic grey-scale.
+- The chain head is unsigned: detects accident, drift and casual edit, not
+  an attacker with write access to ledger AND head (OB-4 bound; the packet
+  states this wherever it states the guarantee).
+- Fernet tokens embed their creation time in plaintext: "the encrypted
+  message contains the current time when it was generated in plaintext, the
+  time a message was created will therefore be visible to a possible
+  attacker" (official cryptography docs, quoted per the R-6 close).
+- Windows ACL gap: chmod 0o600 does not restrict access on Windows; the
+  operator step is icacls (docstring); the test skips there rather than
+  asserting a guarantee chmod does not deliver.
+- id is a 64-bit truncation: bounds display identity, not dedup correctness
+  (schema description carries the full statement; duplicate_of links by id).
+- Schema file resolved relative to the repo tree: holds for the editable
+  install; wheel packaging would need schemas as package data (new).
+- DEV-2: canonical JSON is not RFC 8785; two named divergences, discharge
+  via OB-3.
+
