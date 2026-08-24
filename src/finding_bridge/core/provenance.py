@@ -7,12 +7,23 @@ Sources (fetched 2026-08-24): hashlib and datetime, official Python docs
 (https://docs.python.org/3/library/hashlib.html,
 https://docs.python.org/3/library/datetime.html; utcnow is deprecated since
 3.12, aware datetimes used instead).
+
+Canonical serialization is RFC 8785 (JSON Canonicalization Scheme,
+https://www.rfc-editor.org/rfc/rfc8785, fetched 2026-08-24), adopted per
+STEP-02 D1 / DEV-6, discharging DEV-2. What this code depends on is THE
+STANDARD, not the library: RFC 8785 is a frozen specification, so the
+canonical form stays fully defined and reimplementable if the rfc8785
+package ever vanished (DEV-6 condition 5). The library (trailofbits
+rfc8785, pinned exactly with hash in constraints.txt) raises on non-string
+keys instead of converting; every value we hash originates from JSON, whose
+keys are strings by construction.
 """
 
 import copy
 import hashlib
-import json
 from datetime import UTC, datetime
+
+import rfc8785
 
 # Evidence content is hashed; stamps and triage state are not. provenance
 # holds the hash itself (chicken-and-egg) and dedup is mutable triage state,
@@ -54,11 +65,9 @@ def utc_now_iso() -> str:
 
 
 def canonical_content_bytes(finding: dict) -> bytes:
-    """Deterministic serialization of the evidence content of a finding."""
+    """RFC 8785 canonical serialization of a finding's evidence content."""
     content = {k: v for k, v in finding.items() if k not in EXCLUDED_FROM_HASH}
-    return json.dumps(content, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
-        "utf-8"
-    )
+    return rfc8785.dumps(content)
 
 
 def content_hash(finding: dict) -> str:
@@ -71,21 +80,15 @@ def derive_id(digest: str) -> str:
 
 def chain_head_internal_ok(head: dict) -> bool:
     """Check a head record's own integrity hash against its fields."""
-    payload = json.dumps(
-        [head.get("count"), head.get("last_content_hash")],
-        separators=(",", ":"),
-        ensure_ascii=False,
-    )
-    expected = hashlib.sha256((HEAD_DOMAIN + payload).encode("utf-8")).hexdigest()
+    payload = rfc8785.dumps([head.get("count"), head.get("last_content_hash")])
+    expected = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
     return head.get("head_hash") == expected
 
 
 def attestation_hash(digest: str, confirmed_by: str, confirmed_at: str) -> str:
     """Bind who confirmed what and when to the content hash (review R-1)."""
-    payload = json.dumps(
-        [digest, confirmed_by, confirmed_at], separators=(",", ":"), ensure_ascii=False
-    )
-    return hashlib.sha256((ATTESTATION_DOMAIN + payload).encode("utf-8")).hexdigest()
+    payload = rfc8785.dumps([digest, confirmed_by, confirmed_at])
+    return hashlib.sha256(ATTESTATION_DOMAIN.encode("utf-8") + payload).hexdigest()
 
 
 def stamp(finding: dict, prev_hash: str | None = None) -> dict:
@@ -159,8 +162,8 @@ def chain_head(findings: list[dict]) -> dict:
     """
     count = len(findings)
     last = (findings[-1].get("provenance") or {}).get("content_hash") if findings else None
-    payload = json.dumps([count, last], separators=(",", ":"), ensure_ascii=False)
-    head_hash = hashlib.sha256((HEAD_DOMAIN + payload).encode("utf-8")).hexdigest()
+    payload = rfc8785.dumps([count, last])
+    head_hash = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
     return {"count": count, "last_content_hash": last, "head_hash": head_hash}
 
 

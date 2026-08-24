@@ -25,8 +25,13 @@ BASE = json.loads((FIXTURES / "candidate_null_fields.json").read_text(encoding="
 
 def test_canonical_form_golden_vectors():
     """Pinned vectors with non-ASCII content. If the canonical serialization
-    ever changes (ensure_ascii, separators, sort_keys, domain strings),
-    these fail and force a ruled schema/DEV-2 decision, never silent drift."""
+    ever changes, these fail and force a ruled decision, never silent drift.
+
+    Re-pinned at RFC 8785 adoption (DEV-6 condition 3) and verified
+    UNCHANGED: on this value space (ASCII keys, raw-UTF-8 values, ints,
+    null) the old Python form and JCS are byte-identical; the DEV-2
+    divergences lived only in exotic-key sorting and float round-trip,
+    both now resolved to the standard (see test_jcs_vectors.py)."""
     f = {"preview": "café 中\U0001f600", "source_tool": "garak"}
     assert (
         prov.content_hash(f) == "8902f3924dbdfbca689d030ecf914910fb56a69da21a9b154ec2b83fb22485e3"
