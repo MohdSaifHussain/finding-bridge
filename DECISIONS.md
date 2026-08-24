@@ -634,6 +634,30 @@ five open; two stops (after D3, and phase close); Section F quality bar
 unchanged; Section G stall protocol. Nothing on the
 questions-I-would-have-asked list closes by silence.
 
+## D-035 — STEP-02 D3 result: no canonical schema growth required (builder, under D-034 Section B, 2026-08-24)
+
+**Decision:** the SARIF mapping as ruled needs no new canonical schema
+field. Checked element by element: the Q1(a) location design (emitted
+findings artifact + region), the DEV-4 disambiguation property,
+logicalLocations (target model, probe name), taxa (taxonomy.owasp_llm /
+taxonomy.saif via run.taxonomies), and every result-level property draw
+either from existing canonical fields (all 30 already have SARIF rows in
+schemas/field_map.json since STEP-01) or from emission-time context (the
+artifact path, tool name/version, the disambiguation text), which belongs
+to the adapter, not the schema. **Alternative rejected:** adding a
+"record_location" field to the canonical schema - rejected because the
+location of the emitted record is a property of emission, unknowable at
+finding creation and different per emission target; storing it would bake
+one output's concern into the evidence model. If D4 implementation
+falsifies this, that work is FULL under the ratified tier line and comes
+back at the re-ask forecast's named condition.
+
+## PROV register (Section D provisional decisions, PENDING RATIFICATION)
+
+| # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
+|---|---|---|---|---|---|
+| PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | OPEN, pending ratification at stop one |
+
 ## Obligations register (carried by name until discharged)
 
 | ID | Obligation | Owner | Trigger / due |
