@@ -99,6 +99,63 @@ director's half)
 - [ ] W4 paper ends in numbered questions; nothing built.
 - [ ] Audits, timings, eval, obligations per W5.
 
+## 7. Outcome (assembled 2026-08-25; awaiting the director's stop-two ritual)
+
+Shipped: W1-W5. GATE: **226 passed, 1 skipped**; pytest-reported median
+**8.17s**, wall median **8.9s** (medians of three, `ANTHROPIC_API_KEY=dummy
+python -m pytest -q`). Previous close: pytest 7.58s. Delta +0.6s for 34
+new tests. Both ruff halves clean. Reason codes: 30.
+
+### What each workstream produced
+- **W1:** README.md and docs/USAGE.md, plain English, every command run
+  before it was written. The overclaim check (D-046) found two real gaps
+  in the builder's own README while being written, and the fixes went
+  into the doc, not the test.
+- **W2:** `finding-bridge` console script; Apache-2.0 (D-048) verified in
+  the wheel's metadata; schemas ship as package data, resolving the old
+  repo-path limit; fresh-venv proof with the import-location control.
+- **W3:** FLARE-AI provisional adapter. PROVISIONAL stamped at report-set
+  and report level; OB-1's date-record inside the output; 7 null-target
+  fields omitted with the field map's own reasons shipped alongside.
+- **W4:** the identity-family paper, analysis only, ending in six
+  numbered questions. Recommendation: the supersession event (Option D),
+  with Option B considered inside it and Option E parked.
+- **W5:** close audit, timings, eval, obligations.
+
+### Defects found by running, not by reading
+1. **The README's install command failed** (director's docs read, D-050):
+   `pip install -e . -c constraints.txt` errors in a fresh venv, exactly
+   as our own D-047 predicted. The first command a new user runs. Fixed
+   with an observed command; a test now blocks known-broken commands.
+2. **The marker-variant family** (D-049): sweeping by RUNNING each
+   variant showed space, tab, full-width colon and indentation all
+   silently swallowed a turn, and BOM refused with a confusing message.
+   All ruled and fixed in one family rule.
+3. **The attestation comparison** was only tested in one hash ordering
+   (close audit). A repeat of the class the STEP-03 eval named.
+4. **Build artifacts were committed** and caught by reading the commit's
+   own file list.
+
+### The metric finding
+Deleting risky code LOWERED the mutation score (schema 80.6% -> 10% on a
+denominator that fell from 31 to 10). Recorded in
+evidence/mutation-audit-step04-close.md: a ratchet read without its
+denominator would call an improvement a regression. First time D-029's
+side-by-side rule has actually mattered.
+
+### Obligations carried, by name
+OB-1 (partially served: the provisional adapter records the date and the
+absence; the obligation stands until a canonical schema exists), OB-2
+(blocked on OB-6; the W4 paper proposes the unblock), OB-4, OB-5, OB-6
+(the paper's subject), OB-7 (GitHub ingestion + DEV-4 assumption).
+
+### Honest limits (carried, plus this phase's)
+All prior limits stand. New: the FLARE-AI mapping is provisional and says
+so in its own output; adapters remain unmeasured by mutation and the
+unmeasured surface grew with flare_ai.py; the wheel route is required for
+hash-verified installs; Apache-2.0 is ratified for the tree only, with
+publishing a separate future decision (D-048).
+
 ## 6. Deviations
 
 **DEV-15 (the director's pre-rulings, recorded as contract language):**
