@@ -34,7 +34,21 @@ class DedupError(Exception):
 
 
 def dedup_key(finding: dict) -> str:
+    """The dedup key and the content hash answer different questions over
+    different field sets (director ruling D-025, Finding A). The content
+    hash asks "has this record changed" and must keep
+    reproduction.environment. The dedup key asks "have we seen this finding
+    before" and must not: per-run bookkeeping (garak attempt ids today, the
+    next adapter's equivalents tomorrow) rides in the environment and would
+    defeat dedup for byte-identical evidence, the exact case Pain-4 exists
+    to serve. Stated trade-off: findings identical in evidence but produced
+    under different environment settings mark as duplicates; that costs
+    nothing because dedup marks and never deletes, and each record keeps its
+    own environment."""
     content = {k: v for k, v in finding.items() if k not in DEDUP_EXCLUDED}
+    reproduction = content.get("reproduction")
+    if isinstance(reproduction, dict):
+        content["reproduction"] = {k: v for k, v in reproduction.items() if k != "environment"}
     canonical = json.dumps(content, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

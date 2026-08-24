@@ -26,7 +26,9 @@ def ws(tmp_path: Path) -> pipeline.Workspace:
 
 def test_ingest_seals_stamps_and_validates(ws: pipeline.Workspace):
     summary = ws.ingest_garak(HITLOG)
-    assert summary == {"ingested": 3, "total_candidates": 3, "duplicates_marked": 0}
+    # duplicates_marked is 1 since D-025: the fixture's deliberate identical
+    # pair differs only in attempt bookkeeping, which the dedup key excludes.
+    assert summary == {"ingested": 3, "total_candidates": 3, "duplicates_marked": 1}
     candidates = ws.list_candidates()
     for c in candidates:
         assert c["id"].startswith("fb-")
@@ -41,7 +43,9 @@ def test_reingest_marks_duplicates(ws: pipeline.Workspace):
     ws.ingest_garak(HITLOG)
     summary = ws.ingest_garak(HITLOG)
     assert summary["total_candidates"] == 6
-    assert summary["duplicates_marked"] == 3, "re-ingesting the same hitlog is the dup case"
+    # Two canonical findings across both ingests (the identical pair merges
+    # within AND across ingests since D-025): 6 records, 2 canonical, 4 dupes.
+    assert summary["duplicates_marked"] == 4
 
 
 def test_confirm_builds_chained_ledger_and_head(ws: pipeline.Workspace):
@@ -131,3 +135,33 @@ def test_explicit_unseal_recovers_sentinel_and_logs(ws: pipeline.Workspace):
     rows = ws.store.exposures()
     assert [r["type"] for r in rows] == ["attempt", "outcome"]
     assert rows[1]["outcome"] == "succeeded"
+
+
+# --- Finding A (director's ritual, ruled): single-ingest dedup on identical evidence ---
+
+
+def test_single_ingest_marks_byte_identical_pair(ws: pipeline.Workspace):
+    """Director's acceptance criterion: the fixture's deliberate duplicate
+    pair (identical goal/prompt/output/probe/detector/score, differing only
+    in attempt bookkeeping) is marked in ONE ingest: duplicates_marked 1,
+    shared cluster_id, second carries duplicate_of pointing at the first."""
+    summary = ws.ingest_garak(HITLOG)
+    assert summary["duplicates_marked"] == 1
+    candidates = ws.list_candidates()
+    pair = [
+        c for c in candidates if c["raw_response_sealed"] == candidates[0]["raw_response_sealed"]
+    ]
+    assert len(pair) == 2
+    assert pair[0]["dedup"]["duplicate_of"] is None
+    assert pair[1]["dedup"]["duplicate_of"] == pair[0]["id"]
+    assert pair[0]["dedup"]["cluster_id"] == pair[1]["dedup"]["cluster_id"] is not None
+
+
+def test_genuinely_different_record_stays_unique(ws: pipeline.Workspace):
+    """Negative control: marking can fail to appear; record 3's evidence
+    genuinely differs and must stay unique."""
+    ws.ingest_garak(HITLOG)
+    others = [c for c in ws.list_candidates() if "promptinject" in (c["harm_flags"] or [""])[0]]
+    assert len(others) == 1
+    assert others[0]["dedup"]["duplicate_of"] is None
+    assert others[0]["dedup"]["cluster_id"] is None

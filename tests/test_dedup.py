@@ -98,3 +98,18 @@ def test_none_id_input_refused(base):
     with pytest.raises(dedup.DedupError) as err:
         dedup.mark_duplicates([nulled])
     assert err.value.reason_code == "unstamped-finding"
+
+
+def test_environment_difference_does_not_defeat_dedup(base):
+    """Finding A principle (D-025): the dedup key asks 'have we seen this
+    finding before' and excludes reproduction.environment; the content hash
+    asks 'has this record changed' and keeps it."""
+    a = copy.deepcopy(base)
+    b = copy.deepcopy(base)
+    a["reproduction"]["environment"] = {"attempt_id": "one"}
+    b["reproduction"]["environment"] = {"attempt_id": "two"}
+    sa, sb = prov.stamp(a), prov.stamp(b)
+    marked = dedup.mark_duplicates([sa, sb])
+    assert marked[1]["dedup"]["duplicate_of"] == marked[0]["id"]
+    assert marked[0]["dedup"]["cluster_id"] is not None
+    assert prov.content_hash(sa) != prov.content_hash(sb), "content hash still sees the change"
