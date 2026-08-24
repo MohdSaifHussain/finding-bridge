@@ -119,14 +119,10 @@ def test_adapter_does_not_seal_or_stamp():
 # --- DEV-14 (director's stop-one shot): case-variant markers refuse loudly ---
 
 
-@pytest.mark.parametrize("variant", ["User: hi", "user: hi", "Assistant: yo", "SYSTEM : x"])
+@pytest.mark.parametrize("variant", ["User: hi", "user: hi", "Assistant: yo"])
 def test_line_initial_case_variant_marker_refused(variant):
     """Ruled (a): silently swallowing 'User:' into the previous turn is a
-    quiet misattribution that can change which turn seals as the probe.
-    Note: 'SYSTEM :' (space before colon) is NOT a case variant and stays
-    content - see the not-fire control below for what must pass."""
-    if variant == "SYSTEM : x":
-        pytest.skip("space-variant is content, covered by the not-fire control")
+    quiet misattribution that can change which turn seals as the probe."""
     text = f"USER: real turn\nASSISTANT: reply\n{variant}\nASSISTANT: after"
     with pytest.raises(transcript.TranscriptAdapterError) as err:
         transcript.parse_turns(text)
@@ -143,3 +139,17 @@ def test_midline_case_variants_do_not_fire():
     turns = transcript.parse_turns(text)
     assert len(turns) == 2
     assert "User:" in turns[0]["content"]
+
+
+def test_line_initial_space_variant_is_content_pinned_behavior():
+    """D-045: 'SYSTEM :' (space before the colon) at line start is neither
+    the exact token nor a case variant, so it parses as CONTENT of the
+    previous turn. Pinned as the current stated behaviour - and named to
+    the stop-one agenda as the WHITESPACE axis of the marker rule, the
+    exact shape the STEP-03 eval's question predicted (case was one axis
+    over; whitespace is the next). Whether it should refuse like DEV-14 is
+    the director's call, not this test's."""
+    text = "USER: real\nASSISTANT: reply\nSYSTEM : looks like a marker\nASSISTANT: after"
+    turns = transcript.parse_turns(text)
+    assert len(turns) == 3
+    assert "SYSTEM :" in turns[1]["content"]

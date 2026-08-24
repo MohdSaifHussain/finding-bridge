@@ -840,6 +840,24 @@ unwritable cases) with emit-sarif's create-parent green as the agreement
 control; the boundary table gained its output-dependency section, closing
 the class on the exit side as D2 closed it on entry.
 
+## D-045 — The permanent skip: deleted as dead, and what deleting it exposed (director's item, 2026-08-25)
+
+**Decision:** the "SYSTEM : x" parametrize row that permanently skipped was
+DEAD - a non-case-variant planted in a case-variant test, then skipped
+around instead of removed; deleted. Its substance now lives as an explicit
+pinned-behaviour test: a line-initial space-variant ("SYSTEM :") parses as
+content of the previous turn. **How the skip came to exist, said plainly:**
+the builder noticed mid-edit that the fourth variant did not belong, and
+skipped it in place rather than deciding - a decision made silently in the
+same phase as its covering control, exactly what the director's item
+suspected. **What deleting it exposed:** the WHITESPACE axis of the marker
+rule is unswept - "USER :" at column 0 is plausibly a typo'd turn boundary
+and currently swallows silently, the same quiet-misattribution shape
+DEV-14 refused on the case axis. Named to the STEP-04 stop-one agenda for
+ruling (a refusal-surface change, not pre-ruled, so not fixed under
+Section B). The suite's skip count now means exactly one thing: the
+named Windows key-permissions platform gap.
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |

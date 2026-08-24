@@ -55,6 +55,12 @@ director doing the thing the builder had already built tooling for
 (adversarial review at the stop; the ritual at close), one axis or one
 side beyond where the tooling swept.
 
+**Dated addendum (2026-08-25, director's item):** the phase also shipped a
+permanently-skipped test row, written in the same phase as its covering
+control - a decision made silently instead of recorded (D-045). Deleting
+it exposed the whitespace axis of the marker rule, unswept - the eval's
+own question answering itself one phase early.
+
 ## 5. The question for the next boundary
 
 Row 2's shape is "the builder's attention was ON the surface and the
