@@ -1,0 +1,11 @@
+# D-027 AUDIT, full-core close audit of STEP-02 (D-029: scope change states
+# both denominators). Reproduce:
+#   cosmic-ray init cr-schema.toml cr-schema.sqlite && cosmic-ray exec cr-schema.toml cr-schema.sqlite && cr-report cr-schema.sqlite
+[cosmic-ray]
+module-path = "src/finding_bridge/core/schema.py"
+timeout = 90.0
+excluded-modules = []
+test-command = "python -m pytest -x -q -p no:cacheprovider tests"
+
+[cosmic-ray.distributor]
+name = "local"
