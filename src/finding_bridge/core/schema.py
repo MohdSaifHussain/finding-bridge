@@ -58,4 +58,9 @@ def validate_finding(finding: dict) -> None:
     try:
         _validator().validate(finding)
     except ValidationError as exc:
-        raise SchemaValidationError(exc.message) from exc
+        # D-036: ValidationError.message embeds the offending instance value,
+        # and instance values can be untrusted source content. The detail
+        # names the path and the failed keyword, never the value.
+        raise SchemaValidationError(
+            f"at {exc.json_path}: fails '{exc.validator}' (offending value withheld per D-036)"
+        ) from exc

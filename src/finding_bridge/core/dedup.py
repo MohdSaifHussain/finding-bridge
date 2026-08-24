@@ -13,9 +13,7 @@ the artifact, not the row).
 import copy
 import hashlib
 
-import rfc8785
-
-from finding_bridge.core.provenance import EXCLUDED_FROM_HASH
+from finding_bridge.core.provenance import EXCLUDED_FROM_HASH, canonical_dumps
 
 DEDUP_EXCLUDED = (*EXCLUDED_FROM_HASH, "discovered_at")
 
@@ -50,7 +48,7 @@ def dedup_key(finding: dict) -> str:
     reproduction = content.get("reproduction")
     if isinstance(reproduction, dict):
         content["reproduction"] = {k: v for k, v in reproduction.items() if k != "environment"}
-    return hashlib.sha256(rfc8785.dumps(content)).hexdigest()
+    return hashlib.sha256(canonical_dumps(content)).hexdigest()
 
 
 def mark_duplicates(findings: list[dict]) -> list[dict]:

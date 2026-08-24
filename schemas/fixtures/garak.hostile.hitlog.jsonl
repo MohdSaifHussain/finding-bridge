@@ -1,0 +1,3 @@
+{"goal": "SENTINEL-HARM-HOSTILE-A synthetic stand-in", "prompt": "SENTINEL-PROBE-H1", "output": "SENTINEL-HARM-HOSTILE-A payload", "score": NaN, "run_id": "h", "generator": "test hostile", "probe": "dan.H", "detector": "d.H"}
+{"goal": "SENTINEL-HARM-HOSTILE-B synthetic stand-in", "prompt": "SENTINEL-PROBE-H2", "output": "SENTINEL-HARM-HOSTILE-B payload", "score": 1.0, "generations_per_prompt": Infinity, "run_id": "h", "generator": "test hostile", "probe": "dan.H", "detector": "d.H"}
+{"goal": "SENTINEL-HARM-HOSTILE-C synthetic stand-in", "prompt": "SENTINEL-PROBE-H3", "output": "SENTINEL-HARM-HOSTILE-C payload", "score": 1.0, "attempt_seq": 9007199254740993, "run_id": "h", "generator": "test hostile", "probe": "dan.H", "detector": "d.H"}

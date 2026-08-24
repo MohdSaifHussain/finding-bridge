@@ -17,9 +17,15 @@ discovered_at is null (schema 0.3.0, D-024).
 """
 
 import json
+import math
 from pathlib import Path
 
 REASON_INVALID_HITLOG = "invalid-hitlog"
+
+# S2-1 boundary (D-038): the largest integer exactly representable in an
+# IEEE 754 double; RFC 8785 refuses anything beyond it, so we refuse it at
+# the boundary the untrusted data enters.
+MAX_SAFE_INTEGER = 2**53 - 1
 
 SCHEMA_VERSION = "0.3.0"
 
@@ -52,6 +58,34 @@ def _extract_text(node) -> str | None:
         texts = [t for t in (_extract_text(x) for x in node) if t]
         return "\n".join(texts) if texts else None
     return None
+
+
+def _reject_hostile_numbers(value, lineno: int, path: str) -> None:
+    """S2-1 primary layer (D-038): refuse numbers RFC 8785 cannot represent
+    (NaN, Infinity, integers beyond 2^53-1) at the ingest boundary. Per
+    D-036 the detail names line and field path, NEVER the value: hostile
+    values sit beside harmful model output, and an error message is an
+    emission surface."""
+    if isinstance(value, bool):
+        return
+    if isinstance(value, float) and not math.isfinite(value):
+        raise GarakAdapterError(
+            REASON_INVALID_HITLOG,
+            f"line {lineno}, field {path}: non-finite number is not "
+            "representable in canonical form (value withheld per D-036)",
+        )
+    if isinstance(value, int) and abs(value) > MAX_SAFE_INTEGER:
+        raise GarakAdapterError(
+            REASON_INVALID_HITLOG,
+            f"line {lineno}, field {path}: integer exceeds IEEE-754 exact "
+            "range (value withheld per D-036)",
+        )
+    if isinstance(value, dict):
+        for key, sub in value.items():
+            _reject_hostile_numbers(sub, lineno, f"{path}.{key}")
+    elif isinstance(value, list):
+        for i, sub in enumerate(value):
+            _reject_hostile_numbers(sub, lineno, f"{path}[{i}]")
 
 
 def _candidate_from_record(record: dict) -> dict:
@@ -132,5 +166,7 @@ def parse_hitlog(path: Path) -> list[dict]:
             ) from exc
         if not isinstance(record, dict):
             raise GarakAdapterError(REASON_INVALID_HITLOG, f"line {lineno} is not a JSON object")
+        for key, value in record.items():
+            _reject_hostile_numbers(value, lineno, key)
         candidates.append(_candidate_from_record(record))
     return candidates

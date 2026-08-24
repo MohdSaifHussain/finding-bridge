@@ -37,6 +37,7 @@ REASON_CONTENT_TAMPERED = "content-tampered"
 REASON_CHAIN_BROKEN = "chain-broken"
 REASON_ID_MISMATCH = "id-mismatch"
 REASON_UNCONFIRMED = "unconfirmed"
+REASON_UNCANONICALIZABLE = "uncanonicalizable"
 REASON_ATTESTATION_TAMPERED = "attestation-tampered"
 REASON_ATTESTATION_MISSING = "attestation-missing"
 REASON_ATTESTATION_SPURIOUS = "attestation-spurious"
@@ -64,10 +65,30 @@ def utc_now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def canonical_dumps(obj) -> bytes:
+    """RFC 8785 serialization with governed refusal (S2-1 backstop, D-038).
+
+    Translates the library's domain errors (NaN/Infinity, integers beyond
+    IEEE-double exactness, non-string keys) into a ProvenanceError so no
+    caller - including future adapters that skip boundary validation - can
+    reach the hash path unguarded. Per D-036 the detail names the error
+    CLASS, never the value: untrusted values may sit beside harmful content
+    and an error message is an emission surface."""
+    try:
+        return rfc8785.dumps(obj)
+    except rfc8785.CanonicalizationError as exc:
+        raise ProvenanceError(
+            REASON_UNCANONICALIZABLE,
+            f"a value is not representable in RFC 8785 canonical form "
+            f"({type(exc).__name__}); the value itself is withheld from this "
+            "message by rule D-036",
+        ) from exc
+
+
 def canonical_content_bytes(finding: dict) -> bytes:
     """RFC 8785 canonical serialization of a finding's evidence content."""
     content = {k: v for k, v in finding.items() if k not in EXCLUDED_FROM_HASH}
-    return rfc8785.dumps(content)
+    return canonical_dumps(content)
 
 
 def content_hash(finding: dict) -> str:
@@ -80,14 +101,14 @@ def derive_id(digest: str) -> str:
 
 def chain_head_internal_ok(head: dict) -> bool:
     """Check a head record's own integrity hash against its fields."""
-    payload = rfc8785.dumps([head.get("count"), head.get("last_content_hash")])
+    payload = canonical_dumps([head.get("count"), head.get("last_content_hash")])
     expected = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
     return head.get("head_hash") == expected
 
 
 def attestation_hash(digest: str, confirmed_by: str, confirmed_at: str) -> str:
     """Bind who confirmed what and when to the content hash (review R-1)."""
-    payload = rfc8785.dumps([digest, confirmed_by, confirmed_at])
+    payload = canonical_dumps([digest, confirmed_by, confirmed_at])
     return hashlib.sha256(ATTESTATION_DOMAIN.encode("utf-8") + payload).hexdigest()
 
 
@@ -162,7 +183,7 @@ def chain_head(findings: list[dict]) -> dict:
     """
     count = len(findings)
     last = (findings[-1].get("provenance") or {}).get("content_hash") if findings else None
-    payload = rfc8785.dumps([count, last])
+    payload = canonical_dumps([count, last])
     head_hash = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
     return {"count": count, "last_content_hash": last, "head_hash": head_hash}
 
