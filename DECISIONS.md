@@ -858,6 +858,44 @@ ruling (a refusal-surface change, not pre-ruled, so not fixed under
 Section B). The suite's skip count now means exactly one thing: the
 named Windows key-permissions platform gap.
 
+## D-046 — Banned-phrase list for user docs (builder under Section B, D-042's law made checkable)
+
+The never-overclaim check (tests/test_no_overclaim.py) bans these claims
+from README.md and docs/USAGE.md. Each is something the tool does not
+ship. Alternative rejected: a review habit instead of a test (habits do
+not fail builds; skill rule 14).
+
+| Banned | Why |
+|---|---|
+| "grey/gray-scale summary", "safe greyed-out summary" | the semantic summary is not shipped (D-042) |
+| "summarizes the content" | the preview is metadata, not a summary |
+| "AI-powered" | no AI runs in this pipeline |
+| "tamper-proof" | the chain is tamper-EVIDENT, and bounded (OB-4) |
+| "unbreakable", "bulletproof", "military-grade" | unearned security claims |
+| "guarantees safety/security" | no such guarantee is made |
+| "fully automated", "no human review needed" | the gate is mandatory |
+| "publishes to PyPI/GitHub" | no publishing exists |
+| "cross-store correlation" | ids are store-local (D-028) |
+| "detects all/every ..." | no completeness claim |
+
+Required statements, checked in the same test: D-042's exact wording
+"safe metadata preview"; the OB-4 bound sentence in BOTH docs; the no-AI
+statement. Found while writing it: my own README was missing the bound
+sentence and the ruled wording, and a line-wrapped sentence made the
+check fail, so required-phrase matching normalizes whitespace (wrapping
+is formatting, not meaning).
+
+## D-047 — Wheel-first for the fresh-venv proof (builder under Section B)
+
+`pip install . -c constraints.txt` fails in hash-checking mode: pip
+cannot verify hashes for a local directory. Decision: build a wheel and
+install that. Alternative rejected: dropping the constraints file for the
+proof (it would test a different dependency set than the one ruled in
+DEV-6). The wheel route is also the better proof: it tests the artifact a
+user would receive. Observed: 203 passed, 1 skipped, imported from
+site-packages. Build artifacts are gitignored (caught by reading the
+commit's own file list).
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
