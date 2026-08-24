@@ -9,6 +9,7 @@ description = "Universal local-first adapter turning AI red-team tool output int
 requires-python = ">=3.12"
 dependencies = [
     "jsonschema>=4.26",
+    "rfc3339-validator>=0.1.4",
     "cryptography>=43",
 ]
 

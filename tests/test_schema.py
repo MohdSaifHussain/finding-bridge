@@ -168,3 +168,34 @@ def test_drift_fires_on_stale_mapping_row(schema, field_map):
     mutated["map"]["ghost.field"] = {"sarif": "x", "flare_ai": "y"}
     _, stale = drift(schema, mutated)
     assert "ghost.field" in stale
+
+
+# --- D-020 (#6): format asserts, it does not annotate ---
+
+
+def test_malformed_timestamp_refused():
+    """Negative control: a garbage discovered_at must FAIL validation. Under
+    annotation-only format (the pre-fix state) this validated silently."""
+    from finding_bridge.core.schema import SchemaValidationError, validate_finding
+
+    finding = load(FIXTURES / "candidate_full.json")
+    finding["discovered_at"] = "not-a-timestamp"
+    with pytest.raises(SchemaValidationError):
+        validate_finding(finding)
+
+
+def test_malformed_confirmed_at_refused():
+    from finding_bridge.core.schema import SchemaValidationError, validate_finding
+
+    finding = load(FIXTURES / "candidate_full.json")
+    finding["provenance"]["confirmed_at"] = "yesterday-ish"
+    with pytest.raises(SchemaValidationError):
+        validate_finding(finding)
+
+
+def test_valid_fixtures_pass_project_validator():
+    """Positive control: both fixtures pass the asserting validator."""
+    from finding_bridge.core.schema import validate_finding
+
+    validate_finding(load(FIXTURES / "candidate_full.json"))
+    validate_finding(load(FIXTURES / "candidate_null_fields.json"))
