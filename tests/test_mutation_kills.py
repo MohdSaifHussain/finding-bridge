@@ -179,3 +179,13 @@ def test_preview_line_count_and_digest_shape(store: sealing.SealedStore):
     assert "3 lines" in store.structural_preview("a\nb\nc", [])
     assert "1 lines" in store.structural_preview("", [])
     assert re.search(r"keyed digest [0-9a-f]{8};", store.structural_preview("x", []))
+
+
+def test_confirmed_at_alone_is_still_a_confirmation_claim():
+    """Kills the or->and mutant (provenance L219): a record claiming only
+    confirmed_at (confirmed_by null, no attestation) must still fail as
+    attestation-missing; under the mutant it verified clean."""
+    stamped = prov.stamp(copy.deepcopy(BASE))
+    stamped["provenance"]["confirmed_at"] = "2026-08-24T13:00:00+00:00"
+    codes = {f["reason_code"] for f in prov.verify_chain([stamped])}
+    assert codes == {prov.REASON_ATTESTATION_MISSING}
