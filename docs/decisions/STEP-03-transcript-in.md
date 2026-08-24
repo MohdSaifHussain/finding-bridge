@@ -1,7 +1,11 @@
 # STEP-03: transcript in-adapter (raw paste to canonical)
 
 **Project:** finding-bridge | **Phase:** 3 | **Date:** 2026-08-24
-**Status:** RATIFIED by the director 2026-08-24, subject to the amendments
+**Status:** CLOSED, 2026-08-24, by the director's explicit word after
+their ritual (52 commits, 196+2, the emit rows and the case-mismatch shot
+all observed; S3-CLOSE-1 fixed under STEP-01 precedent before the close).
+With this close, v1 completion stands done as contracted. Previously:
+RATIFIED by the director 2026-08-24, subject to the amendments
 recorded as deviations DEV-10 through DEV-13 below (never in-place edits).
 Rulings: Q1 (c) amended, Q2 (a), Q3 as drafted, Q4 (a) with two
 conditions; readings R1-R4 all Y (R3 amended: mojibake sentence into the
