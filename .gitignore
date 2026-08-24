@@ -13,3 +13,8 @@ __pycache__/
 
 # Mutation-audit session databases (evidence lives in evidence/, not binaries)
 cr-*.sqlite
+
+# Build artifacts (W2c proof rebuilds them on demand)
+build/
+dist/
+*.whl
