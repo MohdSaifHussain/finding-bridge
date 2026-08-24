@@ -78,3 +78,11 @@ def test_marking_does_not_break_provenance_chain(base):
     )
     marked = dedup.mark_duplicates([a, b])
     assert prov.verify_chain(marked) == []
+
+
+def test_unstamped_input_refused(base):
+    """R-8: a finding without an id would make canonical_ids[key] None and
+    every duplicate in the group silently canonical."""
+    with pytest.raises(dedup.DedupError) as err:
+        dedup.mark_duplicates([copy.deepcopy(base), copy.deepcopy(base)])
+    assert err.value.reason_code == "unstamped-finding"

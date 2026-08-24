@@ -70,6 +70,14 @@ def load_or_create_key(key_path: Path, repo_root: Path) -> bytes:
     key = Fernet.generate_key()
     key_path.parent.mkdir(parents=True, exist_ok=True)
     key_path.write_bytes(key)
+    # R-7 / D-023: restrict permissions where the OS honors POSIX modes. On
+    # Windows this call only toggles the read-only bit and does NOT restrict
+    # access; the operator step there is:
+    #   icacls <keyfile> /inheritance:r /grant:r "%USERNAME%":F
+    # Recorded honest limit: no ACL guarantee on Windows from this code.
+    import os
+
+    os.chmod(key_path, 0o600)
     return key
 
 
@@ -130,11 +138,23 @@ class SealedStore:
             )
         return matches[0]
 
+    def _append_log_row(self, row: dict) -> int:
+        """Append one row to the append-only exposure log; returns its row
+        number (1-based). Rows are never mutated (D-022)."""
+        n = len(self.exposures()) + 1
+        with self.exposure_log_path.open("a", encoding="utf-8") as log:
+            log.write(json.dumps({"row": n, **row}, sort_keys=True) + "\n")
+        return n
+
     def unseal(self, ref: str, actor: str, *, explicit: bool = False) -> str:
         """Decrypt a sealed blob. Refuses unless explicit; always logs.
 
-        The exposure log row (who, when, which ref) is written BEFORE the
-        plaintext is returned, so no read can happen unlogged."""
+        Append-only two-row protocol (D-022, review residual #4): an attempt
+        row is written BEFORE the decrypt (so no read can happen unlogged),
+        and an outcome row referencing it is written after (succeeded, or
+        failed with the reason code), so a refused decrypt is never
+        indistinguishable from a real exposure. Malformed refs refuse before
+        any row is written (R-4)."""
         if not explicit:
             raise SealingError(
                 REASON_UNSEAL_NOT_EXPLICIT,
@@ -142,16 +162,34 @@ class SealedStore:
                 "always explicit and logged)",
             )
         blob = self._resolve_ref(ref)
-        entry = {"actor": actor, "at": utc_now_iso(), "ref": ref}
-        with self.exposure_log_path.open("a", encoding="utf-8") as log:
-            log.write(json.dumps(entry, sort_keys=True) + "\n")
+        attempt_row = self._append_log_row(
+            {"type": "attempt", "actor": actor, "at": utc_now_iso(), "ref": ref}
+        )
         try:
-            return self._fernet.decrypt(blob.read_bytes()).decode("utf-8")
+            plaintext = self._fernet.decrypt(blob.read_bytes()).decode("utf-8")
         except InvalidToken as exc:
+            self._append_log_row(
+                {
+                    "type": "outcome",
+                    "attempt_row": attempt_row,
+                    "outcome": "failed",
+                    "reason_code": REASON_SEAL_INTEGRITY,
+                    "at": utc_now_iso(),
+                }
+            )
             raise SealingError(
                 REASON_SEAL_INTEGRITY,
                 f"blob for {ref!r} failed authenticated decryption (tampered blob or wrong key)",
             ) from exc
+        self._append_log_row(
+            {
+                "type": "outcome",
+                "attempt_row": attempt_row,
+                "outcome": "succeeded",
+                "at": utc_now_iso(),
+            }
+        )
+        return plaintext
 
     def exposures(self) -> list[dict]:
         if not self.exposure_log_path.exists():

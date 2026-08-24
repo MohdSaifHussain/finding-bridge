@@ -79,17 +79,17 @@ def test_explicit_unseal_returns_plaintext_and_logs(store: sealing.SealedStore):
     out = store.unseal(ref, "Analyst <a@example.invalid>", explicit=True)
     assert out == SENTINEL
     log = store.exposures()
-    assert len(log) == 1
     assert log[0]["actor"] == "Analyst <a@example.invalid>"
     assert log[0]["ref"] == ref
     assert log[0]["at"]
 
 
-def test_every_unseal_appends_a_log_row(store: sealing.SealedStore):
+def test_every_unseal_appends_attempt_rows(store: sealing.SealedStore):
     ref = store.seal(SENTINEL)
     store.unseal(ref, "A <a@x.invalid>", explicit=True)
     store.unseal(ref, "B <b@x.invalid>", explicit=True)
-    assert [row["actor"] for row in store.exposures()] == ["A <a@x.invalid>", "B <b@x.invalid>"]
+    attempts = [r["actor"] for r in store.exposures() if r["type"] == "attempt"]
+    assert attempts == ["A <a@x.invalid>", "B <b@x.invalid>"]
 
 
 def test_missing_blob_refused(store: sealing.SealedStore):
@@ -194,3 +194,43 @@ def test_ambiguous_prefix_refused(store: sealing.SealedStore):
     with pytest.raises(sealing.SealingError) as err:
         store.unseal(ref, "A <a@x.invalid>", explicit=True)
     assert err.value.reason_code == "ambiguous-ref"
+
+
+# --- D-022 (#4): append-only two-row exposure protocol ---
+
+
+def test_successful_unseal_writes_attempt_and_outcome_rows(store: sealing.SealedStore):
+    ref = store.seal(SENTINEL)
+    out = store.unseal(ref, "Analyst <a@example.invalid>", explicit=True)
+    assert out == SENTINEL
+    rows = store.exposures()
+    assert [r["type"] for r in rows] == ["attempt", "outcome"]
+    assert rows[0]["actor"] == "Analyst <a@example.invalid>"
+    assert rows[1]["attempt_row"] == rows[0]["row"]
+    assert rows[1]["outcome"] == "succeeded"
+
+
+def test_failed_unseal_writes_failure_row_and_no_plaintext(store: sealing.SealedStore):
+    ref = store.seal(SENTINEL)
+    blob = next(store.store_dir.glob("*.fernet"))
+    blob.write_bytes(b"tampered" + blob.read_bytes()[8:])
+    with pytest.raises(sealing.SealingError) as err:
+        store.unseal(ref, "Analyst <a@example.invalid>", explicit=True)
+    assert err.value.reason_code == sealing.REASON_SEAL_INTEGRITY
+    rows = store.exposures()
+    assert [r["type"] for r in rows] == ["attempt", "outcome"]
+    assert rows[1]["outcome"] == "failed"
+    assert rows[1]["reason_code"] == sealing.REASON_SEAL_INTEGRITY
+
+
+def test_key_file_permissions_restricted_where_honored(tmp_path: Path, repo_root: Path):
+    """R-7: 0o600 where the OS honors it; on Windows this documents the gap
+    rather than asserting a guarantee chmod does not deliver there."""
+    import stat
+    import sys
+
+    path = tmp_path / "perm" / "fb.key"
+    sealing.load_or_create_key(path, repo_root)
+    if sys.platform == "win32":
+        pytest.skip("Windows ACLs are not set by chmod; operator step is icacls (recorded limit)")
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600

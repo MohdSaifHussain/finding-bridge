@@ -21,6 +21,17 @@ DEDUP_EXCLUDED = (*EXCLUDED_FROM_HASH, "discovered_at")
 CLUSTER_PREFIX = "cl-"
 CLUSTER_HASH_CHARS = 16
 
+REASON_UNSTAMPED = "unstamped-finding"
+
+
+class DedupError(Exception):
+    """Raised on dedup misuse; reason_code is machine-readable."""
+
+    def __init__(self, reason_code: str, detail: str):
+        self.reason_code = reason_code
+        self.detail = detail
+        super().__init__(f"{reason_code}: {detail}")
+
 
 def dedup_key(finding: dict) -> str:
     content = {k: v for k, v in finding.items() if k not in DEDUP_EXCLUDED}
@@ -38,6 +49,15 @@ def mark_duplicates(findings: list[dict]) -> list[dict]:
     mutated; content hashes are unaffected because dedup is excluded from
     hashing (provenance chain stays valid after marking).
     """
+    # R-8 (D-021): an unstamped finding has no id, canonical_ids[key] would
+    # be None, and every duplicate in that group would silently pass as
+    # canonical. Refuse instead.
+    for i, f in enumerate(findings):
+        if not f.get("id"):
+            raise DedupError(
+                REASON_UNSTAMPED,
+                f"finding at index {i} has no id; stamp findings before dedup",
+            )
     marked = [copy.deepcopy(f) for f in findings]
     keys = [dedup_key(f) for f in marked]
     counts: dict[str, int] = {}
