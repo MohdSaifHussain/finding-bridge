@@ -25,7 +25,7 @@ def _workspace(args) -> pipeline.Workspace:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="fb", description="finding-bridge")
+    parser = argparse.ArgumentParser(prog="finding-bridge", description="finding-bridge")
     parser.add_argument("--store", default=DEFAULT_STORE, help="workspace directory")
     parser.add_argument("--key", default=str(DEFAULT_KEY), help="sealing key path (outside repo)")
     sub = parser.add_subparsers(dest="command", required=True)

@@ -6,7 +6,18 @@ build-backend = "setuptools.build_meta"
 name = "finding-bridge"
 version = "0.1.0"
 description = "Universal local-first adapter turning AI red-team tool output into standardized, sealed, provenance-stamped findings"
+# License intentionally absent: a rights grant is the director's decision
+# (PROV-2, pending ratification). Until then: all rights reserved by default.
 requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
 dependencies = [
     "jsonschema>=4.26",
     "rfc3339-validator>=0.1.4",
@@ -15,7 +26,7 @@ dependencies = [
 ]
 
 [project.scripts]
-fb = "finding_bridge.cli:main"
+finding-bridge = "finding_bridge.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -29,6 +40,9 @@ audit = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"finding_bridge.schemas" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

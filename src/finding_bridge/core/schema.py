@@ -11,22 +11,22 @@ https://python-jsonschema.readthedocs.io/en/stable/validate/). A provenance
 timestamp nothing checks is a silence-shaped failure, so every validator this
 project uses goes through this module, with the format checker on.
 
-Honest limit: the schema file is resolved relative to the repo tree, which
-holds for the editable install this project uses (charter: pip install -e .);
-a wheel install would need the schema packaged as data. Carried in the phase
-outcome.
+STEP-04 W2b resolved the former repo-relative-path limit: the canonical
+schema and field map ship as package data (finding_bridge.schemas) loaded
+via importlib.resources, so editable installs, wheels and fresh venvs all
+carry them.
 """
 
 import json
 from functools import lru_cache
-from pathlib import Path
+from importlib.resources import files
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 REASON_SCHEMA_INVALID = "schema-invalid"
 
-SCHEMA_PATH = Path(__file__).resolve().parents[3] / "schemas" / "finding.schema.json"
+_SCHEMAS = files("finding_bridge.schemas")
 
 
 class SchemaValidationError(Exception):
@@ -40,7 +40,12 @@ class SchemaValidationError(Exception):
 
 @lru_cache(maxsize=1)
 def load_schema() -> dict:
-    return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    return json.loads(_SCHEMAS.joinpath("finding.schema.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_field_map() -> dict:
+    return json.loads(_SCHEMAS.joinpath("field_map.json").read_text(encoding="utf-8"))
 
 
 @lru_cache(maxsize=1)

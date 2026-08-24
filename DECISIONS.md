@@ -862,6 +862,7 @@ named Windows key-permissions platform gap.
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
 |---|---|---|---|---|---|
+| PROV-2 | pyproject ships WITHOUT a license field or license classifier | (a) omit, all-rights-reserved by legal default, director picks at stop one; (b) builder picks a permissive license | (a): adding a license later is one line; un-granting a wrongly-granted one is practically impossible. A rights decision belongs to the owner. | one pyproject edit once ruled | OPEN, pending ratification at STEP-04 stop one |
 | PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | **RATIFIED (a)** by the director at stop one; note added to OB-6 and §4d via DEV-9: canonical form and schema can change independently and only one has a version - the identity problem's fourth hat |
 
 ## Obligations register (carried by name until discharged)

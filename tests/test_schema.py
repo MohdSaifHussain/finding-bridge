@@ -16,9 +16,9 @@ import pytest
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
+from finding_bridge.core.schema import load_field_map, load_schema  # noqa: E402
+
 REPO = Path(__file__).resolve().parent.parent
-SCHEMA_PATH = REPO / "schemas" / "finding.schema.json"
-FIELD_MAP_PATH = REPO / "schemas" / "field_map.json"
 FIXTURES = REPO / "schemas" / "fixtures"
 
 
@@ -52,12 +52,12 @@ def leaf_paths(schema: dict, node: dict | None = None, prefix: str = "") -> set[
 
 @pytest.fixture(scope="module")
 def schema() -> dict:
-    return load(SCHEMA_PATH)
+    return load_schema()
 
 
 @pytest.fixture(scope="module")
 def field_map() -> dict:
-    return load(FIELD_MAP_PATH)
+    return load_field_map()
 
 
 # --- schema is itself valid 2020-12 ---

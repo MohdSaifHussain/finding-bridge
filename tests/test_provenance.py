@@ -135,11 +135,9 @@ def test_nonnull_first_prev_hash_detected(finding):
 
 
 def test_stamped_fixture_still_validates_against_schema(finding):
-    from jsonschema import Draft202012Validator
+    from finding_bridge.core.schema import validate_finding
 
-    schema = json.loads((FIXTURES.parent / "finding.schema.json").read_text(encoding="utf-8"))
-    stamped = prov.stamp(finding)
-    Draft202012Validator(schema).validate(stamped)
+    validate_finding(prov.stamp(finding))
 
 
 # --- R-1: the human-gate record itself is tamper-evident ---
