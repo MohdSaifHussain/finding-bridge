@@ -9,6 +9,59 @@ docstring); tier FULL ratified with the inverted re-ask default, builder's
 forecast (default holds) recorded for scoring. D-034 Sections B-G in
 force; halting only at the declared stops.
 
+## 7. Outcome (assembled 2026-08-24; awaiting the director's stop-two ritual)
+
+Shipped: D1-D8. GATE: 192 passed + 2 deliberate skips (win-perms; one
+parametrize row documented as covered elsewhere), pytest-reported
+median-of-three **7.58s**, wall median **8.4s** (builder's machine; both
+numbers per D-040 - the wall formatter's first output divided ns by 1e8
+and was caught before reporting, named per the quality bar). Both ruff
+halves clean. Reason codes: 29, all with both controls.
+
+**Close audit:** all four core modules IDENTICAL to the STEP-02 close
+(provenance 34, sealing 5, dedup 14, schema 6 survivors; **85.9%, 360 of
+419, full core; scope unchanged, ratchet held exactly**) - the audit
+CONFIRMS core-untouched-this-phase as a measurement, not a claim. Guard
+ran first (9 passed). Prior survivor dispositions stand unchanged.
+Adapters remain unmeasured by mutation (R4, named).
+
+### Exit checklist, builder-side evidence
+- [x] Happy path builder-observed end to end (both formats, stdin route,
+      metadata flags, sealed previews in list); director rows in the
+      ritual below.
+- [x] Negatives observed through the CLI: missing file
+      (input-unreadable), markerless stdin (invalid-transcript), each
+      exit 1, location-not-value.
+- [x] Oversize refuses on BOTH adapters (boundary table rows, incl. the
+      chunked stdin control); non-UTF-8 refuses unsupported-encoding.
+- [x] No-echo sweep across every boundary row; DEV-14 case-variant
+      refusal red-then-green with the mid-line not-fire control.
+- [x] D2 table green, 10 rows, proof-of-failure anchored to the REAL
+      ratification-observed leak (3.4 coverage guard included).
+- [x] Ratchet compared at unchanged scope: held exactly.
+- [x] Tier re-ask: inverted default held; forecast scored correct.
+- [x] Obligations and limits carried (below).
+
+### Defects found by running, not by reading
+1. Blank pre-marker lines refused (S3-2): caught red by the sniff test.
+2. The S:\ traceback (S3-3): a measurement artifact diagnosed before
+   belief; lesson kept in docs/LESSONS.md.
+3. DEV-14 case-mismatch: the DIRECTOR's adversarial shot - silent
+   misattribution, full escape, fixed red-first both directions.
+
+### Obligations carried, by name
+OB-1, OB-2 (blocked on OB-6), OB-4, OB-5, OB-6 (+fourth hat), OB-7
+(+DEV-4 assumption). None discharged this phase; none opened.
+
+### Honest limits (carried unchanged, plus this phase's)
+All prior limits stand. New: the delimited-text grammar cannot represent
+content lines that begin with a marker token at column 0 (DEV-10, pinned
+by test; JSON is the lossless escape); case-variant markers at column 0
+refuse rather than parse (DEV-14 - a strictness, stated); the 10 MiB cap
+(stated in CLI help and refusals; configurable later without unmaking);
+adapters unmeasured by mutation; D-042's wording rule governs any future
+user-facing pitch.
+
 ## 6. Deviations (ratification amendments; global DEV numbering continues)
 
 **DEV-10 (Q1 addition - the embedded-marker hazard, the parser's central
