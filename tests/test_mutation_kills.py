@@ -194,3 +194,32 @@ def test_confirmed_at_alone_is_still_a_confirmation_claim():
     stamped["provenance"]["confirmed_at"] = "2026-08-24T13:00:00+00:00"
     codes = {f["reason_code"] for f in prov.verify_chain([stamped])}
     assert codes == {prov.REASON_ATTESTATION_MISSING}
+
+
+def test_attestation_tamper_detected_in_both_hash_orderings():
+    """Kills provenance L254 '!=' -> '<' (STEP-04 close audit). The
+    attestation comparison had only ever been tested with one ordering of
+    stored vs expected hash, so a weakened comparison passed by luck. Same
+    class as the content-hash orderings killed at STEP-02: a repeat, and
+    the eval says so."""
+    stamped = prov.stamp(copy.deepcopy(BASE))
+    below = above = None
+    i = 0
+    while below is None or above is None:
+        confirmed = prov.confirm(stamped, f"Analyst-{i} <a@x.invalid>")
+        real = confirmed["provenance"]["attestation_hash"]
+        forged = prov.attestation_hash(
+            confirmed["provenance"]["content_hash"],
+            "Forged <f@x.invalid>",
+            confirmed["provenance"]["confirmed_at"],
+        )
+        if forged < real and below is None:
+            below = confirmed
+        if forged > real and above is None:
+            above = confirmed
+        i += 1
+    for confirmed in (below, above):
+        tampered = copy.deepcopy(confirmed)
+        tampered["provenance"]["confirmed_by"] = "Forged <f@x.invalid>"
+        codes = {f["reason_code"] for f in prov.verify_chain([tampered])}
+        assert prov.REASON_ATTESTATION_TAMPERED in codes
