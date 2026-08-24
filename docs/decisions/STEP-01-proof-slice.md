@@ -241,6 +241,30 @@ point, and `core/schema.py` as the single validating entry.
       discharged by R-1 quoted).
 - [x] Outcome appended; obligations and limits carried below.
 
+### Phase close, verified (director's ritual, 2026-08-24)
+
+The director ran every row personally, plus controls of their own (including
+a positive control the builder had not listed: searching the fixture itself
+to prove the sentinel-absence search could detect). All happy-path and
+refusal rows confirmed. The three rows previously marked prediction are now
+OBSERVATIONS: hand-edited confirmed_by in ledger.jsonl gave exit 1
+attestation-tampered; deleted head.json gave exit 1 head-missing; a
+hand-built three-record ledger with the last row dropped gave exit 1
+head-mismatch ("chain has count=2 ... head commits to count=3"), and an
+accidentally duplicated record was ALSO caught by the head, so it detects
+insertion as well as truncation. Two blocking findings came out of the
+ritual (A and B below), fixed red-then-green and re-run before close.
+
+Re-run of the two touched rows after the fixes (builder-observed, this
+session, awaiting the director's own re-run): ingest-garak on the unchanged
+fixture printed {"ingested": 3, "total_candidates": 3, "duplicates_marked": 1}
+with `duplicate-of` shown on the second of the identical pair and record 3
+unique; a BOM-prefixed ledger with forged confirmed_by (Notepad simulation)
+gave exit 1 `attestation-tampered: ...`, a governed refusal, not a crash.
+
+GATE suite wall-clock at this close (per D-027, reported every close):
+**1.3 seconds** for 105 passed + 1 skipped.
+
 ### Defects found by running it, not by inspection
 1. The R-8 negative control tested nothing (fixture already carried an id);
    pytest caught it AFTER commit `a9251d4` landed red because the gate run
@@ -249,6 +273,20 @@ point, and `core/schema.py` as the single validating entry.
    harmful-capable text into candidates in the clear. Fixed by sealing them
    as a context blob (`context_sealed_ref`). No prior test or review row had
    named this class.
+3. **Finding A (director's ritual):** dedup detected nothing in its own
+   fixture; byte-identical evidence differed only in attempt bookkeeping
+   riding inside the dedup key. Ruled a defect wearing a limit's clothes;
+   fixed per D-025.
+4. **Finding B (director's ritual):** a Notepad-edited (BOM) ledger crashed
+   with a raw traceback instead of refusing; the only failure mode in the
+   phase without a reason code, hit by following the ritual literally.
+   Fixed per D-026.
+
+**Practice finding (director's, recorded as ruled):** that is the third and
+fourth time this phase that execution beat inspection, after the R-8 control
+that tested nothing and the goal/triggers leak. A suite proves what it was
+told to look for, and the ritual is where the things nobody thought to
+assert show up.
 
 ### Obligations carried, by name
 OB-1 (FLARE-AI canonical schema, v1.x), OB-2 (MultiFernet rotation,
@@ -258,8 +296,17 @@ crossing; scoped OUT of v1 and named as such).
 
 ### Honest limits (carried forward unchanged unless marked new)
 - Phase 0 verification limits, unchanged (charter §10).
-- Exact-hash dedup only; for garak that means re-ingestion dedup, since
-  every hit carries a unique attempt_id (new, this phase).
+- Exact-hash dedup only: identical evidence dedups within and across
+  ingests (dedup key excludes reproduction.environment per D-025);
+  near-duplicate clustering (similar but not identical evidence) remains
+  out of v1 scope.
+  **Correction (2026-08-24, direction: toward the less flattering answer
+  for the builder).** This limit originally read: "Exact-hash dedup only;
+  for garak that means re-ingestion dedup, since every hit carries a
+  unique attempt_id (new, this phase)." The director's ritual showed that
+  wording described a defect, not a limit: single-ingest dedup on
+  byte-identical evidence, the case Pain-4 exists to serve, did not work
+  on the only shipped adapter. Fixed per D-025; original kept here quoted.
 - Preview is structural metadata, not semantic grey-scale.
 - The chain head is unsigned: detects accident, drift and casual edit, not
   an attacker with write access to ledger AND head (OB-4 bound; the packet

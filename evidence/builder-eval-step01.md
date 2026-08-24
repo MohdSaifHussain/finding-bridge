@@ -100,6 +100,28 @@ the one in §2 above (6 full, 3 partial), and the discrepancy is recorded
 here, direction: the original understated nothing but was ambiguous.
 Everything after commit `fa3eb53` belongs to no eval.
 
+## Recompilation after the director's phase-close ritual (2026-08-24)
+
+Computed once, at the final total, against the last code commit `e22807e`
+(the records commit that carries this section changes no code under
+evaluation). The first compilation's figures above stay as written; this
+section corrects them. The ritual added two substantive defects, both found
+by the director by running, neither visible to the then-green suite:
+
+| # | Defect | Found by | Escape? |
+|---|---|---|---|
+| 16 | Finding A: dedup marked nothing on its own fixture (attempt bookkeeping inside the dedup key); previously recorded by the builder as a LIMIT, reclassified by the director as a defect wearing a limit's clothes | D (ritual) | escape |
+| 17 | Finding B: BOM-touched ledger crashed with a raw traceback, no reason code | D (ritual) | escape |
+
+**Corrected totals:** substantive defects 15 -> **17**; fully escaped
+6 -> **8** (rows 2, 5, 6, 8, 9, 10, 16, 17): **8/17 = 47%**, and counting
+the three partial escapes **11/17 = 65%** (previously 40% and 60%). One
+defect now moves the rate ~5.9 points. Direction of every correction in
+this recompilation: toward the less flattering answer for the builder.
+Row 16 carries an extra weight the fraction hides: the builder did not
+merely miss it, it had recorded the defect as a documented limit, which is
+the exact failure mode C-002 warned about in the other direction.
+
 ## 8. The question for the next boundary
 
 Of the instruments built this phase (drift test, static gate guard, env

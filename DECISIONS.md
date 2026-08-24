@@ -356,6 +356,80 @@ not exist; v1 completion is defined by the roadmap, not by this field);
 stamping ingest time as discovery time (fabrication of the exact class the
 charter forbids); using file mtime (an approximation presented as a fact).
 
+## D-025 — Finding A: dedup key excludes reproduction.environment (director, phase-close ritual, 2026-08-24)
+
+**Decision:** the content hash and the dedup key answer different questions
+over different field sets. The content hash asks "has this record changed"
+and keeps reproduction.environment; the dedup key asks "have we seen this
+finding before" and excludes it, stated as a principle so the next adapter
+(PyRIT will have its own bookkeeping) inherits it rather than a list of
+garak field names. The prior state was ruled **a defect wearing a limit's
+clothes**: "we do not do fuzzy clustering" is a limit; failing to mark two
+byte-identical findings in a single ingest is the Pain-4 feature not
+working on the only shipped adapter.
+
+**Stated trade-off (director's condition, explicit not implicit):** findings
+identical in evidence but produced under different environment settings now
+mark as duplicates of each other. This costs nothing because dedup marks and
+never deletes: the duplicate record stays in candidates with duplicate_of
+set and its own environment preserved on its own record.
+
+**Acceptance observed (builder re-run, then awaiting director's own):**
+unchanged fixture reports duplicates_marked 1; pair shares cluster_id;
+second carries duplicate_of; record 3 stays unique (negative control).
+
+## D-026 — Finding B: unreadable stores refuse, never crash (director, phase-close ritual, 2026-08-24)
+
+**Decision:** store files read with encoding="utf-8-sig" (accepts a Notepad
+BOM, harmless without one) so a BOM-touched ledger reaches the attestation
+check and fails as designed; genuinely malformed content refuses with a
+reason code naming the file and line. Reading applied: the ruled code
+"ledger-unreadable or similar" is implemented as `store-unreadable`, since
+the same reader serves candidates, rejected, ledger, and head; the detail
+names the actual file. This was the only failure mode in the phase without
+a reason code, on the path a Windows-first project hits most often.
+
+**Controls:** BOM-intact ledger verifies clean (positive); BOM+tamper yields
+attestation-tampered; truncated line and corrupt head refuse with
+store-unreadable (negative). All four captured red before the fix.
+
+## D-027 — Testing cadence policy (director, ruled at phase close; runs from STEP-02)
+
+**Decision, standing policy, recorded now and not started during this close:**
+
+- **GATE (every commit, binding budget under 60 seconds):** unit tests,
+  hand-planted negative controls, and Hypothesis property tests for the
+  guarantee-carrying invariants: hash determinism and order independence;
+  verify_chain accepting every well-formed chain and rejecting every
+  single-record mutation; the sealed-ref validator accepting only
+  ^[0-9a-f]{16}$; seal-then-unseal round-tripping over unicode, empty and
+  very long inputs. **Wall-clock time reported at every phase close** so
+  drift is seen before it hurts (at this close: 1.3 seconds).
+- **AUDIT (once per phase close, never in CI):** one mutation-testing run
+  scoped to src/finding_bridge/core/ only. Report the score with its
+  denominator; list every surviving mutant; kill each with a test or record
+  why it is equivalent. The score is a ratchet baseline: raised later,
+  never lowered without a numbered ruling. Budget: over 20 minutes, narrow
+  scope to provenance + sealing. Reproducible by the director with one
+  command.
+- **TRIGGER:** coverage-guided fuzzing as obligation OB-5, trigger: "the
+  first time we parse data at volume that the project did not generate."
+  Scoped out until then, named rather than unmentioned.
+
+**Not automated, recorded as such:** adversarial review by someone who did
+not build the thing stays a required practice; the evidence is this phase,
+where outside review and the director's ritual found what the suite did
+not. **Stated limits:** mutation testing measures whether the suite notices
+a change, not whether behaviour is correct; property-based testing tests
+only invariants someone thought to state.
+
+**Timing:** first mutation audit and the property tests are the opening act
+of STEP-02, before any new code, measuring the core as shipped. Official
+sources fetched and cited before adopting any tool (3.12); an unmaintained
+or Windows-unsuitable tool is reported with an alternative, not forced; any
+layer that cannot name a specific failure in this codebase it would have
+caught is reported for dropping.
+
 ## Obligations register (carried by name until discharged)
 
 | ID | Obligation | Owner | Trigger / due |
@@ -364,6 +438,7 @@ charter forbids); using file mtime (an approximation presented as a fact).
 | OB-2 | Key rotation path via MultiFernet (docs: rotate() re-encrypts under primary key, preserving the token timestamp) | v1-completion phase | phase close |
 | OB-3 | Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons | v1-completion phase, before the SARIF adapter ships | cannot be discharged by silence; explicit entry either way (director condition) |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
+| OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
 
 ## STEP-01 readings, confirmed
 

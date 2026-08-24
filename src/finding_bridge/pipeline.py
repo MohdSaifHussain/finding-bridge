@@ -7,11 +7,11 @@ probe and the response are sealed whenever present ("when in doubt on a
 safety trade-off, prefer less exposure and more logging" - charter); the
 preview is the store's keyed structural preview.
 
-Dedup scope note (recorded limit): garak gives every hit a unique attempt_id,
-which this pipeline keeps as reproduction environment content, so exact-hash
-dedup merges re-ingestions of the same records (the "did we already ingest
-this" case), not distinct attempts with identical outputs - those are
-near-duplicates, and clustering is out of v1 scope by contract.
+Dedup scope (since D-025, Finding A): the dedup key excludes
+reproduction.environment, so byte-identical evidence dedups within a single
+ingest and across re-ingests, regardless of per-run bookkeeping. What
+remains out of scope is near-duplicate clustering (similar but not identical
+evidence), per the contract.
 """
 
 import json
