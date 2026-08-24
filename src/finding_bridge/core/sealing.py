@@ -15,7 +15,9 @@ refuses (unseal-not-explicit).
 """
 
 import hashlib
+import hmac
 import json
+import re
 from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -26,6 +28,19 @@ REASON_KEY_INSIDE_REPO = "key-inside-repo"
 REASON_UNSEAL_NOT_EXPLICIT = "unseal-not-explicit"
 REASON_BLOB_MISSING = "blob-missing"
 REASON_SEAL_INTEGRITY = "seal-integrity"
+REASON_MALFORMED_REF = "malformed-ref"
+REASON_AMBIGUOUS_REF = "ambiguous-ref"
+
+# Review R-3: refs and preview digests are KEYED (HMAC-SHA256 under a key
+# derived from the sealing key with domain separation), never plain
+# sha256(plaintext). A plaintext-derived digest in an emitted packet is a
+# confirmation oracle: anyone holding a guessable candidate string (e.g. a
+# jailbreak from a public corpus) could hash it and test emitted packets for
+# it, learning sealed content without unsealing and without an exposure-log
+# row. Keying removes the oracle; refs stay stable within a store.
+REF_KEY_DOMAIN = b"fb-refkey:"
+
+SHORT_REF_RE = re.compile(r"[0-9a-f]{16}")
 
 REF_PREFIX = "sealed/"
 EXPOSURE_LOG_NAME = "exposure_log.jsonl"
@@ -65,6 +80,12 @@ class SealedStore:
         self.store_dir = Path(store_dir)
         self.store_dir.mkdir(parents=True, exist_ok=True)
         self._fernet = Fernet(key)
+        self._ref_key = hashlib.sha256(REF_KEY_DOMAIN + key).digest()
+
+    def _keyed_digest(self, plaintext: str) -> str:
+        """HMAC-SHA256 of the plaintext under the store's derived ref key
+        (R-3): deterministic within this store, underivable without the key."""
+        return hmac.new(self._ref_key, plaintext.encode("utf-8"), hashlib.sha256).hexdigest()
 
     def _blob_path(self, digest: str) -> Path:
         return self.store_dir / f"{digest}.fernet"
@@ -76,22 +97,37 @@ class SealedStore:
     def seal(self, plaintext: str) -> str:
         """Encrypt plaintext into the store; return the sealed reference.
 
-        The reference is derived from the plaintext's SHA-256, so the same
-        content seals to the same reference (stable across runs; the hash of
-        harmful text exposes no harmful text)."""
-        digest = hashlib.sha256(plaintext.encode("utf-8")).hexdigest()
+        The reference is a KEYED digest of the plaintext (R-3), so the same
+        content seals to the same reference within this store, while nobody
+        without the key can derive or confirm it from a candidate string."""
+        digest = self._keyed_digest(plaintext)
         blob = self._blob_path(digest)
         if not blob.exists():
             blob.write_bytes(self._fernet.encrypt(plaintext.encode("utf-8")))
         return REF_PREFIX + digest[:16]
 
     def _resolve_ref(self, ref: str) -> Path:
+        """Validate the ref BEFORE it touches the filesystem (R-4): only
+        exactly 16 lowercase hex chars pass; path separators, dots and glob
+        metacharacters refuse with malformed-ref. A prefix matching more
+        than one blob refuses with ambiguous-ref instead of silently picking
+        one."""
         if not ref.startswith(REF_PREFIX):
-            raise SealingError(REASON_BLOB_MISSING, f"malformed sealed ref {ref!r}")
+            raise SealingError(REASON_MALFORMED_REF, f"malformed sealed ref {ref!r}")
         short = ref[len(REF_PREFIX) :]
+        if not SHORT_REF_RE.fullmatch(short):
+            raise SealingError(
+                REASON_MALFORMED_REF,
+                f"ref payload {short!r} is not 16 lowercase hex characters",
+            )
         matches = list(self.store_dir.glob(f"{short}*.fernet"))
         if not matches:
             raise SealingError(REASON_BLOB_MISSING, f"no blob for ref {ref!r}")
+        if len(matches) > 1:
+            raise SealingError(
+                REASON_AMBIGUOUS_REF,
+                f"ref {ref!r} matches {len(matches)} blobs; refusing to guess",
+            )
         return matches[0]
 
     def unseal(self, ref: str, actor: str, *, explicit: bool = False) -> str:
@@ -123,20 +159,21 @@ class SealedStore:
         lines = self.exposure_log_path.read_text(encoding="utf-8").splitlines()
         return [json.loads(line) for line in lines if line.strip()]
 
+    def structural_preview(self, plaintext: str, harm_flags: list[str]) -> str:
+        """Deterministic safe-to-read preview: structure and metadata, zero
+        content. The digest shown is the store's KEYED digest (R-3), so the
+        preview cannot be used to confirm a guessed plaintext.
 
-def structural_preview(plaintext: str, harm_flags: list[str]) -> str:
-    """Deterministic safe-to-read preview: structure and metadata, zero content.
-
-    Honest limit (carried): v1's preview is structural metadata only. A
-    semantic grey-scale summary of the kind arXiv 2602.19124 points at cannot
-    be produced deterministically without exposing content or invoking AI,
-    which charter rule 1 forbids in this path; richer previews are analyst-
-    written at the human gate."""
-    digest = hashlib.sha256(plaintext.encode("utf-8")).hexdigest()
-    lines = plaintext.splitlines() or [""]
-    flags = ", ".join(harm_flags) if harm_flags else "none recorded"
-    return (
-        f"[sealed content: {len(plaintext)} chars, {len(lines)} lines, "
-        f"sha256 {digest[:8]}; harm flags: {flags}. "
-        "Content is sealed; unseal is explicit and logged.]"
-    )
+        Honest limit (carried): v1's preview is structural metadata only. A
+        semantic grey-scale summary of the kind arXiv 2602.19124 points at
+        cannot be produced deterministically without exposing content or
+        invoking AI, which charter rule 1 forbids in this path; richer
+        previews are analyst-written at the human gate."""
+        digest = self._keyed_digest(plaintext)
+        lines = plaintext.splitlines() or [""]
+        flags = ", ".join(harm_flags) if harm_flags else "none recorded"
+        return (
+            f"[sealed content: {len(plaintext)} chars, {len(lines)} lines, "
+            f"keyed digest {digest[:8]}; harm flags: {flags}. "
+            "Content is sealed; unseal is explicit and logged.]"
+        )

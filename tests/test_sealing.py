@@ -119,13 +119,78 @@ def test_wrong_key_refused(tmp_path: Path, store: sealing.SealedStore):
 
 
 def test_preview_contains_no_plaintext(store: sealing.SealedStore):
-    preview = sealing.structural_preview(SENTINEL, ["synthetic-test-category"])
+    preview = store.structural_preview(SENTINEL, ["synthetic-test-category"])
     assert "SENTINEL-HARM-9999" not in preview
     assert "synthetic-test-category" in preview
     assert str(len(SENTINEL)) in preview
 
 
-def test_preview_is_deterministic():
-    a = sealing.structural_preview(SENTINEL, [])
-    b = sealing.structural_preview(SENTINEL, [])
+def test_preview_is_deterministic(store: sealing.SealedStore):
+    a = store.structural_preview(SENTINEL, [])
+    b = store.structural_preview(SENTINEL, [])
     assert a == b
+
+
+# --- R-3: no plaintext-derived digest leaves the store ---
+
+
+def test_ref_is_not_plaintext_hash_derived(store: sealing.SealedStore):
+    import hashlib
+
+    ref = store.seal(SENTINEL)
+    plain_digest = hashlib.sha256(SENTINEL.encode("utf-8")).hexdigest()
+    assert plain_digest[:16] not in ref, "ref must not be derivable from plaintext alone"
+
+
+def test_preview_digest_is_not_plaintext_hash(store: sealing.SealedStore):
+    import hashlib
+
+    preview = store.structural_preview(SENTINEL, ["synthetic-test-category"])
+    plain_digest = hashlib.sha256(SENTINEL.encode("utf-8")).hexdigest()
+    assert plain_digest[:8] not in preview, "preview digest must not confirm guessed plaintext"
+
+
+def test_blob_filename_is_not_plaintext_hash(store: sealing.SealedStore):
+    import hashlib
+
+    store.seal(SENTINEL)
+    plain_digest = hashlib.sha256(SENTINEL.encode("utf-8")).hexdigest()
+    for blob in store.store_dir.glob("*.fernet"):
+        assert plain_digest[:16] not in blob.name
+
+
+def test_refs_differ_across_keys(tmp_path, store: sealing.SealedStore):
+    other = sealing.SealedStore(tmp_path / "other-store", Fernet.generate_key())
+    assert store.seal(SENTINEL) != other.seal(SENTINEL)
+
+
+# --- R-4: ref validation before the filesystem, ambiguity refused ---
+
+
+def test_path_traversal_ref_refused(store: sealing.SealedStore):
+    with pytest.raises(sealing.SealingError) as err:
+        store.unseal("sealed/../../etc/key", "A <a@x.invalid>", explicit=True)
+    assert err.value.reason_code == "malformed-ref"
+    assert store.exposures() == [] or store.exposures()[-1]["ref"] != "sealed/../../etc/key"
+
+
+def test_glob_metacharacter_ref_refused(store: sealing.SealedStore):
+    with pytest.raises(sealing.SealingError) as err:
+        store.unseal("sealed/*", "A <a@x.invalid>", explicit=True)
+    assert err.value.reason_code == "malformed-ref"
+
+
+def test_uppercase_hex_ref_refused(store: sealing.SealedStore):
+    with pytest.raises(sealing.SealingError) as err:
+        store.unseal("sealed/DEADBEEFDEADBEEF", "A <a@x.invalid>", explicit=True)
+    assert err.value.reason_code == "malformed-ref"
+
+
+def test_ambiguous_prefix_refused(store: sealing.SealedStore):
+    ref = store.seal(SENTINEL)
+    short = ref.split("/", 1)[1]
+    (store.store_dir / f"{short}{'0' * 48}.fernet").write_bytes(b"decoy-a")
+    (store.store_dir / f"{short}{'1' * 48}.fernet").write_bytes(b"decoy-b")
+    with pytest.raises(sealing.SealingError) as err:
+        store.unseal(ref, "A <a@x.invalid>", explicit=True)
+    assert err.value.reason_code == "ambiguous-ref"
