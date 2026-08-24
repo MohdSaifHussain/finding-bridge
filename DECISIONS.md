@@ -561,6 +561,79 @@ hats (identity derived from things that can change), so OB-3's decision is
 taken with the family in view and the contract carries one written
 survival-and-migration paragraph for a store created today.
 
+## D-031 — Commit counts: source of the systematic error named; command-only rule (director, 2026-08-24)
+
+**The error, measured (git rev-list --count):** at 950742b actual 35,
+reported 39 (+4); at 925c387 actual 33, reported 36 (+3); at a8977e2 and
+72a9cbb reported figures were correct. **Source, named:** every count up to
+a8977e2 came from a command; after it the builder switched to a mental
+running tally incrementing once per remembered commit-EVENT, and the
+opening-act turns had more events than commits (background chains
+confirmed twice, intents folded into fewer commits). The three phantom
+increments cannot be reconstructed exactly, which is the indictment of
+tallies: they keep no receipts. This is the count-treadmill class in our
+own record (D-027 addendum). **Standing rule:** commit counts are reported
+only from `git rev-list --count HEAD`, command shown, never from a tally.
+Correction C-005 in the table.
+
+## D-032 — Gate budget: collection guard moves to AUDIT cadence; delta reporting (director, 2026-08-24)
+
+**Decision:** the audit collection guard (tests_audit/test_audit_guard.py,
+moved from tests/) runs at AUDIT cadence: `python -m pytest tests_audit`
+is the first step of every mutation audit, before any cosmic-ray run. It
+cost ~7s of every commit to protect an artifact that runs once per phase;
+a check belongs at the cadence of the thing it guards (D-027 applied
+consistently). Director's trend measurements: 1.3s -> 9.9s -> 17.7s; after
+the move: 6.83s (126 passed, 1 skipped; `python -m pytest -q`). **From
+this phase on, gate wall clock is reported as a delta from the previous
+close as well as an absolute.**
+
+## D-033 — STEP-02 Q1-Q4 rulings with amendments (director, 2026-08-24)
+
+Q1 (a): physical location pointing at the emitted findings artifact, plus
+logicalLocations. Binding addition: an explicit disambiguation property
+inside the SARIF stating the physical location refers to the FINDING
+RECORD, not a defective artifact (SARIF convention reads locations as
+"where the defect is"; ours means "where the record is"). Named risk, not
+a later discovery: GitHub Code Scanning associates alerts with repository
+files, so this choice assumes the emitted artifact lives in the scanned
+repository; acceptable given sealing, tested under OB-7.
+Q2: approved; required addition: the Multitool must be fed a deliberately
+invalid SARIF and its rejection captured (a validator only ever seen
+saying yes is not yet a validator); resolved Multitool version recorded.
+Q3 (a): adopt RFC 8785 now, five binding conditions: exact version pinned
+WITH hash; the RFC's own test vectors committed as permanent suite;
+goldens re-pinned in the SAME commit as adoption; behaviour verified over
+our value space (nulls, nested objects, float severity.score, non-ASCII
+environment text; the library raises on non-string keys and nothing may
+rely on old leniency); and the recorded dependency is THE STANDARD, not
+the library - RFC 8785 is frozen and reimplementable if the package
+vanished. Migration note per charter §7. DEV-2 discharged by adoption.
+Q4: the split stands as drafted, no amendment; the FULL/STANDARD line is
+testable, which is why it is a good line.
+Readings: R1 Y, R2 Y, R3 Y (GitHub ingestion becomes OB-7), R4 Y amended:
+the npx Multitool invocation pins an explicit version, recorded, because
+npx resolves floating versions and unpinned validation is not reproducible.
+Practice note for the STEP-02 outcome, director's words: the guard bug
+caught by running the guard before committing it is the fourth instance of
+the gate-half-run family and the FIRST caught before it reached the
+record; a defect class that starts getting caught earlier is the only real
+evidence a practice is working.
+
+## D-034 — Standing delegation for STEP-02 D1-D6 (director, 2026-08-24)
+
+The director granted bounded autonomy through the phase: Section B items
+decided alone with normal decision rows; Section C bright lines stop
+everything regardless (sealed-content exposure, identity-path changes
+beyond Section A, store compatibility breaks beyond the ruled adoption,
+runtime dependencies beyond rfc8785, safety-test weakening, discovered
+wrong premises, scope growth, anything remote, real harmful content,
+hedge-worthy claims); Section D grey zone proceeds with the least
+irreversible option recorded as PROV-n PENDING RATIFICATION, capped at
+five open; two stops (after D3, and phase close); Section F quality bar
+unchanged; Section G stall protocol. Nothing on the
+questions-I-would-have-asked list closes by silence.
+
 ## Obligations register (carried by name until discharged)
 
 | ID | Obligation | Owner | Trigger / due |
@@ -571,6 +644,7 @@ survival-and-migration paragraph for a store created today.
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
 | OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
+| OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it | due when a remote exists (creating one is its own ruled decision) | opened at STEP-02 ratification |
 
 ## STEP-01 readings, confirmed
 
@@ -584,6 +658,7 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-002 | Director's R-1 wording: "src/finding_bridge/core/provenance.py:20 excludes the whole 'provenance' object from the hash [...] A field anyone can rewrite silently is not a record" — framing the exclusion as the defect. | The exclusion is load-bearing, correct design (the hash cannot contain the object that stores it; dedup is mutable triage state). The defect was the ABSENT second guard over the excluded fields; the remedy (attestation hash) is unchanged. Ruled by the director on the builder's precision note 1. | The fix keeps the exclusion and adds the attestation; test_provenance.py:45-64 asserts the exclusion+guard pair. | Toward the more precise answer; remedy unchanged. |
+| C-005 | Builder's reported repo sizes: "Repo: 36 commits, clean tree, head 925c387" and "Repo: 39 commits, clean tree, head 950742b". | Actual counts by `git rev-list --count`: 33 and 35. Source of error named in D-031: a mental running tally after a8977e2, incrementing per remembered commit-event; phantom increments unreconstructable. Standing rule: command-only counts. | Director's independent `git rev-list --count HEAD` both rounds; builder's anchor-by-anchor measurement confirming drift began after a8977e2. | Upward both times, overstating activity: +3 then +4, a growing systematic overcount, not a slip. |
 | C-004 | Director's R-3 ruling (round 2): key the refs "so refs stay stable within a store and the cross-corpus oracle disappears" - stated the benefit; the identity cost went unstated. | The keyed refs sit inside hashed content, so finding ids became store-local, not content-identity: identical findings in two stores carry different ids, and rotation as scoped in OB-2 would break every id and attestation. Recorded as the director's own correction, at their instruction, in the same manner as the builder's. Consequences ruled in D-028 (stated limit + OB-6 gate). | The director's two-store control at the STEP-01 close: six different ids for three identical findings. | Toward the less flattering answer for the director's ruling: the fix was right and its cost was real and unstated. |
 | C-003 | Director's R-10 wording: "The 'zero API keys' guarantee is currently claimed, not demonstrated." | Narrows to: demonstrated once ad hoc, never enforced in the suite. Evidence the ad hoc demonstration is recoverable from: (1) this session's transcript (URL in every commit trailer, Claude-Session line), where the run `env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY ... python -m pytest -q` returned "14 passed"; (2) commit 5ecdce4's message, which asserted "suite passes with API-key env scrubbed" contemporaneously. The contractual requirement (scrub as an enforced suite property, shown in the director's run) was genuinely unmet until commit 712b610. | Session transcript + commit 5ecdce4 message; enforcement landed in 712b610. | Toward the more flattering answer for the builder; accepted by the director only with this citation, per the higher burden rule. |
 | C-001 | "The governed-orchestration skill is **not active** in this session and is not installed/listed here" and, in the closing limits, "not yet installed" (builder's Phase 0 closing report, this session, 2026-08-24) | The skill IS installed at `~/.claude/skills/governed-orchestration` and loaded when invoked with the Skill tool on the director's instruction. What was true: it was absent from the session's listed skills. The builder widened "not listed" into "not installed" without checking the filesystem or attempting invocation: an absence stated without a check, the defect class Phase 0 audited the charter for. | Successful `Skill(governed-orchestration)` invocation, this session, on the director's check-don't-assume instruction. | Toward the less flattering answer for the builder. |
