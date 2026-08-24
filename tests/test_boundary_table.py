@@ -13,6 +13,7 @@ the same shape that ran red at ratification.
 """
 
 import io
+import json
 from pathlib import Path
 
 import pytest
@@ -201,3 +202,30 @@ def test_emit_sarif_unwritable_refuses_governed(tmp_path, capsys):
     err = capsys.readouterr().err
     assert rc == 1
     assert "output-unwritable" in err
+
+
+def test_emit_flare_creates_missing_parent(tmp_path):
+    """W3 emitter obeys the same output law as the other two (D-044)."""
+    args = _confirmed_workspace(tmp_path)
+    out = tmp_path / "flare" / "dir" / "findings.flare.json"
+    assert cli.main([*args, "emit-flare", str(out)]) == 0
+    assert out.exists()
+
+
+def test_emit_flare_unwritable_refuses_governed(tmp_path, capsys):
+    args = _confirmed_workspace(tmp_path)
+    blocker = tmp_path / "blocker3"
+    blocker.write_text("i am a file", encoding="utf-8")
+    rc = cli.main([*args, "emit-flare", str(blocker / "f.json")])
+    assert rc == 1
+    assert "output-unwritable" in capsys.readouterr().err
+
+
+def test_emit_flare_unconfirmed_refuses_governed(tmp_path, capsys):
+    """No confirmed findings: the adapter refuses through the CLI."""
+    from finding_bridge.adapters.out import flare_ai
+
+    unconfirmed = json.loads((FIXTURES / "candidate_null_fields.json").read_text(encoding="utf-8"))
+    with pytest.raises(flare_ai.FlareAdapterError) as err:
+        flare_ai.render_reports([unconfirmed])
+    assert err.value.reason_code == "unconfirmed"

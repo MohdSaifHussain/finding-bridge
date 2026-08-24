@@ -104,14 +104,21 @@ Prints `chain verifies clean`, or lists any tampering it finds.
 ```
 finding-bridge emit-markdown out/packet.md
 finding-bridge emit-sarif out/findings.sarif
+finding-bridge emit-flare out/findings.flare.json
 ```
 
 SARIF writes a second file next to it: `findings.fb.jsonl`. The SARIF
 location points at a line in that file. Both emitters create the output
 folder if it does not exist.
 
-Neither output contains sealed content. They carry the preview, metadata,
-and references only.
+No output contains sealed content. They carry the preview, metadata, and
+references only.
+
+`emit-flare` writes a FLARE-AI style report set. It is marked
+**PROVISIONAL** inside the file, at both the report-set and report level.
+FLARE-AI has not published a machine-readable schema, so this mapping
+comes from the field names in the FLARE-AI paper. Check the field names
+before you submit anything based on it.
 
 ### Unseal (explicit and logged)
 

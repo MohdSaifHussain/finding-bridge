@@ -10,7 +10,7 @@ from finding_bridge import gate, pipeline
 from finding_bridge.adapters import reading, writing
 from finding_bridge.adapters.in_.garak import GarakAdapterError
 from finding_bridge.adapters.in_.transcript import TranscriptAdapterError
-from finding_bridge.adapters.out import markdown, sarif
+from finding_bridge.adapters.out import flare_ai, markdown, sarif
 from finding_bridge.core.dedup import DedupError
 from finding_bridge.core.provenance import ProvenanceError
 from finding_bridge.core.schema import SchemaValidationError
@@ -56,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
         default="findings.fb.jsonl",
         help="findings record file written beside the SARIF; SARIF locations point at its lines",
     )
+    p = sub.add_parser(
+        "emit-flare",
+        help="emit confirmed findings as a PROVISIONAL FLARE-AI report set",
+    )
+    p.add_argument("out", help="output .json path (default name: findings.flare.json)")
     p = sub.add_parser("unseal", help="explicitly unseal one reference (logged)")
     p.add_argument("ref")
     p.add_argument("--explicit", action="store_true", help="required; unsealing is deliberate")
@@ -108,6 +113,12 @@ def main(argv: list[str] | None = None) -> int:
                 out_path, json.dumps(log, indent=2, ensure_ascii=False) + "\n"
             )
             print(f"wrote {out_path} and {artifact_path}")
+        elif args.command == "emit-flare":
+            reports = flare_ai.render_reports(ws.confirmed_findings())
+            writing.write_text_output(
+                Path(args.out), json.dumps(reports, indent=2, ensure_ascii=False) + "\n"
+            )
+            print(f"wrote {args.out} (PROVISIONAL mapping; see the provisional block)")
         elif args.command == "unseal":
             print(ws.store.unseal(args.ref, gate.get_git_identity(), explicit=args.explicit))
     except (
@@ -123,6 +134,7 @@ def main(argv: list[str] | None = None) -> int:
         pipeline.PipelineError,
         markdown.MarkdownAdapterError,
         sarif.SarifAdapterError,
+        flare_ai.FlareAdapterError,
     ) as exc:
         print(f"{exc.reason_code}: {exc.detail}", file=sys.stderr)
         return 1

@@ -26,7 +26,9 @@ transcripts    ──┘    human confirm             └──> SARIF 2.1.0
   finding stays credible after the model changes.
 - **Waits for a human.** Nothing becomes a confirmed finding until a
   person confirms it. The record shows who and when.
-- **Emits** Markdown packets and SARIF 2.1.0 that real tools accept.
+- **Emits** Markdown packets and SARIF 2.1.0 that real tools accept, plus
+  a provisional FLARE-AI report set (marked provisional in the file,
+  because FLARE-AI has not published a schema yet).
 
 No AI runs anywhere in this pipeline. No API key is needed, ever. The
 test suite proves it on every run.
@@ -69,6 +71,7 @@ finding-bridge confirm <id-from-list>
 finding-bridge verify
 finding-bridge emit-markdown out/packet.md
 finding-bridge emit-sarif out/findings.sarif
+finding-bridge emit-flare out/findings.flare.json
 ```
 
 See [docs/USAGE.md](docs/USAGE.md) for the full walk-through, every
