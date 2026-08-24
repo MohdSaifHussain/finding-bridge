@@ -25,6 +25,7 @@ from finding_bridge.core.schema import validate_finding
 
 REASON_UNKNOWN_ID = "unknown-id"
 REASON_HEAD_MISSING = "head-missing"
+REASON_STORE_UNREADABLE = "store-unreadable"
 
 CANDIDATES_FILE = "candidates.jsonl"
 REJECTED_FILE = "rejected.jsonl"
@@ -40,11 +41,27 @@ class PipelineError(Exception):
 
 
 def _read_jsonl(path: Path) -> list[dict]:
+    """Read a store file, refusing (never crashing) on unreadable content.
+
+    Finding B (director's ritual): Notepad on Windows writes UTF-8 with a
+    BOM, so encoding is utf-8-sig (accepts a BOM, harmless without one) and
+    a BOM-touched ledger reaches the attestation check instead of dying in
+    json.loads. Genuinely malformed content refuses with store-unreadable,
+    naming the file and line."""
     if not path.exists():
         return []
-    return [
-        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
-    ]
+    records = []
+    for lineno, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            records.append(json.loads(line))
+        except json.JSONDecodeError as exc:
+            raise PipelineError(
+                REASON_STORE_UNREADABLE,
+                f"{path.name} line {lineno} is not valid JSON: {exc.msg}",
+            ) from exc
+    return records
 
 
 def _write_jsonl(path: Path, records: list[dict]) -> None:
@@ -155,5 +172,11 @@ class Workspace:
                     "detail": "ledger exists but head record is missing",
                 }
             ]
-        head = json.loads(self.head_path.read_text(encoding="utf-8"))
+        try:
+            head = json.loads(self.head_path.read_text(encoding="utf-8-sig"))
+        except json.JSONDecodeError as exc:
+            raise PipelineError(
+                REASON_STORE_UNREADABLE,
+                f"{self.head_path.name} is not valid JSON: {exc.msg}",
+            ) from exc
         return prov.verify_chain(ledger, expected_head=head)

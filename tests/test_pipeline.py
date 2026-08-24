@@ -165,3 +165,55 @@ def test_genuinely_different_record_stays_unique(ws: pipeline.Workspace):
     assert len(others) == 1
     assert others[0]["dedup"]["duplicate_of"] is None
     assert others[0]["dedup"]["cluster_id"] is None
+
+
+# --- Finding B (director's ritual, ruled): unreadable stores refuse, never crash ---
+
+
+def test_bom_prefixed_ledger_verifies_clean(ws: pipeline.Workspace):
+    """Positive control: a Notepad-style UTF-8 BOM on an otherwise intact
+    ledger must not crash; the store reads it and verifies clean."""
+    ws.ingest_garak(HITLOG)
+    ws.confirm(ws.list_candidates()[0]["id"], IDENTITY)
+    raw = ws.ledger_path.read_bytes()
+    ws.ledger_path.write_bytes(b"\xef\xbb\xbf" + raw)
+    assert ws.verify() == []
+
+
+def test_bom_plus_tamper_reaches_attestation_check(ws: pipeline.Workspace):
+    """The ritual's Notepad tamper path: BOM + edited confirmed_by must fail
+    with attestation-tampered, not crash before the check."""
+    ws.ingest_garak(HITLOG)
+    ws.confirm(ws.list_candidates()[0]["id"], IDENTITY)
+    line = ws.ledger_path.read_text(encoding="utf-8").splitlines()[0]
+    record = json.loads(line)
+    record["provenance"]["confirmed_by"] = "Forged <f@example.invalid>"
+    ws.ledger_path.write_bytes(
+        b"\xef\xbb\xbf" + (json.dumps(record, sort_keys=True) + "\n").encode("utf-8")
+    )
+    codes = {f["reason_code"] for f in ws.verify()}
+    assert codes == {prov.REASON_ATTESTATION_TAMPERED}
+
+
+def test_corrupted_ledger_line_refuses_with_reason_code(ws: pipeline.Workspace):
+    """Negative control: a truncated line refuses with store-unreadable
+    naming the file and line, never a raw traceback."""
+    ws.ingest_garak(HITLOG)
+    ws.confirm(ws.list_candidates()[0]["id"], IDENTITY)
+    raw = ws.ledger_path.read_text(encoding="utf-8")
+    ws.ledger_path.write_text(raw[: len(raw) // 2], encoding="utf-8")
+    with pytest.raises(pipeline.PipelineError) as err:
+        ws.verify()
+    assert err.value.reason_code == "store-unreadable"
+    assert "ledger.jsonl" in err.value.detail
+    assert "line 1" in err.value.detail
+
+
+def test_corrupted_head_refuses_with_reason_code(ws: pipeline.Workspace):
+    ws.ingest_garak(HITLOG)
+    ws.confirm(ws.list_candidates()[0]["id"], IDENTITY)
+    ws.head_path.write_text("{not json", encoding="utf-8")
+    with pytest.raises(pipeline.PipelineError) as err:
+        ws.verify()
+    assert err.value.reason_code == "store-unreadable"
+    assert "head.json" in err.value.detail
