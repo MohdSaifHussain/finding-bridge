@@ -430,6 +430,55 @@ or Windows-unsuitable tool is reported with an alternative, not forced; any
 layer that cannot name a specific failure in this codebase it would have
 caught is reported for dropping.
 
+**Rationale addendum (director's note, 2026-08-24; changes nothing about
+the policy, records where it came from so the reasoning is not lost):**
+
+The problem being solved: our negative controls plant one defect, by hand,
+once, at build time. That proves a check can fail for that single mutation
+at that single moment. It does not prove the check catches a different
+mutation, and nothing re-runs the planting, so it decays silently from the
+day it is written. Humans plant once because a human chooses each defect by
+hand and stops at one. The policy wants many defects, of many types,
+generated and re-run automatically: one scripted probe is not a red team.
+
+The four quadrants the three cadences were built around:
+
+1. **Known knowns** - behaviour we specified. Unit tests + hand-planted
+   negative controls. Already in place. GATE cadence.
+2. **Unknown knowns** - code paths no test asserts anything about. The
+   quadrant we had nothing for, and the one the complaint was really
+   about. Mutation testing: one mutation at a time, run the suite, record
+   whether it was caught; a surviving mutant is a line nothing cares
+   about. AUDIT cadence.
+3. **Known unknowns** - the invariant is known, the breaking input is not.
+   Property-based testing: generated inputs across the described range,
+   including edges the author did not think of, shrunk to smallest
+   failure. GATE cadence, because it is cheap.
+4. **Unknown unknowns** - the question itself is unknown. Coverage-guided
+   fuzzing on untrusted input reaches part of it (TRIGGER cadence, OB-5);
+   the rest is adversarial review by someone who did not build the thing
+   (permanent practice, never automated away).
+
+Candidate tools to evaluate, not adopted until their official sources are
+read (3.12): mutmut (mutmut.readthedocs.io) or cosmic-ray for mutation
+testing; Hypothesis (hypothesis.readthedocs.io) for properties; Atheris
+(github.com/google/atheris) for fuzzing when OB-5 triggers. Unmaintained or
+Windows/Python-unsuitable tools are reported plainly with an alternative.
+
+Two limits recorded with the policy so nobody reads more into it than is
+there: (1) mutation testing produces equivalent mutants, semantically
+identical changes that can never be killed, so the score has a permanent
+ceiling below 100 percent - we ratchet it, never chase perfection, and a
+padded score is worse than an honest one; (2) the fourth quadrant does not
+close - this phase's suite was green at 105 tests while outside review and
+the director's ritual found what it missed, including the store-local id
+finding no test would ever have asked about. That is the empirical case
+for human adversarial review as a requirement, not a fallback.
+
+The ceiling matters as much as the coverage: every check is code that must
+be maintained, and checks rot like everything else. That is why the D-027
+budgets are binding numbers, not aspirations.
+
 ## D-028 — Store-local finding ids: stated limit now, OB-2 blocked on OB-6 (director, at STEP-01 close, 2026-08-24)
 
 **Finding (director's own control, no ritual row called for it):** the same
