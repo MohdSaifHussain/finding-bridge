@@ -35,6 +35,9 @@ REASON_RESTAMP_CONFIRMED = "restamp-confirmed"
 # Domain separator so an attestation hash can never collide with a content
 # hash computed over crafted content.
 ATTESTATION_DOMAIN = "fb-attest:"
+HEAD_DOMAIN = "fb-head:"
+REASON_HEAD_MISMATCH = "head-mismatch"
+REASON_HEAD_TAMPERED = "head-tampered"
 
 
 class ProvenanceError(Exception):
@@ -64,6 +67,17 @@ def content_hash(finding: dict) -> str:
 
 def derive_id(digest: str) -> str:
     return ID_PREFIX + digest[:ID_HASH_CHARS]
+
+
+def chain_head_internal_ok(head: dict) -> bool:
+    """Check a head record's own integrity hash against its fields."""
+    payload = json.dumps(
+        [head.get("count"), head.get("last_content_hash")],
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    expected = hashlib.sha256((HEAD_DOMAIN + payload).encode("utf-8")).hexdigest()
+    return head.get("head_hash") == expected
 
 
 def attestation_hash(digest: str, confirmed_by: str, confirmed_at: str) -> str:
@@ -133,7 +147,24 @@ def confirm(finding: dict, confirmed_by: str, confirmed_at: str | None = None) -
     return confirmed
 
 
-def verify_chain(findings: list[dict]) -> list[dict]:
+def chain_head(findings: list[dict]) -> dict:
+    """Commit to the chain's size and tail (review R-2).
+
+    Modeled on RFC 9162 section 4.1's signed tree head, which commits to
+    tree_size precisely so a log cannot be silently shortened; v1 commits to
+    (count, last content_hash) with an internal integrity hash but does NOT
+    sign it - see the recorded limit: an attacker who can rewrite both the
+    ledger and its head can still truncate. Detecting that requires a trust
+    anchor outside the store (signing key, remote copy), out of v1 scope.
+    """
+    count = len(findings)
+    last = (findings[-1].get("provenance") or {}).get("content_hash") if findings else None
+    payload = json.dumps([count, last], separators=(",", ":"), ensure_ascii=False)
+    head_hash = hashlib.sha256((HEAD_DOMAIN + payload).encode("utf-8")).hexdigest()
+    return {"count": count, "last_content_hash": last, "head_hash": head_hash}
+
+
+def verify_chain(findings: list[dict], expected_head: dict | None = None) -> list[dict]:
     """Verify content hashes, derived ids, and chain linkage.
 
     Returns a list of failures, each {"index", "reason_code", "detail"};
@@ -147,8 +178,37 @@ def verify_chain(findings: list[dict]) -> list[dict]:
     - attestation-missing: a record claims confirmation but carries no
       attestation hash
     - attestation-spurious: an unconfirmed record carries an attestation hash
+    - head-tampered: expected_head's own head_hash does not match its fields
+    - head-mismatch: the chain does not match expected_head (truncated tail,
+      or a rewritten tail record; review R-2)
     """
     failures: list[dict] = []
+    if expected_head is not None:
+        internal = chain_head_internal_ok(expected_head)
+        if not internal:
+            failures.append(
+                {
+                    "index": None,
+                    "reason_code": REASON_HEAD_TAMPERED,
+                    "detail": "expected_head head_hash does not match its own fields",
+                }
+            )
+        else:
+            actual = chain_head(findings)
+            if actual["head_hash"] != expected_head["head_hash"]:
+                failures.append(
+                    {
+                        "index": None,
+                        "reason_code": REASON_HEAD_MISMATCH,
+                        "detail": (
+                            f"chain has count={actual['count']}, "
+                            f"last={actual['last_content_hash']!r}; head commits to "
+                            f"count={expected_head['count']}, "
+                            f"last={expected_head['last_content_hash']!r} "
+                            "(truncated or rewritten tail)"
+                        ),
+                    }
+                )
     for i, finding in enumerate(findings):
         provenance = finding.get("provenance") or {}
         stored = provenance.get("content_hash")

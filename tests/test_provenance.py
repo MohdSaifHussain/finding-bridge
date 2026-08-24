@@ -203,3 +203,48 @@ def test_stamp_refuses_confirmed_finding(finding):
     with pytest.raises(prov.ProvenanceError) as err:
         prov.stamp(confirmed)
     assert err.value.reason_code == "restamp-confirmed"
+
+
+# --- R-2: tail truncation is detectable against a chain head ---
+
+
+def test_intact_chain_verifies_against_head(finding):
+    """Positive control."""
+    chain = make_chain(finding, n=4)
+    head = prov.chain_head(chain)
+    assert prov.verify_chain(chain, expected_head=head) == []
+
+
+def test_truncated_tail_detected(finding):
+    chain = make_chain(finding, n=4)
+    head = prov.chain_head(chain)
+    failures = prov.verify_chain(chain[:-1], expected_head=head)
+    assert [f["reason_code"] for f in failures] == ["head-mismatch"]
+
+
+def test_rewritten_tail_detected(finding):
+    """Consistently rewritten last record (content, hash and id all redone)
+    passes per-record checks; the head catches it."""
+    chain = make_chain(finding, n=3)
+    head = prov.chain_head(chain)
+    chain[2]["preview"] = "rewritten tail"
+    digest = prov.content_hash(chain[2])
+    chain[2]["provenance"]["content_hash"] = digest
+    chain[2]["id"] = prov.derive_id(digest)
+    failures = prov.verify_chain(chain, expected_head=head)
+    assert [f["reason_code"] for f in failures] == ["head-mismatch"]
+
+
+def test_tampered_head_detected(finding):
+    chain = make_chain(finding, n=2)
+    head = prov.chain_head(chain)
+    head["count"] = 1
+    codes = [f["reason_code"] for f in prov.verify_chain(chain[:1], expected_head=head)]
+    assert codes == ["head-tampered"]
+
+
+def test_empty_chain_head_roundtrip():
+    head = prov.chain_head([])
+    assert head["count"] == 0
+    assert head["last_content_hash"] is None
+    assert prov.verify_chain([], expected_head=head) == []
