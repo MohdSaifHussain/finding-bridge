@@ -35,9 +35,13 @@ is set from the MEASURED run, not the projection.
 
 ## Ratchet baseline
 
-**87.2% (287/329), provenance+sealing scope, set 2026-08-24.** Raised
-later, never lowered without a numbered ruling. Expected next-audit value
-if nothing regresses: ~87.5% (288/329) once run 4 measures the L219 kill.
+**87.2 percent, 287 of 329 mutants, over provenance and sealing only**
+(ruled wording, D-029: the scope is part of the number, and this figure is
+never restated as "the core"). Set 2026-08-24. Raised later, never lowered
+without a numbered ruling; any future audit that widens or narrows scope
+restates both the old and new denominators side by side. Expected
+next-audit value if nothing regresses: ~87.5% (288/329) once run 4
+measures the L219 kill.
 
 ## Every surviving mutant, dispositioned
 

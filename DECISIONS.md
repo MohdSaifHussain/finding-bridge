@@ -518,6 +518,49 @@ rotates under MultiFernet while ref identity stays pinned. Discovering
 this during a rotation would be the worst possible time; STEP-02 does not
 quietly start either obligation.
 
+## D-029 — Audit rulings: scoped ratchet, collection guard, run-2 stands (director, 2026-08-24)
+
+1. **The ratchet is scoped, and the scope is part of the number.** The
+   baseline is recorded as "87.2 percent, 287 of 329 mutants, over
+   provenance and sealing only", never as "the core". **Binding:** any
+   future audit that widens or narrows scope restates BOTH the old and new
+   denominators side by side; a moved figure with one number visible is how
+   a ratchet quietly becomes a ceiling.
+2. **Close the class, not the instance:** the audit must assert its
+   collected test count equals the gate suite's collected count and refuse
+   on difference. Built as tests/test_audit_guard.py (runs in GATE, so the
+   mismatch is caught before any audit runs with stale commands).
+3. **Run 2 stays in the record as written:** a gate run without its
+   ammunition, caught by reading the numbers rather than by any check, is
+   the strongest argument in this project's history for reading numbers by
+   hand even when everything is green.
+
+## D-030 — STEP-02 is SARIF-out (director, 2026-08-24)
+
+**Decision:** option (a). Two reasons recorded, the director's second
+judged the stronger:
+1. (Builder's) SARIF is the flagship second output (D-002) and OB-3 comes
+   due against it; putting it first forces that reckoning at phase start.
+2. (Director's, blast radius) SARIF is the change most likely to force the
+   canonical schema to grow, and schema changes are cheapest when the
+   fewest adapters depend on the schema (today: one in, one out). Building
+   transcript-in first would double the re-mapping surface of a later
+   SARIF-driven schema change. And markdown is a forgiving consumer that
+   has proven almost nothing about schema sufficiency; SARIF is the first
+   STRICT consumer, with a published schema and a real validator - the
+   actual test of the project's central claim, better failed now than
+   after more is built on the schema.
+
+**Contract conditions ruled in advance:** the location problem is a
+numbered decision, not a first-draft accident; validation runs two
+independent routes (own schema check + Microsoft SARIF Multitool) against
+a named real consumer; OB-3 resolves at PHASE START (adopting RFC 8785
+changes canonical bytes, hence hashes, hence ids - doing it after mapping
+work means redoing it); and OB-2/OB-3/OB-6 are one problem wearing three
+hats (identity derived from things that can change), so OB-3's decision is
+taken with the family in view and the contract carries one written
+survival-and-migration paragraph for a store created today.
+
 ## Obligations register (carried by name until discharged)
 
 | ID | Obligation | Owner | Trigger / due |
