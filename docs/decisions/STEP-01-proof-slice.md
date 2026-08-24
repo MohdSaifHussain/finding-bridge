@@ -152,3 +152,26 @@ stated reason code.
 - [ ] Outcome section appended; obligations and limits carried forward by
       name, including: exact-hash dedup only (no clustering), and the
       Phase 0 verification limits, unchanged.
+
+## 6. Deviations
+
+**DEV-1 (tier re-ask outcome, ruled by the director at the review stop,
+2026-08-24).** Contract 4b's default was a full drop of D6-D8 to STANDARD;
+the builder's recorded forecast agreed. The gate fired PARTLY: the director
+ruled D6 (garak in-adapter) and D8 (markdown out-adapter) drop to STANDARD as
+pure translation, while **D7 (human gate) stays FULL**, discharging 4b's
+standard with a named FULL-only finding, quoted:
+
+> "R-1 (safety, charter rule 3). The human gate record is not tamper-evident.
+> src/finding_bridge/core/provenance.py:20 excludes the whole 'provenance'
+> object from the hash; confirm() writes confirmed_by and confirmed_at into
+> that same object [...] So editing who confirmed a finding, or when, leaves
+> the chain verifying clean. [...] A field anyone can rewrite silently is not
+> a record."
+
+The director's ground: R-1 exists because a FULL adversarial review
+re-derived the hash coverage instead of trusting the chain's own passing
+tests, and D7 is the deliverable that writes the very field R-1 showed was
+unprotected. The builder's forecast is scored: partly wrong (predicted a
+full drop). Recorded here as a numbered deviation, not a quiet edit, per
+D-013.

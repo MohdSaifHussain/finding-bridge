@@ -239,6 +239,26 @@ one". Owner: the v1.x FLARE-AI out-adapter phase, which must not close
 without either discharging OB-1 or recording that no canonical schema exists
 at that date.
 
+## D-015 — Tier re-ask outcome: split, discharged by R-1 (director, review stop, 2026-08-24)
+
+**Decision:** D6 (garak in) and D8 (markdown out) drop to STANDARD as pure
+translation; D7 (human gate) stays FULL. The 4b discharge standard is met by
+naming R-1 (gate record not tamper-evident), a finding attributed to the FULL
+practice of re-deriving hash coverage rather than trusting passing tests, and
+D7 writes the exact field R-1 exposed. Recorded as deviation DEV-1 in
+STEP-01 §6 with R-1 quoted. Builder's advance forecast (full drop) scored:
+partly wrong.
+
+## D-016 — Review round 2 blocking fixes ruled and applied (director, 2026-08-24)
+
+**Decision:** independent review findings R-1, R-2, R-3, R-4, R-10 ruled
+blocking; fixed with negative controls captured failing before each fix and
+passing after. Commits: 044c31d (R-1 attestation hash; schema 0.2.0),
+b7061c5 (R-2 chain head), cd6f322 (R-3+R-4 keyed refs, ref validation),
+712b610 (R-10 env scrub). Schema minor-bumped 0.1.0 to 0.2.0
+per charter §7 (field added); the drift test was demonstrated firing on that
+real change before the mapping row was added (contract 3.7 demonstration).
+
 ## STEP-01 readings, confirmed
 
 R1 (Y): raw sealed content never appears in any emitted artifact, encrypted
