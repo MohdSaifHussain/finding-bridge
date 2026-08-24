@@ -66,6 +66,14 @@ def test_multitool_accepts_our_sarif(emitted: Path):
     assert result.returncode == 0
     assert "Analysis completed successfully" in combined
     assert "error " not in combined, f"Multitool flagged errors:\n{combined[-1500:]}"
+    # D-040.3: the known warning set is exactly SARIF2005 (no
+    # informationUri - ruled a stated limit, never a fabricated URL,
+    # discharged with OB-7). Any NEW warning must surface loudly here
+    # instead of hiding under a passing test.
+    import re
+
+    warnings = set(re.findall(r"warning ([A-Z]+\d+)", combined))
+    assert warnings == {"SARIF2005"}, f"warning set changed: {sorted(warnings)}"
 
 
 def test_multitool_flags_corrupted_input(tmp_path: Path):

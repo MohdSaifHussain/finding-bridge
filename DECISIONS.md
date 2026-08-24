@@ -739,6 +739,32 @@ before green, at both layers, plus the no-echo control (D-036).
    limit in evidence/sarif-validation-step02.md. Alternative rejected:
    trusting the exit code (vacuous control - it never fails).
 
+## D-040 — STEP-02 close: three reconciliations answered; SARIF2005 ruling (2026-08-24)
+
+1. **Suite timing spread (director 6.0s vs builder 11.58s wall, both
+   honest medians-of-three):** machine-state spread now exceeds the
+   number. Ruled: from the next close, report the pytest-reported time
+   BESIDE the wall clock, track both.
+2. **tests_audit 9 vs predicted 7, reconciled by collection
+   (`pytest tests_audit --collect-only -q`):** the two extra are NOT the
+   close-audit kill tests (those live in tests/, inside GATE). They are
+   the collection guard's parametrized rows for cr-dedup.toml and
+   cr-schema.toml: the guard grows one row per audit config
+   automatically, and the "7" was an observed run predating those
+   configs. Settled: 1 existence + 5 config rows + 1 negative control +
+   2 Multitool = 9. A stale observation reported as a prediction is the
+   lesson; the growth itself was the guard working.
+3. **Warning SARIF2005** (tool provides no informationUri), which the
+   builder's "no error lines" phrasing did not surface. Ruled: do NOT
+   fabricate an informationUri - no public URL exists and inventing one
+   to silence a linter is fabrication in a provenance tool. Absent it
+   stays; stated limit; discharged with OB-7 (when a public repository
+   exists, its URL becomes the informationUri in the same change).
+   Builder hardening under Section B: the Multitool positive control now
+   asserts the warning set is EXACTLY {SARIF2005}, so any new warning
+   surfaces loudly instead of hiding under a passing test (rule 14: the
+   stated limit became a check).
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |

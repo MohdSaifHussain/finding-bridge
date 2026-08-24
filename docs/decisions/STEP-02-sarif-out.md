@@ -1,12 +1,16 @@
 # STEP-02: SARIF out-adapter, with identity resolved first
 
 **Project:** finding-bridge | **Phase:** 2 | **Date:** 2026-08-24
-**Status:** RATIFIED by the director 2026-08-24, subject to the amendments
-recorded as deviations DEV-4 through DEV-8 below (D-033; never in-place
-edits). Rulings: Q1 (a) amended, Q2 approved amended, Q3 (a) with five
-binding conditions, Q4 split confirmed; readings R1-R4 all Y (R4 amended).
-In progress from D1 under the D-034 standing delegation: two stops (after
-D3, and phase close), Section C bright lines override everything.
+**Status:** CLOSED, 2026-08-24, by the director's explicit word,
+conditional on nothing, after their own ritual at commit `7477ddf` (45
+commits confirmed by the named command; every row run by the director
+except the VS Code viewer row, which stays theirs and reports separately -
+a render failure there reopens nothing and becomes a finding against the
+next phase's contract). Ratified earlier the same day with DEV-4..DEV-9.
+Close observations of record: hostile-hitlog row now an OBSERVATION with
+D-036 visibly holding; Multitool surfaced warning SARIF2005 (no
+informationUri) - ruled: never fabricate a URL, stated limit, discharge
+attached to OB-7. Three reconciliations answered in D-040.
 **Depends on:** STEP-01 (closed; canonical schema 0.3.0, sealed store,
 provenance chain with attestation + head, ledger workspace, ruling D-030),
 D-027 opening act (ratchet 87.2 percent, 287 of 329, provenance and
