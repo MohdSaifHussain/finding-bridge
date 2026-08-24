@@ -1,8 +1,52 @@
 # STEP-03: transcript in-adapter (raw paste to canonical)
 
 **Project:** finding-bridge | **Phase:** 3 | **Date:** 2026-08-24
-**Status:** DRAFT, awaiting director rulings on Q1-Q4 and readings R1-R4.
-Nothing is built until those rulings land.
+**Status:** RATIFIED by the director 2026-08-24, subject to the amendments
+recorded as deviations DEV-10 through DEV-13 below (never in-place edits).
+Rulings: Q1 (c) amended, Q2 (a), Q3 as drafted, Q4 (a) with two
+conditions; readings R1-R4 all Y (R3 amended: mojibake sentence into the
+docstring); tier FULL ratified with the inverted re-ask default, builder's
+forecast (default holds) recorded for scoring. D-034 Sections B-G in
+force; halting only at the declared stops.
+
+## 6. Deviations (ratification amendments; global DEV numbering continues)
+
+**DEV-10 (Q1 addition - the embedded-marker hazard, the parser's central
+claim).** In delimited text, marker strings can appear inside content, and
+a jailbreak transcript is precisely where they live. Disambiguation rule
+DECIDED here, not discovered by the first draft: a marker opens a new turn
+ONLY as the exact uppercase token (`USER:`, `ASSISTANT:`, `SYSTEM:`) at
+column 0 of a line; anywhere else on a line it is content. **Stated limit
+(what the text grammar cannot represent):** a turn whose CONTENT contains
+a line that itself begins at column 0 with a marker token - such a line
+opens a phantom turn by construction; the exact representation for such
+content is the JSON format, which represents anything. Two controls, not
+optional: (1) embedded marker strings mid-line inside a turn leave the
+turn count unchanged (the ruled negative control for the central claim);
+(2) the line-initial collision is pinned by a test asserting the
+DOCUMENTED split behaviour, so the limit is loud, not hidden.
+
+**DEV-11 (Q2).** Option (c), analyst-marked turns via flags, is recorded
+as the NAMED future extension - addable later without unmaking (a) - so
+nobody invents it fresh.
+
+**DEV-12 (Q3).** The decision row carries the D-024 cross-reference:
+null-over-invented is settled law; discovered_at null is what "unknown"
+honestly looks like.
+
+**DEV-13 (Q4 conditions).** (1) The cap is enforced WHILE reading - the
+shared helper consumes chunked input and stops at the limit, because
+stdin cannot be sized in advance; the over-limit stdin control asserts the
+refusal reason code (memory instrumentation judged disproportionate, and
+that judgement is stated per the ruling). (2) The cap is a stated limit
+where users meet it (CLI help and the refusal detail), with the sentence
+that a configurable cap remains addable later without unmaking the fixed
+default. Additional ruled requirement on D2: the boundary tool must prove
+it can fail. Discharged by a REAL red rather than a planted copy: the
+table's missing-file row runs red against the pre-existing code (a raw
+FileNotFoundError traceback through the CLI, probed and observed at
+ratification - the unguarded-boundary class live in the tree), then green
+after the helper lands.
 **Depends on:** STEP-01 (core spine), STEP-02 (closed; canonical form is
 RFC 8785; D-036 unguarded-boundary class and location-not-value rule;
 D-018 untrusted-input constraints; D-034 standing delegation).

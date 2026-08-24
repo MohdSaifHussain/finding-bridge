@@ -765,6 +765,23 @@ before green, at both layers, plus the no-echo control (D-036).
    surfaces loudly instead of hiding under a passing test (rule 14: the
    stated limit became a check).
 
+## D-041 — STEP-03 ratification rulings (director, 2026-08-24)
+
+Q1 (c) both formats, sniffed, each strict; DEV-10's embedded-marker
+disambiguation (column-0 exact token only), stated unrepresentable limit,
+and the mandatory turn-count-unchanged control. Q2 (a); (c) named future
+extension (DEV-11). Q3 as drafted with the D-024 cross-reference: null
+over invented is settled law (DEV-12). Q4 (a) 10 MiB both adapters,
+enforced while reading, stdin control asserting the reason code (memory
+instrumentation judged disproportionate, stated), cap a stated limit with
+the configurable-later sentence (DEV-13). Readings R1-R4 all Y; R3's
+mojibake reason goes in the docstring. Tier FULL whole phase, inverted
+re-ask default (remain FULL; the drop carries quoted-line burden);
+builder forecast recorded for scoring: the default holds. D2 must prove
+it can fail - discharged by the REAL missing-file red observed at
+ratification (raw FileNotFoundError traceback through the CLI on a
+nonexistent ingest path: unguarded-boundary instance live in the tree).
+
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
