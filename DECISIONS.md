@@ -1671,6 +1671,18 @@ WOULD-OPEN in dry run), the idempotency check before every create. Out
 of the gate (D-027). Census: one more HABIT converted, proposed by the
 director.
 
+**Addendum (same day):** NIST AI 600-1 gained a machine signal after
+all. The director found the stable page
+(https://www.nist.gov/itl/ai-risk-management-framework, 200 to the
+tool's user agent), which names the released profile and links its DOI;
+the signal is conservative (fires on revised/withdrawn/superseded or a
+newer NIST-AI-600-x). The first wiring matched on markup and cried wolf
+("600-1 not named" while the page names it inside spans); fixed to match
+on stripped text before any scheduled run. The director's downloaded
+PDF is byte-identical to the one this project cited (sha256
+6e73620ab6b64e90..., 1,174,643 bytes). airc.nist.gov (the AI Resource
+Center and the RMF Playbook) is noted as the resource hub, not scraped.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

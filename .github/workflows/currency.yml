@@ -10,9 +10,10 @@
 # drill (D-079); this workflow only guarantees the trigger is noticed.
 #
 # Machine signals: garak (GitHub releases, PyPI fallback), OWASP LLM Top 10
-# edition year, ATLAS version. Manually-checked-only, deliberately not
-# scraped (a check that cries wolf gets disabled): the OWASP GenAI Red
-# Teaming Guide, SAIF, NIST AI 600-1 (D-076 procedure).
+# edition year, ATLAS version, NIST AI 600-1 via the stable NIST AI RMF page
+# (conservative: revised/withdrawn/superseded or a newer 600-x). Manually-
+# checked-only, deliberately not scraped (a check that cries wolf gets
+# disabled): the OWASP GenAI Red Teaming Guide, SAIF (D-076 procedure).
 #
 # D-027: currency checking is not the audit and stays out of the gate.
 # Read-only against public APIs; the only credential is GITHUB_TOKEN with

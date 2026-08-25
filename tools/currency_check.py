@@ -19,11 +19,13 @@ SIGNALS, read-only, public:
   - OWASP Top 10 for LLM Applications: the genai.owasp.org resources index,
     largest edition year named, compared to the pinned 2026.
   - MITRE ATLAS: the `version:` line of dist/ATLAS.yaml on main.
+  - NIST AI 600-1: the stable NIST AI RMF page (found by the director after
+    the CSRC page flickered 200/404), which names the released profile and
+    its DOI; fires only on revised/withdrawn/superseded or a newer 600-x.
   MANUALLY-CHECKED-ONLY (no reliable machine signal; stated, not scraped):
-  the OWASP GenAI Red Teaming Guide (the index carries no version), SAIF
-  (saif-data's head moves with every edit; a commit is not an edition),
-  and NIST AI 600-1 (the CSRC page flickered 200/404 within an hour on
-  2026-08-25). D-076's flip-day re-check remains the procedure for those.
+  the OWASP GenAI Red Teaming Guide (the index carries no version) and SAIF
+  (saif-data's head moves with every edit; a commit is not an edition).
+  D-076's flip-day re-check remains the procedure for those.
 
 HONEST LIMITS: this detects RELEASES, not shape changes. A new garak
 version with an unchanged hitlog format still opens the issue, and
@@ -42,6 +44,7 @@ EXIT: 0 nothing due or issues opened; 1 a signal could not be checked
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import subprocess
@@ -101,10 +104,26 @@ def standards_signals() -> list[tuple[str, str, str, bool]]:
     m = re.search(r"^version:\s*([\d.]+)", atlas, re.M)
     obs = m.group(1) if m else "?"
     out.append(("MITRE ATLAS", "5.6.0", obs, bool(m) and vtuple(obs) > vtuple("5.6.0")))
-    # NIST AI 600-1: the CSRC publication page answered 404 on 2026-08-25 to
-    # every user agent after answering 200 an hour earlier; a page that
-    # flickers is not a signal (a currency check that cries wolf gets
-    # disabled). Manually-checked-only, per D-076.
+    # NIST AI 600-1: the CSRC publication page flickered 200/404 on
+    # 2026-08-25, so it is not used. The director found the stable page,
+    # https://www.nist.gov/itl/ai-risk-management-framework, which names
+    # the released profile ("On July 26, 2024, NIST released NIST-AI-600-1")
+    # and links its DOI. Conservative signal: fire only if that page marks
+    # 600-1 revised / withdrawn / superseded, or names a newer NIST-AI-600-x.
+    page = _get("https://www.nist.gov/itl/ai-risk-management-framework")
+    # match on TEXT, not markup: the page wraps "NIST-AI-" and "600-1" in spans
+    flat = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", page)))
+    names_600_1 = bool(re.search(r"NIST-?AI-?\s?600-1", flat))
+    newer = sorted({int(x) for x in re.findall(r"NIST-?AI-?\s?600-(\d+)", flat) if int(x) > 1})
+    flagged = bool(re.search(r"600-1[^.]{0,120}(revised|withdrawn|superseded)", flat, re.I))
+    observed = "600-1 released July 26, 2024" if names_600_1 else "600-1 not named"
+    if newer:
+        observed += f"; newer profile named: 600-{newer[0]}"
+    if flagged:
+        observed += "; marked revised/withdrawn/superseded"
+    out.append(
+        ("NIST AI 600-1", "600-1 (July 2024)", observed, bool(newer) or flagged or not names_600_1)
+    )
     return out
 
 
@@ -229,9 +248,7 @@ def main(argv: list[str]) -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"standards: could-not-check ({type(exc).__name__}: {exc})")
         rc = 1
-    print(
-        "manually-checked-only: OWASP GenAI Red Teaming Guide; Google SAIF; NIST AI 600-1 (D-076)"
-    )
+    print("manually-checked-only: OWASP GenAI Red Teaming Guide; Google SAIF (D-076)")
     return rc
 
 
