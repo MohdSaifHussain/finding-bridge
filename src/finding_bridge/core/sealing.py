@@ -14,13 +14,15 @@ appends who/when/ref to the exposure log, and an unseal without explicit=True
 refuses (unseal-not-explicit).
 """
 
+import base64
 import hashlib
 import hmac
 import json
+import os
 import re
 from pathlib import Path
 
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
 from finding_bridge.core.provenance import utc_now_iso
 
@@ -55,9 +57,10 @@ class SealingError(Exception):
         super().__init__(f"{reason_code}: {detail}")
 
 
-def load_or_create_key(key_path: Path, repo_root: Path) -> bytes:
-    """Load the Fernet key, creating one on first use. Refuses a key inside
-    the repo tree (D-010): the key must never be committable."""
+KEYRING_VERSION = 1
+
+
+def _guard_key_path(key_path: Path, repo_root: Path) -> Path:
     key_path = key_path.resolve()
     repo_root = repo_root.resolve()
     if key_path.is_relative_to(repo_root):
@@ -65,30 +68,83 @@ def load_or_create_key(key_path: Path, repo_root: Path) -> bytes:
             REASON_KEY_INSIDE_REPO,
             f"sealing key path {key_path} resolves inside the repo tree {repo_root}",
         )
+    return key_path
+
+
+def load_or_create_keyring(key_path: Path, repo_root: Path) -> dict:
+    """Load (or create) the keyring: a REF key and one or more encryption
+    keys, split per ruling D-053.
+
+    The split is what makes rotation cheap: rotating re-encrypts blobs
+    under a new encryption key while the ref key stays fixed, so sealed
+    references, content hashes and finding ids do not move, and a
+    rotation's remap is empty.
+
+    STATED LIMIT, recorded here because this is where the split lives:
+    the REF KEY IS PERMANENT. It can never be rotated without changing
+    every reference, hash and id in the store. D-053 moved the frozen
+    thing; it did not remove it. Rotating the ref key would be a
+    supersession event with a full remap, which is exactly the mechanism
+    D-051 exists for, but it is not implemented and not free.
+
+    A pre-split raw Fernet key file upgrades in place: the old key becomes
+    the encryption key and the ref key it used to derive becomes the
+    stored ref key, so no existing reference breaks.
+    """
+    key_path = _guard_key_path(key_path, repo_root)
     if key_path.exists():
-        return key_path.read_bytes().strip()
-    key = Fernet.generate_key()
+        raw = key_path.read_bytes().strip()
+        try:
+            keyring = json.loads(raw)
+            if isinstance(keyring, dict) and "encryption_keys" in keyring:
+                keyring["ref_key_bytes"] = base64.b64decode(keyring["ref_key"])
+                return keyring
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pass
+        # legacy raw Fernet key: upgrade in place, preserving refs
+        keyring = {
+            "keyring_version": KEYRING_VERSION,
+            "ref_key": base64.b64encode(hashlib.sha256(REF_KEY_DOMAIN + raw).digest()).decode(),
+            "encryption_keys": [raw.decode()],
+        }
+        _write_keyring(key_path, keyring)
+        keyring["ref_key_bytes"] = base64.b64decode(keyring["ref_key"])
+        return keyring
+    keyring = {
+        "keyring_version": KEYRING_VERSION,
+        "ref_key": base64.b64encode(Fernet.generate_key()).decode(),
+        "encryption_keys": [Fernet.generate_key().decode()],
+    }
+    _write_keyring(key_path, keyring)
+    keyring["ref_key_bytes"] = base64.b64decode(keyring["ref_key"])
+    return keyring
+
+
+def _write_keyring(key_path: Path, keyring: dict) -> None:
     key_path.parent.mkdir(parents=True, exist_ok=True)
-    key_path.write_bytes(key)
+    payload = {k: v for k, v in keyring.items() if k != "ref_key_bytes"}
+    key_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
     # R-7 / D-023: restrict permissions where the OS honors POSIX modes. On
     # Windows this call only toggles the read-only bit and does NOT restrict
     # access; the operator step there is:
     #   icacls <keyfile> /inheritance:r /grant:r "%USERNAME%":F
     # Recorded honest limit: no ACL guarantee on Windows from this code.
-    import os
-
     os.chmod(key_path, 0o600)
-    return key
 
 
 class SealedStore:
     """Encrypted-at-rest store for harmful content, with an exposure log."""
 
-    def __init__(self, store_dir: Path, key: bytes):
+    def __init__(self, store_dir: Path, keyring: dict):
+        """Takes a KEYRING (D-053), not a bare key: refs derive from the
+        permanent ref key, ciphertext from the encryption keys, newest
+        first. MultiFernet decrypts under any listed key, which is what
+        makes a rotation readable while it is in progress."""
         self.store_dir = Path(store_dir)
         self.store_dir.mkdir(parents=True, exist_ok=True)
-        self._fernet = Fernet(key)
-        self._ref_key = hashlib.sha256(REF_KEY_DOMAIN + key).digest()
+        self._keyring = keyring
+        self._fernet = MultiFernet([Fernet(k) for k in keyring["encryption_keys"]])
+        self._ref_key = keyring["ref_key_bytes"]
 
     def _keyed_digest(self, plaintext: str) -> str:
         """HMAC-SHA256 of the plaintext under the store's derived ref key
@@ -191,6 +247,21 @@ class SealedStore:
         )
         return plaintext
 
+    def reencrypt_all(self) -> int:
+        """Re-encrypt every blob under the primary key (MultiFernet.rotate).
+
+        Official docs: rotate() "re-encrypts a token under the MultiFernet
+        instance's primary key" and "preserves the timestamp that was
+        originally saved with the token"
+        (https://cryptography.io/en/latest/fernet/, fetched 2026-08-24).
+        Refs are NOT touched: they derive from the permanent ref key
+        (D-053), which is what keeps identity stable across a rotation."""
+        count = 0
+        for blob in sorted(self.store_dir.glob("*.fernet")):
+            blob.write_bytes(self._fernet.rotate(blob.read_bytes()))
+            count += 1
+        return count
+
     def exposures(self) -> list[dict]:
         if not self.exposure_log_path.exists():
             return []
@@ -215,3 +286,9 @@ class SealedStore:
             f"keyed digest {digest[:8]}; harm flags: {flags}. "
             "Content is sealed; unseal is explicit and logged.]"
         )
+
+
+def write_keyring(key_path: Path, repo_root: Path, keyring: dict) -> None:
+    """Persist a keyring after rotation, with the same repo-path guard as
+    creation: a rotated key may never land inside the repo either."""
+    _write_keyring(_guard_key_path(key_path, repo_root), keyring)

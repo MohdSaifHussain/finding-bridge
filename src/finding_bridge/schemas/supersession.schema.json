@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/finding-bridge/schemas/supersession.schema.json/0.4.0",
+  "title": "Supersession record (finding-bridge)",
+  "description": "One identity-lifecycle event: key rotation, canonical-form change, or store merge. Human-confirmed and attested like any finding, chained in the same ledger, and walked THROUGH by verification (D-051).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_type",
+    "event_type",
+    "old_head",
+    "new_head",
+    "remap",
+    "canonical_form_from",
+    "canonical_form_to",
+    "reason",
+    "provenance"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "supersession"
+    },
+    "event_type": {
+      "enum": [
+        "key-rotation",
+        "canonical-form-change",
+        "store-merge"
+      ]
+    },
+    "old_head": {
+      "$ref": "#/$defs/head"
+    },
+    "new_head": {
+      "$ref": "#/$defs/head"
+    },
+    "remap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "old finding id -> new finding id. Empty when the event moved no identities, which is the D-053 key-split case."
+    },
+    "canonical_form_from": {
+      "type": "string"
+    },
+    "canonical_form_to": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_hash",
+        "prev_hash",
+        "confirmed_by",
+        "confirmed_at",
+        "attestation_hash"
+      ],
+      "properties": {
+        "content_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "prev_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "confirmed_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confirmed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "attestation_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "last_content_hash",
+        "canonical_form",
+        "head_hash"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_content_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "canonical_form": {
+          "type": "string"
+        },
+        "head_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

@@ -49,8 +49,20 @@ def load_field_map() -> dict:
 
 
 @lru_cache(maxsize=1)
+def load_supersession_schema() -> dict:
+    return json.loads(_SCHEMAS.joinpath("supersession.schema.json").read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
 def _validator() -> Draft202012Validator:
     schema = load_schema()
+    Draft202012Validator.check_schema(schema)
+    return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
+
+
+@lru_cache(maxsize=1)
+def _supersession_validator() -> Draft202012Validator:
+    schema = load_supersession_schema()
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
 
@@ -69,3 +81,26 @@ def validate_finding(finding: dict) -> None:
         raise SchemaValidationError(
             f"at {exc.json_path}: fails '{exc.validator}' (offending value withheld per D-036)"
         ) from exc
+
+
+def validate_record(record: dict) -> None:
+    """Validate any ledger record, dispatching on record_type (D-051).
+
+    Findings validate against the canonical finding schema; supersession
+    records against their own. An unknown record_type refuses rather than
+    being waved through, because a ledger record nothing validates is a
+    ledger record nothing protects.
+    """
+    kind = record.get("record_type")
+    if kind == "supersession":
+        try:
+            _supersession_validator().validate(record)
+        except ValidationError as exc:
+            raise SchemaValidationError(
+                f"supersession at {exc.json_path}: fails '{exc.validator}' "
+                "(offending value withheld per D-036)"
+            ) from exc
+        return
+    if kind not in (None, "finding"):
+        raise SchemaValidationError("unknown record_type (value withheld per D-036)")
+    validate_finding(record)

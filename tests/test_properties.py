@@ -31,8 +31,8 @@ def fresh_base() -> dict:
 @pytest.fixture(scope="module")
 def store(tmp_path_factory) -> sealing.SealedStore:
     root = tmp_path_factory.mktemp("prop")
-    key = sealing.load_or_create_key(root / "keys" / "fb.key", root / "repo")
-    return sealing.SealedStore(root / "store", key)
+    keyring = sealing.load_or_create_keyring(root / "keys" / "fb.key", root / "repo")
+    return sealing.SealedStore(root / "store", keyring)
 
 
 # --- invariant 1: hash determinism and order independence ---

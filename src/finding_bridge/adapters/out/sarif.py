@@ -176,7 +176,7 @@ def render_sarif(findings: list[dict], artifact_uri: str) -> dict:
                 "name": "finding-bridge",
                 "version": __version__,
                 "rules": rules,
-                "properties": {"canonicalSchemaVersion": "0.3.0"},
+                "properties": {"canonicalSchemaVersion": "0.4.0"},
             }
         },
         "artifacts": [

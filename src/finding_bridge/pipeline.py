@@ -17,11 +17,13 @@ evidence), per the contract.
 import json
 from pathlib import Path
 
+from cryptography.fernet import Fernet
+
 from finding_bridge.adapters.in_ import garak, transcript
 from finding_bridge.core import dedup as dedup_mod
 from finding_bridge.core import provenance as prov
 from finding_bridge.core import sealing
-from finding_bridge.core.schema import validate_finding
+from finding_bridge.core.schema import validate_record
 
 REASON_UNKNOWN_ID = "unknown-id"
 REASON_HEAD_MISSING = "head-missing"
@@ -77,8 +79,10 @@ class Workspace:
     def __init__(self, root: Path, key_path: Path, repo_root: Path):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
-        key = sealing.load_or_create_key(Path(key_path), Path(repo_root))
-        self.store = sealing.SealedStore(self.root / "sealed", key)
+        self.key_path = Path(key_path)
+        self.repo_root = Path(repo_root)
+        self.keyring = sealing.load_or_create_keyring(self.key_path, self.repo_root)
+        self.store = sealing.SealedStore(self.root / "sealed", self.keyring)
         self.candidates_path = self.root / CANDIDATES_FILE
         self.rejected_path = self.root / REJECTED_FILE
         self.ledger_path = self.root / LEDGER_FILE
@@ -106,7 +110,7 @@ class Workspace:
             processed.append(prov.stamp(candidate))
         merged = dedup_mod.mark_duplicates(_read_jsonl(self.candidates_path) + processed)
         for finding in merged:
-            validate_finding(finding)
+            validate_record(finding)
         _write_jsonl(self.candidates_path, merged)
         duplicates = sum(1 for f in merged if f["dedup"]["duplicate_of"] is not None)
         return {
@@ -140,7 +144,7 @@ class Workspace:
             _read_jsonl(self.candidates_path) + [prov.stamp(candidate)]
         )
         for finding in merged:
-            validate_finding(finding)
+            validate_record(finding)
         _write_jsonl(self.candidates_path, merged)
         duplicates = sum(1 for f in merged if f["dedup"]["duplicate_of"] is not None)
         return {
@@ -170,7 +174,7 @@ class Workspace:
         prev = (ledger[-1].get("provenance") or {}).get("content_hash") if ledger else None
         chained = prov.stamp(candidate, prev_hash=prev)
         confirmed = prov.confirm(chained, identity)
-        validate_finding(confirmed)
+        validate_record(confirmed)
         ledger.append(confirmed)
         _write_jsonl(self.ledger_path, ledger)
         self.head_path.write_text(
@@ -191,6 +195,51 @@ class Workspace:
 
     def confirmed_findings(self) -> list[dict]:
         return _read_jsonl(self.ledger_path)
+
+    def rotate_key(self, identity: str, reason: str) -> dict:
+        """Rotate the ENCRYPTION key as a supersession event (D-052).
+
+        There is deliberately no other rotation path: the store exposes no
+        key-swap of its own, so a rotation that is not recorded in the
+        ledger cannot happen through this tool. With the D-053 split the
+        ref key never moves, so refs, content hashes and ids survive and
+        the remap is EMPTY - the cheapest possible exercise of the
+        mechanism, and the reason D-053 was adopted inside D-051.
+        """
+        ledger = _read_jsonl(self.ledger_path)
+        old_head = prov.chain_head(ledger)
+
+        new_key = Fernet.generate_key().decode()
+        rotating = sealing.SealedStore(
+            self.root / "sealed",
+            {**self.keyring, "encryption_keys": [new_key, *self.keyring["encryption_keys"]]},
+        )
+        rotating.reencrypt_all()
+
+        self.keyring = {**self.keyring, "encryption_keys": [new_key]}
+        sealing.write_keyring(self.key_path, self.repo_root, self.keyring)
+        self.store = sealing.SealedStore(self.root / "sealed", self.keyring)
+
+        # refs and hashes are untouched by an encryption rotation, so the
+        # post-event head over the same records equals the pre-event head
+        new_head = prov.chain_head(ledger)
+        prev = (ledger[-1].get("provenance") or {}).get("content_hash") if ledger else None
+        record = prov.make_supersession(
+            event_type="key-rotation",
+            old_head=old_head,
+            new_head=new_head,
+            remap={},
+            reason=reason,
+            confirmed_by=identity,
+            prev_hash=prev,
+        )
+        validate_record(record)
+        ledger.append(record)
+        _write_jsonl(self.ledger_path, ledger)
+        self.head_path.write_text(
+            json.dumps(prov.chain_head(ledger), sort_keys=True) + "\n", encoding="utf-8"
+        )
+        return record
 
     def verify(self) -> list[dict]:
         """Verify the confirmed ledger against its head. A non-empty ledger

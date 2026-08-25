@@ -29,7 +29,7 @@ REASON_INVALID_HITLOG = "invalid-hitlog"
 # the boundary the untrusted data enters.
 MAX_SAFE_INTEGER = 2**53 - 1
 
-SCHEMA_VERSION = "0.3.0"
+SCHEMA_VERSION = "0.4.0"
 
 
 class GarakAdapterError(Exception):
@@ -119,6 +119,7 @@ def _candidate_from_record(record: dict) -> dict:
     }
     context = {key: record[key] for key in ("goal", "triggers") if record.get(key) is not None}
     return {
+        "record_type": "finding",
         "schema_version": SCHEMA_VERSION,
         "source_tool": "garak",
         "source_tool_version": None,

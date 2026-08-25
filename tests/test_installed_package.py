@@ -27,4 +27,4 @@ def test_package_data_ships_with_install():
     from finding_bridge.core.schema import load_field_map, load_schema
 
     assert load_schema()["$schema"].endswith("2020-12/schema")
-    assert load_field_map()["canonical_schema_version"] == "0.3.0"
+    assert load_field_map()["canonical_schema_version"] == "0.4.0"

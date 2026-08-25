@@ -48,6 +48,19 @@ REASON_RESTAMP_CONFIRMED = "restamp-confirmed"
 # hash computed over crafted content.
 ATTESTATION_DOMAIN = "fb-attest:"
 HEAD_DOMAIN = "fb-head:"
+SUPERSESSION_DOMAIN = "fb-supersede:"
+
+# D-055: the canonical form carries its OWN version, separate from the
+# schema version, because the two change independently. Every head
+# declares which form its hashes speak, and every supersession event
+# states the form it moved from and to.
+CANONICAL_FORM_V1 = "v1"  # RFC 8785 (JCS), adopted at OB-3's discharge
+CANONICAL_FORM_CURRENT = CANONICAL_FORM_V1
+
+RECORD_TYPE_FINDING = "finding"
+RECORD_TYPE_SUPERSESSION = "supersession"
+
+REASON_SUPERSESSION_INVALID = "supersession-invalid"
 REASON_HEAD_MISMATCH = "head-mismatch"
 REASON_HEAD_TAMPERED = "head-tampered"
 
@@ -101,7 +114,9 @@ def derive_id(digest: str) -> str:
 
 def chain_head_internal_ok(head: dict) -> bool:
     """Check a head record's own integrity hash against its fields."""
-    payload = canonical_dumps([head.get("count"), head.get("last_content_hash")])
+    payload = canonical_dumps(
+        [head.get("count"), head.get("last_content_hash"), head.get("canonical_form")]
+    )
     expected = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
     return head.get("head_hash") == expected
 
@@ -183,9 +198,15 @@ def chain_head(findings: list[dict]) -> dict:
     """
     count = len(findings)
     last = (findings[-1].get("provenance") or {}).get("content_hash") if findings else None
-    payload = canonical_dumps([count, last])
+    form = CANONICAL_FORM_CURRENT
+    payload = canonical_dumps([count, last, form])
     head_hash = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
-    return {"count": count, "last_content_hash": last, "head_hash": head_hash}
+    return {
+        "count": count,
+        "last_content_hash": last,
+        "canonical_form": form,
+        "head_hash": head_hash,
+    }
 
 
 def verify_chain(findings: list[dict], expected_head: dict | None = None) -> list[dict]:
@@ -233,13 +254,49 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
                         ),
                     }
                 )
+    epoch_start = 0
     for i, finding in enumerate(findings):
+        # EPOCH WALK (D-051/W1d). One pass, two record kinds. A
+        # supersession record ENDS the epoch it appears in: everything from
+        # epoch_start up to it verified under the rules its own
+        # canonical_form_from names, the record's attestation joins the two
+        # epochs, and the next record starts the new epoch. The prev_hash
+        # chain is never broken by the join - it links THROUGH the
+        # supersession record like any other, which is what keeps one
+        # unbroken chain instead of two stitched ones.
+        if finding.get("record_type") == RECORD_TYPE_SUPERSESSION:
+            failures.extend(_verify_supersession(finding, findings, i, epoch_start))
+            epoch_start = i + 1
         provenance = finding.get("provenance") or {}
         stored = provenance.get("content_hash")
         recomputed = content_hash(finding)
         confirmed_by = provenance.get("confirmed_by")
         confirmed_at = provenance.get("confirmed_at")
         attestation = provenance.get("attestation_hash")
+        if finding.get("record_type") == RECORD_TYPE_SUPERSESSION:
+            # its attestation covers the whole event, checked above; the
+            # generic gate-record checks below do not apply to it
+            if stored != recomputed:
+                failures.append(
+                    {
+                        "index": i,
+                        "reason_code": REASON_CONTENT_TAMPERED,
+                        "detail": f"supersession stored hash {stored!r} != recomputed",
+                    }
+                )
+            prev = provenance.get("prev_hash")
+            expected_prev = (
+                (findings[i - 1].get("provenance") or {}).get("content_hash") if i else None
+            )
+            if prev != expected_prev:
+                failures.append(
+                    {
+                        "index": i,
+                        "reason_code": REASON_CHAIN_BROKEN,
+                        "detail": f"supersession prev_hash {prev!r} != preceding hash",
+                    }
+                )
+            continue
         if confirmed_by is not None or confirmed_at is not None:
             if attestation is None:
                 failures.append(
@@ -307,4 +364,145 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
                         "detail": f"prev_hash {prev!r} != preceding content_hash {expected!r}",
                     }
                 )
+    return failures
+
+
+# --- supersession: the identity-lifecycle mechanism (D-051) ---
+
+SUPERSESSION_ATTESTED_FIELDS = (
+    "event_type",
+    "old_head",
+    "new_head",
+    "remap",
+    "canonical_form_from",
+    "canonical_form_to",
+    "reason",
+)
+
+
+def supersession_attestation(record: dict) -> str:
+    """Attestation over the WHOLE event plus who confirmed it and when.
+
+    Everything a reader must trust about the join is inside this hash: the
+    event type, both heads, the full remap, both canonical form versions,
+    the reason, and the human. Editing any of them without recomputing
+    this value fails verification; recomputing it requires being the
+    person who re-signs the event, which is the point of the gate.
+    """
+    provenance = record.get("provenance") or {}
+    payload = canonical_dumps(
+        [record.get(field) for field in SUPERSESSION_ATTESTED_FIELDS]
+        + [provenance.get("confirmed_by"), provenance.get("confirmed_at")]
+    )
+    return hashlib.sha256(SUPERSESSION_DOMAIN.encode("utf-8") + payload).hexdigest()
+
+
+def make_supersession(
+    *,
+    event_type: str,
+    old_head: dict,
+    new_head: dict,
+    remap: dict,
+    reason: str,
+    confirmed_by: str,
+    prev_hash: str | None,
+    canonical_form_from: str = CANONICAL_FORM_CURRENT,
+    canonical_form_to: str = CANONICAL_FORM_CURRENT,
+    confirmed_at: str | None = None,
+) -> dict:
+    """Build one attested supersession record. Human-gated by construction:
+    it refuses without an identity, exactly as confirm() does."""
+    if not confirmed_by or not confirmed_by.strip():
+        raise ProvenanceError(REASON_UNCONFIRMED, "confirmed_by identity is empty")
+    record = {
+        "record_type": RECORD_TYPE_SUPERSESSION,
+        "event_type": event_type,
+        "old_head": old_head,
+        "new_head": new_head,
+        "remap": remap,
+        "canonical_form_from": canonical_form_from,
+        "canonical_form_to": canonical_form_to,
+        "reason": reason,
+        "provenance": {
+            "content_hash": None,
+            "prev_hash": prev_hash,
+            "confirmed_by": confirmed_by,
+            "confirmed_at": confirmed_at or utc_now_iso(),
+            "attestation_hash": None,
+        },
+    }
+    record["provenance"]["attestation_hash"] = supersession_attestation(record)
+    record["provenance"]["content_hash"] = content_hash(record)
+    return record
+
+
+def _verify_supersession(record: dict, records: list[dict], i: int, epoch_start: int) -> list[dict]:
+    """Verify one join. Four checks, each with its own failure detail:
+
+    1. the attestation covers the event as written;
+    2. old_head is internally consistent AND matches the head over the
+       records of the epoch this event closes;
+    3. new_head is internally consistent;
+    4. every id the remap CLAIMS to have produced actually appears in the
+       records after this one - a remap claimed but not performed fails.
+    """
+    failures: list[dict] = []
+    provenance = record.get("provenance") or {}
+
+    if provenance.get("attestation_hash") != supersession_attestation(record):
+        failures.append(
+            {
+                "index": i,
+                "reason_code": REASON_ATTESTATION_TAMPERED,
+                "detail": "supersession attestation does not match the event as written",
+            }
+        )
+
+    old_head = record.get("old_head") or {}
+    if not chain_head_internal_ok(old_head):
+        failures.append(
+            {
+                "index": i,
+                "reason_code": REASON_SUPERSESSION_INVALID,
+                "detail": "old_head's own head_hash does not match its fields",
+            }
+        )
+    else:
+        actual = chain_head(records[epoch_start:i])
+        if actual["head_hash"] != old_head.get("head_hash"):
+            failures.append(
+                {
+                    "index": i,
+                    "reason_code": REASON_SUPERSESSION_INVALID,
+                    "detail": (
+                        f"old_head commits to count={old_head.get('count')}, but the "
+                        f"epoch it closes has count={actual['count']}"
+                    ),
+                }
+            )
+
+    new_head = record.get("new_head") or {}
+    if not chain_head_internal_ok(new_head):
+        failures.append(
+            {
+                "index": i,
+                "reason_code": REASON_SUPERSESSION_INVALID,
+                "detail": "new_head's own head_hash does not match its fields",
+            }
+        )
+
+    remap = record.get("remap") or {}
+    produced = {r.get("id") for r in records[i + 1 :]}
+    unperformed = sorted(new_id for new_id in remap.values() if new_id not in produced)
+    if unperformed:
+        failures.append(
+            {
+                "index": i,
+                "reason_code": REASON_SUPERSESSION_INVALID,
+                "detail": (
+                    f"remap claims {len(unperformed)} id(s) this store does not contain "
+                    "after the event; a remap claimed but not performed is not a remap"
+                ),
+            }
+        )
     return failures

@@ -1,5 +1,6 @@
 {
-  "schema_version": "0.3.0",
+  "record_type": "finding",
+  "schema_version": "0.4.0",
   "id": "fb-candidate-null-0002",
   "source_tool": "garak",
   "source_tool_version": null,

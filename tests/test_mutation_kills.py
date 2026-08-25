@@ -45,7 +45,14 @@ def test_canonical_form_golden_vectors():
     assert head["last_content_hash"] == (
         "7c07f826f564b77187b9ae4b86da74c341edd98c5444d0dd63767e1b49bcb36c"
     )
-    assert head["head_hash"] == ("145c430d79f1de654d689efe6938fa2caf50b7bd0a435a8048ca805217a64a92")
+    # RE-PINNED at STEP-05 W1b (D-055): the head payload gained the
+    # canonical form version, so head_hash moved and ONLY head_hash moved.
+    # content_hash, the attestation and last_content_hash above are
+    # byte-identical to their pre-change values, which is the evidence that
+    # the change was scoped exactly to the head. The goldens made the move
+    # loud, which is what they are for.
+    assert head["head_hash"] == ("10cc0e928cc874e5d3e1e2560ac09f39fe5f7cbcf9acd37a8e84a93f76c36446")
+    assert head["canonical_form"] == prov.CANONICAL_FORM_V1
     assert prov.chain_head_internal_ok(head)
     assert b"caf\xc3\xa9" in prov.canonical_content_bytes(f), "raw UTF-8, not \\u escapes"
 
@@ -124,28 +131,30 @@ def test_first_record_prev_violation_reports_index_zero():
 
 @pytest.fixture()
 def store(tmp_path: Path) -> sealing.SealedStore:
-    key = sealing.load_or_create_key(tmp_path / "keys" / "fb.key", tmp_path / "repo")
-    return sealing.SealedStore(tmp_path / "store", key)
+    keyring = sealing.load_or_create_keyring(tmp_path / "keys" / "fb.key", tmp_path / "repo")
+    return sealing.SealedStore(tmp_path / "store", keyring)
 
 
 def test_key_creation_in_deep_fresh_path(tmp_path: Path):
     """Kills mkdir parents=True mutants (sealing L71): multi-level parent."""
-    key = sealing.load_or_create_key(tmp_path / "a" / "b" / "c" / "fb.key", tmp_path / "repo")
-    assert len(key) == 44
+    keyring = sealing.load_or_create_keyring(
+        tmp_path / "a" / "b" / "c" / "fb.key", tmp_path / "repo"
+    )
+    assert len(keyring["encryption_keys"][0]) == 44
 
 
 def test_second_key_in_existing_parent(tmp_path: Path):
     """Kills mkdir exist_ok=True mutants (sealing L71): parent already exists."""
     parent = tmp_path / "keys"
-    sealing.load_or_create_key(parent / "one.key", tmp_path / "repo")
-    key = sealing.load_or_create_key(parent / "two.key", tmp_path / "repo")
-    assert len(key) == 44
+    sealing.load_or_create_keyring(parent / "one.key", tmp_path / "repo")
+    keyring = sealing.load_or_create_keyring(parent / "two.key", tmp_path / "repo")
+    assert len(keyring["encryption_keys"][0]) == 44
 
 
 def test_store_in_deep_fresh_path(tmp_path: Path):
     """Kills store mkdir parents=True mutant (sealing L89)."""
-    key = sealing.load_or_create_key(tmp_path / "k" / "fb.key", tmp_path / "repo")
-    st = sealing.SealedStore(tmp_path / "x" / "y" / "store", key)
+    keyring = sealing.load_or_create_keyring(tmp_path / "k" / "fb.key", tmp_path / "repo")
+    st = sealing.SealedStore(tmp_path / "x" / "y" / "store", keyring)
     assert st.seal("s").startswith("sealed/")
 
 

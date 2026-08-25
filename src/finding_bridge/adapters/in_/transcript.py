@@ -27,7 +27,7 @@ import re
 
 REASON_INVALID_TRANSCRIPT = "invalid-transcript"
 
-SCHEMA_VERSION = "0.3.0"
+SCHEMA_VERSION = "0.4.0"
 SOURCE_TOOL = "manual-transcript"
 
 ROLE_TOKENS = {"USER:": "user", "ASSISTANT:": "assistant", "SYSTEM:": "system"}
@@ -169,6 +169,7 @@ def to_candidate(text: str, metadata: dict | None = None) -> dict:
     response_text = assistant_turns[-1]["content"]
     context_text = "\n".join(f"{t['role'].upper()}: {t['content']}" for t in turns)
     return {
+        "record_type": "finding",
         "schema_version": SCHEMA_VERSION,
         "source_tool": SOURCE_TOOL,
         "source_tool_version": None,

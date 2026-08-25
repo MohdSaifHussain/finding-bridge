@@ -61,6 +61,12 @@ def main(argv: list[str] | None = None) -> int:
         help="emit confirmed findings as a PROVISIONAL FLARE-AI report set",
     )
     p.add_argument("out", help="output .json path (default name: findings.flare.json)")
+    p = sub.add_parser(
+        "rotate-key",
+        help="rotate the encryption key as a recorded supersession event "
+        "(human-gated; the ref key is permanent and does not rotate)",
+    )
+    p.add_argument("--reason", required=True, help="why this rotation is happening")
     p = sub.add_parser("unseal", help="explicitly unseal one reference (logged)")
     p.add_argument("ref")
     p.add_argument("--explicit", action="store_true", help="required; unsealing is deliberate")
@@ -119,6 +125,14 @@ def main(argv: list[str] | None = None) -> int:
                 Path(args.out), json.dumps(reports, indent=2, ensure_ascii=False) + "\n"
             )
             print(f"wrote {args.out} (PROVISIONAL mapping; see the provisional block)")
+        elif args.command == "rotate-key":
+            record = ws.rotate_key(gate.get_git_identity(), reason=args.reason)
+            print(
+                f"rotated: supersession recorded, event={record['event_type']}, "
+                f"remap={len(record['remap'])} id(s), "
+                f"confirmed by {record['provenance']['confirmed_by']}"
+            )
+            print("the ref key is permanent and was NOT rotated; ids are unchanged")
         elif args.command == "unseal":
             print(ws.store.unseal(args.ref, gate.get_git_identity(), explicit=args.explicit))
     except (
