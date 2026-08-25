@@ -1,7 +1,7 @@
 [
   {
-    "summary": "AI red-team finding fb-72ccc26214a8a4be (garak-detector:mitigation.SyntheticDetector)",
-    "description": "[sealed content: 77 chars, 1 lines, keyed digest b4eb6e07; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]\n\nContent is sealed. This ticket carries a metadata preview and references only, never the raw model output. Unsealing is explicit and logged in the originating store.\n\nTarget model: test synthetic-model\nSource tool: garak\nDiscovered at: unknown\n\nReproduction:\n  1. Run garak probe dan.SyntheticProbe against test synthetic-model; detector mitigation.SyntheticDetector scored 1.0.\n\nProvenance:\n  finding id: fb-72ccc26214a8a4be\n  content hash: 72ccc26214a8a4bef6d325f9d91e09532489fc226d6c970316cbc61da140afd0\n  attestation: 8af78ad58099126a953aa770aeda4e6fcd05c5a57994ebc7f3c059109e18cc5d\n  confirmed by: MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com> at 2026-08-25T07:06:37.533375+00:00\n\nTamper-evidence bound: the hash chain and its head detect accident, drift and casual edit; they do not defend against an attacker with write access to both the ledger and its head.",
+    "summary": "AI red-team finding fb-696ce38d603d5910 (garak-detector:mitigation.SyntheticDetector)",
+    "description": "[sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]\n\nContent is sealed. This ticket carries a metadata preview and references only, never the raw model output. Unsealing is explicit and logged in the originating store.\n\nTarget model: test synthetic-model\nSource tool: garak\nDiscovered at: unknown\n\nReproduction:\n  1. Run garak probe dan.SyntheticProbe against test synthetic-model; detector mitigation.SyntheticDetector scored 1.0.\n\nProvenance:\n  finding id: fb-696ce38d603d5910\n  content hash: 696ce38d603d5910c78149bf20f9662b1a840963ac5fd3c2716a8c8e19596bc6\n  attestation: 75f452debc34a5927ea4e918b4ac8471e31a190c61141c1d4ce2b83b9dd3c8cc\n  confirmed by: MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com> at 2026-08-25T09:41:02.165439+00:00\n\nTamper-evidence bound: the hash chain and its head detect accident, drift and casual edit; they do not defend against an attacker with write access to both the ledger and its head.",
     "labels": [
       "harm:garak-detector:mitigation.SyntheticDetector",
       "source:garak"
@@ -9,14 +9,14 @@
     "priority": "Unset",
     "fields": {
       "remediation": null,
-      "findingBridgeId": "fb-72ccc26214a8a4be",
-      "contentHash": "72ccc26214a8a4bef6d325f9d91e09532489fc226d6c970316cbc61da140afd0",
+      "findingBridgeId": "fb-696ce38d603d5910",
+      "contentHash": "696ce38d603d5910c78149bf20f9662b1a840963ac5fd3c2716a8c8e19596bc6",
       "severityScore": null,
       "severityStatus": null,
       "sourceTool": "garak",
       "targetModel": "test synthetic-model",
-      "probeSealedRef": "sealed/d7b2fc1aa0ef0e1a",
-      "responseSealedRef": "sealed/b4eb6e07c8de346b",
+      "probeSealedRef": "sealed/6dbc7f82e5f0e98e",
+      "responseSealedRef": "sealed/52e742c2ed7a01db",
       "duplicateOf": null
     }
   }

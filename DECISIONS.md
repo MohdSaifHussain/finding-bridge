@@ -1447,6 +1447,69 @@ randomised malformed-input generator over the boundary table's refusal
 families, seeded from real-data shapes, every crash a finding. If nothing
 runs, OB-5 is not quietly re-parked: a numbered ruling names the attempts.
 
+## D-079 — F-12 fixed FULL: both garak shapes, an unrecognised shape refuses, the fixture-currency class named (director, W6c, 2026-08-25)
+
+**The finding of the arc:** 699 of 699 real hits silently losing the
+attack prompt while every test passed, the exact catastrophe class W6c
+existed to surface. **Rulings:** (a) the adapter handles BOTH shapes,
+the 0.16.0 Conversation/Message nesting and the older flat shape the
+fixture carried, each with its own fixture and control; a hitlog
+matching neither refuses `invalid-hitlog`, location-not-value, never a
+silent null. (b) **The class, in its own sentence:** the synthetic
+fixture certified the wrong object, a shape the real tool no longer
+writes: the wrong-object measurement class operating at the fixture
+layer. fixture_scan checks harm conformance; nothing checked SHAPE
+currency against the live tool. Named limit, with the check now built:
+`docs/FIXTURE-VERSIONS.md` names the tool version each garak
+fixture mimics, a test fails on a missing row, and the real-data drill's
+re-run refreshes it. (c) After the fix the real ingestion re-runs end to
+end and example 04 states the before/after. (d) `source_tool_version`:
+the hitlog carries no version field (0.16.0 writes `garak_version` to the
+sibling report.jsonl); mapping it would be fabrication; a flag is
+proposed, not built.
+
+## D-080 — F-10: the second exact grammar, operator-named, never auto-detected (director, W6c)
+
+Option (b): `--grammar human-assistant` (`Human:` / `Assistant:`) under
+the same strictness laws as the primary (exact tokens at column 0, case
+and whitespace refusal, embedded-marker control); mixing refuses; no
+auto-detection between grammars ever. Reason: the largest public corpus
+on earth uses this grammar; a tool claiming universal ingestion that
+cannot read it without out-of-tree rewrites has a gap, not a limit. (a)
+preprocessing recorded in the SOP as the pre-flag workaround, now
+superseded; (c) rejected: a stated limit is honest only when serving the
+case is unreasonable, and here it is a day's work. FULL, untrusted-input
+surface.
+
+## D-081 — F-11 and F-13: per-record source facts map into reproduction.environment, namespaced (director, W6c)
+
+No schema change. garak facts as `garak.<side>.<key>`; operator facts
+via `--environment KEY=VALUE` as `manual.<key>`; absent stays absent;
+what cannot map is named in STANDARDS/USAGE with its field list. `goal`
+and `triggers` (and now `notes`) staying sealed as context is correct
+and stands.
+
+## D-082 — OB-5 NOT discharged; narrowed (director, W6c)
+
+The structured run is strong partial evidence (11,063 inputs, eight
+families, both parsers, zero escaped exceptions, 7,654 governed refusals;
+the Atheris attempt recorded). OB-5 stays open, narrowed to one
+coverage-guided run on the Ubuntu runner (where Atheris has wheels),
+audit cadence, owner the first post-launch audit. The builder's
+recommendation against its own interest in closing items is noted.
+
+## D-083 — W6c acceptances (director, 2026-08-25)
+
+Both scans re-run by the director's own hands: FIXTURE SCAN CONFORMING
+(7 fixtures, 6 example inputs, 18 outputs) and REAL-STRING SCAN CLEAN
+(5,000 sampled strings from 4,784 real texts, 6 artifacts). **The sealing
+claim has survived contact with real harmful content, re-derived by the
+director**; the sentence goes in example 04's README. The provenance
+headline accepted as landed; the garak attack-success table stays as
+measured with its run parameters beside it; the director's wording "a
+human director who wrote none of it" STANDS, ratified; no further
+personal wording without the director's explicit line.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1479,7 +1542,7 @@ Nothing here is proposed; each waits on the director's word.
 | ~~OB-2~~ | ~~Key rotation path~~ **DISCHARGED 2026-08-25 (D-064)**: implemented as a supersession event per D-052, evidenced by the three controls (red-then-green) AND the director's two independent double-rotation runs. | closed | closed |
 | ~~OB-3~~ | ~~Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons~~ **DISCHARGED 2026-08-24 by adoption** (STEP-02 D1, ruling Q3(a), five DEV-6 conditions met; DEV-2 discharged with it; migration note docs/decisions/canonical-jcs-migration.md; measured impact on existing data: none, forms byte-identical on the current value space) | was: v1-completion phase | explicit entry, as the condition demanded |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
-| OB-5 | Coverage-guided fuzzing of parsers (D-027). **FIRED 2026-08-25 (D-078)**; the 30-minute structured pass RAN (evidence/ob5-fuzz-step06.md: 11,063 inputs, zero escapes; Atheris unavailable on Windows, attempt recorded). Disposition awaits the director: discharge on the structured pass, or keep open for a coverage-guided run on the Ubuntu runner. | STEP-06 W6c | ran; disposition pending |
+| OB-5 | Coverage-guided fuzzing of parsers (D-027). **FIRED 2026-08-25 (D-078)**; structured pass ran 2026-08-25 (evidence/ob5-fuzz-step06.md: 11,063 inputs, 8 families, both parsers, 30 min, zero escaped exceptions, 7,654 governed refusals; Atheris attempt recorded, no Windows wheels). **NOT discharged (D-082); NARROWED** to one coverage-guided run on the Ubuntu runner, audit cadence. | first post-launch audit | open, narrowed |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
 | OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it. **Explicitly NOT discharged by the private remote (D-058):** a private URL is not readable by the ecosystem. | due when a PUBLIC repository exists (publishing is a separate future ruling) | opened at STEP-02 ratification; trigger narrowed at D-058 |
 
@@ -1495,6 +1558,7 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-007 | Director's mid-verification belief at STEP-05 stop one: that a finding id had CHANGED across rotation. | It had not. The measurement compared the first row of `list` before and after, and the confirmed finding leaving the candidates listing shifted the row - a single witness measuring the wrong object. Re-derived from the store itself and killed. No product change. Recorded under the director's name at their instruction. | The director's own re-derivation from the ledger rather than the listing. | False alarm raised AND killed by the same reviewer; a live specimen of why rituals re-derive instead of restate. |
+| C-011 | examples/04-real-data/README.md and the W6c report, first pass: "253 of 699 real hits were exact duplicates ... the Pain-4 feature did what it exists for on real data." | The prompts were null on all 699 (F-12), so dedup keyed on responses alone; different attacks drawing the same reply counted as duplicates. With prompts sealed the real figure is 62 of 699. The feature worked; the number it produced was inflated by the very bug the workstream found. | The post-fix re-run of example 04 (probe sealed 739/739, duplicates 62). | Toward the less flattering answer for the earlier report: a measurement made on a broken object was quoted as a feature result. |
 | C-010 | README at D-050: "To verify dependency hashes as well, build and install a wheel. This is the route we test:" followed by `pip install dist/...whl -c constraints.txt`. | The route was never tested. The STEP-04 proof installed the wheel without `-c`; the command fails in a fresh venv (pip requires hashes for all requirements once any has one). Corrected to pip's secure-installs route with a full lock, rehearsed with a negative control (F-6). | The W5 rehearsal of gate.yml's fresh-wheel step, run locally before the workflow was pushed. | Toward the less flattering answer for the builder: a D-057 claim ("the route we test") that named no check, for two phases. |
 | C-009 | Builder's W3 commit at count 89 (message claiming the gate was green: "Controls in tests_audit/test_examples.py"), 2026-08-25. | The commit landed with `ruff-check` RED (two E501 lines in tools/fixture_scan.py). Mechanism: the edit script's anchor assert FAILED partway (the fixture_scan half never applied), the script was `;`-chained so the run continued, and the commit chain read `python tools/gate.py 2>&1 \| tail -2 && ... git commit`, which takes `tail`'s exit code, not the gate's. tools/gate.py printed `GATE: FAIL (ruff-check)` and the commit ran anyway. This is C-008's exact mechanism, the gate-half-run family's SIXTH instance, committed by the builder that had just re-read C-008 in this same session. Fix committed immediately after; no push had happened. | The builder re-reading the command output before writing the next report. | Toward the less flattering answer for the builder. The tool (gate.py, D-062's answer) did its job; the SHELL AROUND the tool masked it, which is the class gate.py's own docstring names. Recorded so the census can ask whether the mask needs a check of its own. |
 | C-008 | Builder's commit message at count 72: "Record stop-one rulings D-059..D-062 and correction C-007". | C-007 was NOT recorded by that commit. The edit script's anchor assert for the corrections table FAILED, the script died, and the commit ran anyway with a message claiming the work was done. **This is D-062's exact mechanism - a check fired and the claim ignored it - repeating within minutes of D-062 being ruled, and it is the gate-half-run family's FIFTH instance.** The two rulings D-057 and D-062 were both already on the books; neither prevented it, because neither is a check that runs. The mechanical cause is specific and fixable: the heredoc script and the git command were separate statements, not `&&`-chained, so a failing script did not stop the commit. | The builder re-reading its own command output before writing the stop report. | Toward the less flattering answer for the builder; recorded rather than quietly patched. |

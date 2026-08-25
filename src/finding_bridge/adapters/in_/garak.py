@@ -51,6 +51,11 @@ def _extract_text(node) -> str | None:
     if isinstance(node, dict):
         if isinstance(node.get("text"), str):
             return node["text"]
+        # garak 0.16.0 (F-12, D-079): a Conversation's turns are
+        # {"role", "content": Message}; the text sits one level down. The
+        # older flat Message shape above is kept: both shapes are real.
+        if "content" in node and not any(k in node for k in ("turns", "messages", "parts")):
+            return _extract_text(node["content"])
         for key in ("turns", "messages", "parts"):
             if isinstance(node.get(key), list):
                 texts = [t for t in (_extract_text(x) for x in node[key]) if t]
@@ -59,6 +64,21 @@ def _extract_text(node) -> str | None:
     if isinstance(node, list):
         texts = [t for t in (_extract_text(x) for x in node) if t]
         return "\n".join(texts) if texts else None
+    return None
+
+
+def _message_of(node):
+    """The Message dict a garak prompt/output value resolves to: the value
+    itself (flat Message), or the first turn's content (0.16.0
+    Conversation). None when neither shape applies."""
+    if not isinstance(node, dict):
+        return None
+    if "text" in node:
+        return node
+    turns = node.get("turns")
+    if isinstance(turns, list) and turns and isinstance(turns[0], dict):
+        content = turns[0].get("content")
+        return content if isinstance(content, dict) else None
     return None
 
 
@@ -118,10 +138,28 @@ def _candidate_from_record(record: dict) -> dict:
         if key in record
     }
     context = {key: record[key] for key in ("goal", "triggers") if record.get(key) is not None}
+    # F-11/F-13 (D-081): per-record source facts the 0.16.0 Message carries
+    # (lang, data_type, data_path, data_checksum) go to environment under a
+    # source prefix; absent stays absent. `notes` on prompt or output can
+    # carry trigger strings (text-bearing), so it joins the sealed context.
+    for side in ("prompt", "output"):
+        msg = _message_of(record.get(side))
+        if not isinstance(msg, dict):
+            continue
+        for key in ("lang", "data_type", "data_path", "data_checksum"):
+            if msg.get(key) is not None:
+                environment[f"garak.{side}.{key}"] = msg[key]
+        if msg.get("notes"):
+            context[f"{side}_notes"] = msg["notes"]
     return {
         "record_type": "finding",
         "schema_version": SCHEMA_VERSION,
         "source_tool": "garak",
+        # source_tool_version stays null (D-079 d): the hitlog carries no
+        # version field in any garak release seen (0.16.0 puts garak_version in
+        # the sibling report.jsonl's init entry, a different file). Mapping a
+        # value the record does not carry would be fabrication; a
+        # --source-tool-version flag is proposed, not built here.
         "source_tool_version": None,
         "target_model": record.get("generator"),
         "target_model_version": None,
@@ -158,6 +196,8 @@ def parse_hitlog(path: Path) -> list[dict]:
     Refuses unreadable input with reason code invalid-hitlog and the line
     number; empty lines are skipped."""
     candidates = []
+    # D-079: a prompt or output that is PRESENT but yields no text matches
+    # neither known shape; refusing beats a silent null (the F-12 class).
     # D5 (STEP-03): capped, governed read shared with the transcript
     # adapter; missing files, oversize input and non-UTF-8 refuse with
     # reason codes instead of raw tracebacks (the ratification-observed
@@ -176,5 +216,14 @@ def parse_hitlog(path: Path) -> list[dict]:
             raise GarakAdapterError(REASON_INVALID_HITLOG, f"line {lineno} is not a JSON object")
         for key, value in record.items():
             _reject_hostile_numbers(value, lineno, key)
-        candidates.append(_candidate_from_record(record))
+        candidate = _candidate_from_record(record)
+        for side, raw_key in (("prompt", "_raw_probe"), ("output", "_raw_response")):
+            if record.get(side) is not None and candidate.get(raw_key) is None:
+                raise GarakAdapterError(
+                    REASON_INVALID_HITLOG,
+                    f"line {lineno}, field {side}: no text in any known garak message "
+                    "shape (flat Message, or 0.16.0 Conversation turns); value withheld "
+                    "per D-036",
+                )
+        candidates.append(candidate)
     return candidates

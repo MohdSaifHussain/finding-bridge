@@ -204,6 +204,21 @@ the standing limit that the grey-scale evidence is secondhand), not on
 any of the five standards here. Stated so nobody reads a standards
 alignment into it.
 
+## Stated limits found by real data (W6c, D-079 and D-081)
+
+- `source_tool_version` stays null for garak records: the hitlog carries
+  no version field in any release seen; garak 0.16.0 writes
+  `garak_version` into the sibling `report.jsonl`, a different file. A
+  `--source-tool-version` flag is proposed, not built.
+- garak per-message facts `lang`, `data_type`, `data_path`,
+  `data_checksum` map to `reproduction.environment` as
+  `garak.<side>.<key>`; `notes` on either side is text-bearing and is
+  sealed into the context blob with `goal` and `triggers`. Nothing else
+  the 0.16.0 hitlog carries is dropped.
+- Transcript per-record facts are whatever the operator passes with
+  `--environment`, stored as `manual.<key>`; a dataset's free-text fields
+  (task descriptions) are not facts and have no home by design.
+
 ## Meta-alignment: the method that built this tool
 
 Claimed only as far as the fetched text supports (D-042 applies to

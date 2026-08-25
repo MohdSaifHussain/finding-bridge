@@ -99,6 +99,11 @@ invalid-transcript: line 2: suspected marker that is not the exact token (check 
 Both files are under `examples/`; the full transcripts are in each
 example's `output/run-transcript.md`.
 
+Real-world transcripts in the `Human:` / `Assistant:` form: pass
+`--grammar human-assistant` (D-080). Do not rewrite markers by hand; the
+grammar is exact and the flag is the supported path. Per-record facts go
+in with `--environment key=value`.
+
 ## 3. The human gate, without and with `--ai`
 
 Confirm needs `git config user.name` and `user.email`; it never falls

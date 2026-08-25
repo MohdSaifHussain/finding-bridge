@@ -16,8 +16,9 @@ source, the checksum and the exact command:
 
 - `fetch.py` downloads Anthropic's `red-team-attempts` file from the
   hh-rlhf dataset (MIT; sha256 pinned in the script, 15,483,307 bytes,
-  38,961 transcripts), verifies it, and rewrites a fixed sample of 40
-  transcripts into the adapter's marker grammar under `DATA_DIR/prepared/`.
+  38,961 transcripts), verifies it, and writes a fixed sample of 40
+  transcripts unchanged under `DATA_DIR/prepared/`, each with a sidecar
+  of its facts.
 - `run_garak.py` runs garak 0.16.0 against `llama3.2:1b` on the local
   Ollama server (dan and promptinject families, 1 generation, 45-minute
   box) and leaves the hitlog under `DATA_DIR/garak/`.
@@ -30,7 +31,11 @@ design claim is that they carry preview and metadata and never raw harm.
 ## The run, 2026-08-25
 
 garak 0.16.0, 505.51 seconds wall clock (box 2,700 s), six probes,
-699 detector hits. garak's own per-probe summary:
+699 detector hits. garak's own per-probe summary, with the run
+parameters it was measured under (someone will cite it): target
+`llama3.2:1b` on Ollama 0.32.15, `--generations 1`, `--spec
+probes.dan,probes.promptinject` (the six default-active probes listed
+below), 2026-08-25, one run:
 
 | Probe | Detector | ok on | Attack success rate |
 |---|---|---|---|
@@ -50,16 +55,27 @@ Then the pipeline (`output/run-transcript.md`, complete and unedited):
 
 ```
 $ finding-bridge ingest-garak <DATA_DIR>/garak/fb-real.hitlog.jsonl
-{"ingested": 699, "total_candidates": 699, "duplicates_marked": 253}
-$ [driver step] ingest every prepared real transcript under <DATA_DIR>/prepared/
+{"ingested": 699, "total_candidates": 699, "duplicates_marked": 62}
+$ [driver step] ingest every prepared real transcript under <DATA_DIR>/prepared/ (--grammar human-assistant; facts via --environment from the sidecars)
 40 files: ingested 40, refused 0
-$ [driver step] count candidates by source, and duplicates (metadata only)
-candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplicate: 253
+$ [driver step] count candidates by source, duplicates, sealed probes and responses, source facts (metadata only)
+candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplicate: 62; probe sealed: 739/739; response sealed: 739/739; with source facts in environment: 739/739
 ```
 
-253 of 699 real hits were exact duplicates of another hit's content: a
-1B model under jailbreak ablations repeats itself, and the Pain-4
-feature (D-025) did what it exists for on real data, first time out.
+**Before and after the F-12 fix, the number that proves it:** on the
+first pass the garak adapter sealed the response on 699 of 699 hits and
+the attack prompt on **0 of 699**; after D-079 it seals both on
+**739 of 739** candidates (699 garak, 40 transcripts). The duplicate
+count moved with it, 253 to 62, and that is a correction, not a change
+in the data: with every prompt null, dedup keyed on responses alone and
+counted different attacks that drew the same reply as duplicates. 62 of
+699 real hits are exact duplicates in prompt AND response, which is the
+real Pain-4 figure (D-025), and the earlier 253 is recorded as C-011.
+
+**The sealing claim has survived contact with real harmful content,
+re-derived by the director:** both scans were re-run by the director's
+own hands on the first pass (fixture scan conforming; real-string scan
+clean, 5,000 sampled strings), and again by the builder on this one.
 
 The refusal in this example is real too: the raw 15 MB dataset archive
 fed to `ingest-garak` refuses with `input-too-large` at the 10 MiB cap,
@@ -87,15 +103,21 @@ the sampled real text appears in anything committed.
 - **F-12**, the one expected: the garak adapter silently lost the attack
   PROMPT on every one of the 699 hits. garak 0.16.0 writes the prompt as
   a Conversation whose turns carry a nested Message; the adapter never
-  descends into it. The response sealed fine. Raised for ruling; not
-  fixed in this arc.
+  descended into it. The response sealed fine. FIXED (D-079): both
+  shapes handled, each with its own fixture; an unrecognised shape now
+  refuses instead of nulling; `docs/FIXTURE-VERSIONS.md` records which
+  tool version each fixture mimics, with a test.
 - **F-10**: the largest public red-team corpus writes `Human:` /
-  `Assistant:`; the grammar accepts only `USER:` / `ASSISTANT:` and
-  refuses the case variant by design. Every real transcript needed a
-  rewrite outside the tree.
+  `Assistant:`; the grammar accepted only `USER:` / `ASSISTANT:`. FIXED
+  (D-080): `--grammar human-assistant`, exact, operator-named, never
+  auto-detected; this example now ingests the transcripts unchanged.
 - **F-11**: no field for per-record metadata (rating, task, model size).
-- **F-13**: `lang`, `notes`, `data_*` on outputs are dropped; `goal` and
-  `triggers` are sealed as context.
+  FIXED (D-081): `--environment KEY=VALUE` into
+  `reproduction.environment` as `manual.KEY`; this example passes each
+  record's rating, model type, parameter count and harmlessness score.
+- **F-13**: `lang`, `data_*` on messages are now `garak.<side>.<key>` in
+  the environment; `notes` joins `goal` and `triggers` in the sealed
+  context (D-081).
 
 ## Reproduce
 

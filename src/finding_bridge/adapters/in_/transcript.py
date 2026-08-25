@@ -32,6 +32,21 @@ SOURCE_TOOL = "manual-transcript"
 
 ROLE_TOKENS = {"USER:": "user", "ASSISTANT:": "assistant", "SYSTEM:": "system"}
 _MARKER_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):")
+# F-10 (D-080): a second EXACT grammar, the one the largest public red-team
+# corpus writes (Anthropic hh-rlhf red-team-attempts: "Human:" /
+# "Assistant:"). The operator names the grammar; nothing is auto-detected;
+# the same strictness laws apply (exact token at column 0, case and
+# whitespace variants refuse, mid-line occurrences are content) and a
+# marker from the OTHER grammar at column 0 refuses: mixing is refused.
+GRAMMARS: dict[str, dict[str, str]] = {
+    "user-assistant": ROLE_TOKENS,
+    "human-assistant": {"Human:": "user", "Assistant:": "assistant"},
+}
+DEFAULT_GRAMMAR = "user-assistant"
+_MARKER_RES = {
+    name: re.compile("^(" + "|".join(re.escape(t) for t in tokens) + ")")
+    for name, tokens in GRAMMARS.items()
+}
 # The marker-variant family (D-049, ruled once so the next variant is a
 # table lookup, not a fresh ruling). Family principle from the director:
 # REFUSE when the string is more plausibly a marker than content, because
@@ -49,7 +64,7 @@ _MARKER_RE = re.compile(r"^(USER|ASSISTANT|SYSTEM):")
 #                                         reader already strips it.
 # Mid-line occurrences of any of these are plain content and never fire.
 _NEAR_MARKER_RE = re.compile(
-    r"^[ \t ]*(USER|ASSISTANT|SYSTEM)[ \t ]*[:：]",
+    r"^[ \t ]*(USER|ASSISTANT|SYSTEM|HUMAN)[ \t ]*[:：]",
     re.IGNORECASE,
 )
 _BOM = "﻿"
@@ -66,25 +81,31 @@ class TranscriptAdapterError(Exception):
         super().__init__(f"{reason_code}: {detail}")
 
 
-def _parse_text(text: str) -> list[dict]:
+def _parse_text(text: str, grammar: str = DEFAULT_GRAMMAR) -> list[dict]:
+    if grammar not in GRAMMARS:
+        raise TranscriptAdapterError(
+            REASON_INVALID_TRANSCRIPT, f"unknown grammar {grammar!r}; one of {sorted(GRAMMARS)}"
+        )
+    tokens = GRAMMARS[grammar]
+    marker_re = _MARKER_RES[grammar]
     turns: list[dict] = []
     current: dict | None = None
     text = text.removeprefix(_BOM)  # encoding artifact, not content (D-049)
     for lineno, line in enumerate(text.splitlines(), start=1):
-        match = _MARKER_RE.match(line)
+        match = marker_re.match(line)
         if match:
             token = match.group(0)
-            role = ROLE_TOKENS[token]
+            role = tokens[token]
             current = {"role": role, "content": line[len(token) :].lstrip()}
             turns.append(current)
         elif _NEAR_MARKER_RE.match(line):
             raise TranscriptAdapterError(
                 REASON_INVALID_TRANSCRIPT,
-                f"line {lineno}: suspected marker that is not the exact token "
-                "(check case, spaces or tabs before the colon, a full-width "
-                "colon, or indentation; markers are exact uppercase "
-                "USER:/ASSISTANT:/SYSTEM: at line start); value withheld "
-                "per D-036",
+                f"line {lineno}: suspected marker that is not an exact token of "
+                f"the {grammar} grammar (check case, spaces or tabs before the "
+                "colon, a full-width colon, indentation, or a marker from the other "
+                f"grammar; the {grammar} markers are {'/'.join(tokens)} at line "
+                "start); value withheld per D-036",
             )
         elif current is None:
             if not line.strip():
@@ -92,7 +113,7 @@ def _parse_text(text: str) -> list[dict]:
             raise TranscriptAdapterError(
                 REASON_INVALID_TRANSCRIPT,
                 f"line {lineno}: content before the first role marker "
-                "(USER:/ASSISTANT:/SYSTEM: at line start); value withheld per D-036",
+                f"({'/'.join(tokens)} at line start); value withheld per D-036",
             )
         else:
             current["content"] += "\n" + line
@@ -139,14 +160,15 @@ def _parse_json(text: str) -> list[dict]:
     return turns
 
 
-def parse_turns(text: str) -> list[dict]:
-    """Parse a transcript into role/content turns, format chosen by sniff."""
+def parse_turns(text: str, grammar: str = DEFAULT_GRAMMAR) -> list[dict]:
+    """Parse a transcript into role/content turns, format chosen by sniff
+    (JSON or delimited text); the text grammar is the operator's choice."""
     stripped = text.lstrip()
     if not stripped:
         raise TranscriptAdapterError(REASON_INVALID_TRANSCRIPT, "input is empty")
     if stripped[0] in "{[":
         return _parse_json(text)
-    return _parse_text(text)
+    return _parse_text(text, grammar)
 
 
 def to_candidate(text: str, metadata: dict | None = None) -> dict:
@@ -157,7 +179,7 @@ def to_candidate(text: str, metadata: dict | None = None) -> dict:
     transient _raw_* keys the pipeline seals and removes; never seals or
     hashes here (3.11)."""
     metadata = metadata or {}
-    turns = parse_turns(text)
+    turns = parse_turns(text, metadata.get("grammar") or DEFAULT_GRAMMAR)
     assistant_turns = [t for t in turns if t["role"] == "assistant"]
     if not assistant_turns:
         raise TranscriptAdapterError(
@@ -195,7 +217,14 @@ def to_candidate(text: str, metadata: dict | None = None) -> dict:
         },
         "reproduction": {
             "steps": [f"Replay the captured {len(turns)}-turn transcript against the target."],
-            "environment": {"turn_count": len(turns)},
+            # F-11 (D-081): operator-supplied per-record facts (rating, task,
+            # model size) live here under the manual. prefix so they cannot
+            # collide with garak's facts; absent stays absent.
+            "environment": {
+                "turn_count": len(turns),
+                "grammar": metadata.get("grammar") or DEFAULT_GRAMMAR,
+                **{f"manual.{k}": v for k, v in (metadata.get("environment") or {}).items()},
+            },
         },
         "_raw_probe": probe_text,
         "_raw_response": response_text,

@@ -24,13 +24,13 @@ SOURCE 1 (published adversarial dataset, transcript path):
   exercises the response seal.
 
 PREPARE: the dataset writes turns as "\\n\\nHuman:" / "\\n\\nAssistant:". The
-transcript adapter's grammar is exact uppercase USER:/ASSISTANT: at line
-start (D-041, D-049). This script rewrites the markers of a SAMPLE of
-transcripts into that grammar, one file per transcript, under DATA_DIR/
-prepared/. The rewrite is the only transformation; the text between
-markers is untouched. That the real-world marker form is refused by the
-grammar as shipped is raised as finding F-10 (evidence/step06-findings.md),
-not hidden in this script.
+Since D-080 (finding F-10) the transcript adapter reads that grammar
+directly when the operator names it (`--grammar human-assistant`), so this
+script writes a SAMPLE of transcripts UNCHANGED, one file per transcript,
+under DATA_DIR/prepared/, with a .meta.json sidecar of the record's facts
+(rating, model_type, num_params, min_harmlessness_score_transcript) that
+the example passes through `--environment` (D-081). Before D-080 this
+script rewrote the markers; that rewrite is gone.
 
 SOURCE 2 (the real garak run) is produced by examples/04-real-data/run_garak.py
 into DATA_DIR/garak/, never fetched.
@@ -112,11 +112,20 @@ def prepare(target: Path) -> Path:
     picks = sorted(rng.sample(range(len(data)), SAMPLE))
     written = 0
     for i in picks:
-        text = data[i]["transcript"].strip()
-        text = text.replace("\n\nHuman:", "\nUSER:").replace("\n\nAssistant:", "\nASSISTANT:")
-        if text.startswith("Human:"):
-            text = "USER:" + text[len("Human:") :]
-        (out_dir / f"rt-{i:05d}.txt").write_text(text.lstrip("\n") + "\n", encoding="utf-8")
+        rec = data[i]
+        # D-080: the adapter now reads this grammar directly (--grammar
+        # human-assistant); the text is written UNCHANGED except for leading
+        # blank lines. The per-record facts go beside it as a sidecar the
+        # example passes through --environment (D-081); task_description is
+        # text-bearing and is not a fact, so it stays out.
+        text = rec["transcript"].lstrip("\n")
+        (out_dir / f"rt-{i:05d}.txt").write_text(text.rstrip("\n") + "\n", encoding="utf-8")
+        facts = {
+            k: rec[k]
+            for k in ("rating", "model_type", "num_params", "min_harmlessness_score_transcript")
+            if rec.get(k) is not None
+        }
+        (out_dir / f"rt-{i:05d}.meta.json").write_text(json.dumps(facts), encoding="utf-8")
         written += 1
     print(f"prepared {written} transcripts under {out_dir} (indices seeded by {SEED})")
     return out_dir

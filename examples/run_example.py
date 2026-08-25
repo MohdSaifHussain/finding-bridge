@@ -35,6 +35,7 @@ unset).
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -118,12 +119,14 @@ EXAMPLES: dict[str, list] = {
         "ingest-garak {data}/garak/fb-real.hitlog.jsonl",
         (
             "driver",
-            "ingest every prepared real transcript under <DATA_DIR>/prepared/",
+            "ingest every prepared real transcript under <DATA_DIR>/prepared/ "
+            "(--grammar human-assistant; facts via --environment from the sidecars)",
             "ingest_prepared",
         ),
         (
             "driver",
-            "count candidates by source, and duplicates (metadata only)",
+            "count candidates by source, duplicates, sealed probes and responses, "
+            "source facts (metadata only)",
             "count_candidates",
         ),
         ("driver", "list: the first 5 lines of N (safe metadata previews only)", "list_head"),
@@ -199,9 +202,13 @@ class Run:
         files = sorted((DATA_DIR / "prepared").glob("*.txt"))
         ok, refused = 0, {}
         for f in files:
-            proc = self._cli(
-                "ingest-transcript", str(f), "--target-model", "hh-rlhf red-team model"
-            )
+            args = ["ingest-transcript", str(f), "--grammar", "human-assistant"]
+            args += ["--target-model", "hh-rlhf red-team model"]
+            meta = f.with_suffix(".meta.json")
+            if meta.exists():
+                for k, v in json.loads(meta.read_text(encoding="utf-8")).items():
+                    args += ["--environment", f"{k}={v}"]
+            proc = self._cli(*args)
             if proc.returncode == 0:
                 ok += 1
             else:
@@ -223,7 +230,22 @@ class Run:
             by_tool[r["source_tool"]] = by_tool.get(r["source_tool"], 0) + 1
         dups = sum(1 for r in rows if r["dedup"]["duplicate_of"])
         self.ids = [r["id"] for r in rows if r["source_tool"] == "garak"] or [r["id"] for r in rows]
-        return f"candidates: {len(rows)} by source {by_tool}; marked duplicate: {dups}"
+        sealed_probe = sum(1 for r in rows if r["probe"]["sealed_ref"])
+        sealed_resp = sum(1 for r in rows if r["raw_response_sealed"])
+        with_facts = sum(
+            1
+            for r in rows
+            if any(
+                k.startswith(("garak.", "manual."))
+                for k in (r["reproduction"]["environment"] or {})
+            )
+        )
+        return (
+            f"candidates: {len(rows)} by source {by_tool}; marked duplicate: {dups}; "
+            f"probe sealed: {sealed_probe}/{len(rows)}; "
+            f"response sealed: {sealed_resp}/{len(rows)}; "
+            f"with source facts in environment: {with_facts}/{len(rows)}"
+        )
 
     def list_head(self) -> str:
         proc = self._cli("list")

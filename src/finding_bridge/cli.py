@@ -9,6 +9,7 @@ from pathlib import Path
 
 from finding_bridge import gate, pipeline
 from finding_bridge.adapters import reading, writing
+from finding_bridge.adapters.in_ import transcript
 from finding_bridge.adapters.in_.garak import GarakAdapterError
 from finding_bridge.adapters.in_.transcript import TranscriptAdapterError
 from finding_bridge.adapters.out import flare_ai, markdown, sarif, tracker
@@ -19,6 +20,19 @@ from finding_bridge.core.sealing import SealingError
 
 DEFAULT_STORE = ".fb-store"
 DEFAULT_KEY = Path.home() / ".finding-bridge" / "fb.key"
+
+
+def _parse_environment(pairs: list[str]) -> dict:
+    env: dict = {}
+    for pair in pairs:
+        if "=" not in pair:
+            raise transcript.TranscriptAdapterError(
+                transcript.REASON_INVALID_TRANSCRIPT,
+                "--environment takes KEY=VALUE (no '=' found in an argument)",
+            )
+        key, value = pair.split("=", 1)
+        env[key.strip()] = value
+    return env
 
 
 def _workspace(args) -> pipeline.Workspace:
@@ -72,6 +86,21 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--target-model", default=None)
     p.add_argument("--target-model-version", default=None)
     p.add_argument("--discovered-at", default=None, help="ISO 8601; omit if unknown, never guess")
+    p.add_argument(
+        "--grammar",
+        choices=sorted(transcript.GRAMMARS),
+        default=transcript.DEFAULT_GRAMMAR,
+        help="text-marker grammar, named by you, never auto-detected: user-assistant "
+        "(USER:/ASSISTANT:/SYSTEM:) or human-assistant (Human:/Assistant:)",
+    )
+    p.add_argument(
+        "--environment",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="a per-record source fact (rating, task, model size) stored under "
+        "reproduction.environment as manual.KEY; repeatable; never invented",
+    )
     sub.add_parser("list", help="list candidate findings")
     p = sub.add_parser("confirm", help="confirm a candidate (human gate)")
     p.add_argument("finding_id")
@@ -131,6 +160,8 @@ def main(argv: list[str] | None = None) -> int:
                 "target_model": args.target_model,
                 "target_model_version": args.target_model_version,
                 "discovered_at": args.discovered_at,
+                "grammar": args.grammar,
+                "environment": _parse_environment(args.environment),
             }
             print(json.dumps(ws.ingest_transcript(text, metadata)))
         elif args.command == "list":

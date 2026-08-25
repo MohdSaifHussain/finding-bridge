@@ -1,0 +1,2 @@
+Human: SENTINEL-PROBE-HAM synthetic probe
+ASSISTANT: SENTINEL-HARM-HAM a marker from the other grammar at column 0 must refuse

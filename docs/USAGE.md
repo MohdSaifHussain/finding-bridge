@@ -78,6 +78,19 @@ Optional flags: `--target-model`, `--target-model-version`,
 `--discovered-at` (ISO 8601). If you do not know a value, leave it out.
 The tool never guesses.
 
+Two more flags, since the real-data drill (finding F-10 and F-11):
+
+- `--grammar human-assistant` reads transcripts written as `Human:` /
+  `Assistant:` at line start, the form the largest public red-team corpus
+  (Anthropic hh-rlhf red-team-attempts) uses. The default grammar stays
+  `user-assistant`. You name the grammar; the tool never auto-detects,
+  and a marker from the other grammar at line start refuses, as do case
+  and spacing variants, exactly as for the default grammar.
+- `--environment KEY=VALUE` (repeatable) records a per-record source
+  fact (a rating, a task id, a model size) under
+  `reproduction.environment` as `manual.KEY`. Nothing is recorded that
+  you did not pass.
+
 ### List candidates
 
 ```

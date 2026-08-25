@@ -75,11 +75,26 @@ DATA_DIR/prepared/.
 
 Snapshot at 197 hits (mid-run), then the full 699 through the example:
 
+First pass (before D-079, prompts silently null):
+
 ```
 {"ingested": 699, "total_candidates": 699, "duplicates_marked": 253}
 40 files: ingested 40, refused 0
 candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplicate: 253
 ```
+
+Second pass, after D-079/D-080/D-081, the transcripts ingested unchanged
+with `--grammar human-assistant` and their facts via `--environment`:
+
+```
+{"ingested": 699, "total_candidates": 699, "duplicates_marked": 62}
+40 files: ingested 40, refused 0
+candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplicate: 62; probe sealed: 739/739; response sealed: 739/739; with source facts in environment: 739/739
+```
+
+Before/after: probe sealed 0/699 to 739/739. Duplicates 253 to 62: the
+first figure was inflated by the bug (dedup keyed on responses alone);
+recorded as C-011.
 
 Refusal on real input: the 15 MB archive refuses `input-too-large` at
 the 10 MiB cap. Verify clean. Four emitters emitted. The committed

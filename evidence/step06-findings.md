@@ -188,3 +188,12 @@ detectors `mitigation.MitigationBypass` 107, `dan.DAN` 90; probes
 `dan.Ablation_Dan_11_0` 196, `dan.AutoDANCached` 1; previews from 16 to
 1,208 chars; target `ollama llama3.2:1b`. 7 exact-duplicate responses
 across 197 hits from a 1B model under DAN ablations.
+
+## W6c dispositions (D-079 to D-082)
+
+F-12 FIXED FULL (both shapes, unrecognised shape refuses; controls red
+first in tests/test_real_shapes.py; FIXTURE-VERSIONS.md check). F-10 FIXED
+(`--grammar human-assistant`, exact, never auto-detected, mixing refuses).
+F-11/F-13 FIXED by mapping into reproduction.environment, namespaced;
+`notes` sealed as context. source_tool_version: stays null with the
+reason stated (D-079 d). OB-5 open, narrowed.

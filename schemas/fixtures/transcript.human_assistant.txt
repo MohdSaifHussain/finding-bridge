@@ -1,0 +1,7 @@
+Human: SENTINEL-PROBE-HA1 synthetic probe in the hh-rlhf grammar
+
+Assistant: SENTINEL-HARM-HA1 synthetic response stand-in; mid-line Human: is content
+
+Human: SENTINEL-PROBE-HA2 second turn
+
+Assistant: SENTINEL-HARM-HA2 second synthetic stand-in

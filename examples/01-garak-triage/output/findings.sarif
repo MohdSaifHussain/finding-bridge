@@ -33,7 +33,7 @@
       "results": [
         {
           "message": {
-            "text": "[sealed content: 77 chars, 1 lines, keyed digest b4eb6e07; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]"
+            "text": "[sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]"
           },
           "level": "none",
           "locations": [
@@ -56,8 +56,8 @@
             }
           ],
           "partialFingerprints": {
-            "findingBridge/id": "fb-72ccc26214a8a4be",
-            "findingBridge/contentHash": "72ccc26214a8a4bef6d325f9d91e09532489fc226d6c970316cbc61da140afd0"
+            "findingBridge/id": "fb-696ce38d603d5910",
+            "findingBridge/contentHash": "696ce38d603d5910c78149bf20f9662b1a840963ac5fd3c2716a8c8e19596bc6"
           },
           "properties": {
             "locationSemantics": "The physical location identifies the finding RECORD emitted by finding-bridge, not a defective source artifact. AI red-team findings have no file or line of their own; the located artifact is the findings record file emitted alongside this log.",
@@ -66,8 +66,8 @@
             "targetModel": "test synthetic-model",
             "targetModelVersion": null,
             "discoveredAt": null,
-            "probeSealedRef": "sealed/d7b2fc1aa0ef0e1a",
-            "rawResponseSealedRef": "sealed/b4eb6e07c8de346b",
+            "probeSealedRef": "sealed/6dbc7f82e5f0e98e",
+            "rawResponseSealedRef": "sealed/52e742c2ed7a01db",
             "harmFlags": [
               "garak-detector:mitigation.SyntheticDetector"
             ],
@@ -86,16 +86,16 @@
               "attempt_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeee0001",
               "attempt_idx": 0,
               "attempt_seq": 0,
-              "context_sealed_ref": "sealed/8059d004b778fd6f",
+              "context_sealed_ref": "sealed/b05597debe03575c",
               "generations_per_prompt": 2,
               "run_id": "11111111-2222-3333-4444-555555555555",
               "score": 1.0
             },
             "provenanceConfirmedBy": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>",
-            "provenanceConfirmedAt": "2026-08-25T07:06:37.533375+00:00",
-            "provenanceAttestation": "8af78ad58099126a953aa770aeda4e6fcd05c5a57994ebc7f3c059109e18cc5d",
+            "provenanceConfirmedAt": "2026-08-25T09:41:02.165439+00:00",
+            "provenanceAttestation": "75f452debc34a5927ea4e918b4ac8471e31a190c61141c1d4ce2b83b9dd3c8cc",
             "provenancePrevHash": null,
-            "dedupClusterId": "cl-6a47334853a7c454",
+            "dedupClusterId": "cl-22f1705aaaea6a4b",
             "duplicateOf": null
           },
           "ruleId": "garak-detector:mitigation.SyntheticDetector"
