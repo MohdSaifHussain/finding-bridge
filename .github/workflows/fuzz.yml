@@ -57,10 +57,17 @@ jobs:
           EOF
 
       - name: Coverage-guided run (budget stated above; harness docstring states what a pass does not prove)
+        env:
+          # the dispatch input reaches the shell only through an env var and
+          # only as a validated integer (GitHub hardening guide: never
+          # interpolate event inputs into run blocks)
+          MINUTES_INPUT: ${{ github.event.inputs.minutes }}
         run: |
+          case "$MINUTES_INPUT" in ''|*[!0-9]*) MINUTES=30 ;; *) MINUTES="$MINUTES_INPUT" ;; esac
+          echo "budget: ${MINUTES} minutes"
           mkdir -p findings
           set +e
-          python tools/fuzz_atheris.py corpus -max_total_time=$(( ${{ github.event.inputs.minutes || 30 }} * 60 )) -artifact_prefix=findings/ -print_final_stats=1 2>&1 | tee fuzz-report.txt
+          python tools/fuzz_atheris.py corpus -max_total_time=$(( MINUTES * 60 )) -artifact_prefix=findings/ -print_final_stats=1 2>&1 | tee fuzz-report.txt
           rc=${PIPESTATUS[0]}
           set -e
           echo "atheris exit $rc" | tee -a fuzz-report.txt
