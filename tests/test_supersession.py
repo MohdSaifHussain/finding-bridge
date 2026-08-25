@@ -60,7 +60,7 @@ def test_legacy_raw_key_upgrades_preserving_refs(tmp_path: Path):
 
 
 def test_head_declares_canonical_form(ws: pipeline.Workspace):
-    head = prov.chain_head(ws.confirmed_findings())
+    head = prov.chain_head(ws.ledger_records())
     assert head["canonical_form"] == prov.CANONICAL_FORM_V1
     assert prov.chain_head_internal_ok(head)
 
@@ -75,15 +75,15 @@ def test_rotation_verifies_clean_across_the_join(ws: pipeline.Workspace):
     assert result["remap"] == {}, "with the D-053 split, rotation remaps nothing"
     assert ws.verify() == [], "the chain must verify THROUGH the supersession record"
     # and the sealed content is still readable under the new key
-    ref = ws.confirmed_findings()[0]["raw_response_sealed"]
+    ref = ws.ledger_records()[0]["raw_response_sealed"]
     assert "SENTINEL-HARM" in ws.store.unseal(ref, IDENTITY, explicit=True)
 
 
 def test_rotation_changes_the_encryption_key_but_not_identity(ws: pipeline.Workspace):
-    before_ids = [f["id"] for f in ws.confirmed_findings()]
+    before_ids = [f["id"] for f in ws.ledger_records()]
     before_key = ws.keyring["encryption_keys"][0]
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    after = [f for f in ws.confirmed_findings() if f.get("record_type") != "supersession"]
+    after = [f for f in ws.ledger_records() if f.get("record_type") != "supersession"]
     assert [f["id"] for f in after] == before_ids, "ids must survive rotation (D-053)"
     assert ws.keyring["encryption_keys"][0] != before_key, "the encryption key must change"
 
@@ -93,7 +93,7 @@ def test_rotation_changes_the_encryption_key_but_not_identity(ws: pipeline.Works
 
 def test_forged_supersession_fails(ws: pipeline.Workspace):
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    ledger = ws.confirmed_findings()
+    ledger = ws.ledger_records()
     ledger[-1]["reason"] = "forged reason, attestation not recomputed"
     failures = prov.verify_chain(ledger)
     assert prov.REASON_ATTESTATION_TAMPERED in {f["reason_code"] for f in failures}
@@ -107,7 +107,7 @@ def test_supersession_with_wrong_old_head_fails(ws: pipeline.Workspace):
     """A record whose old_head does not match the chain it claims to
     supersede must fail, even with a correctly recomputed attestation."""
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    ledger = ws.confirmed_findings()
+    ledger = ws.ledger_records()
     record = ledger[-1]
     record["old_head"] = dict(record["old_head"], count=99)
     record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
@@ -125,7 +125,7 @@ def test_supersession_with_wrong_old_head_fails(ws: pipeline.Workspace):
 
 def test_claimed_but_unperformed_remap_fails(ws: pipeline.Workspace):
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    ledger = ws.confirmed_findings()
+    ledger = ws.ledger_records()
     record = ledger[-1]
     record["remap"] = {"fb-0000000000000000": "fb-1111111111111111"}
     record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
@@ -143,7 +143,7 @@ def test_supersession_record_validates_against_its_schema(ws: pipeline.Workspace
     from finding_bridge.core.schema import validate_record
 
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    for record in ws.confirmed_findings():
+    for record in ws.ledger_records():
         validate_record(record)
 
 
@@ -161,13 +161,13 @@ def test_supersession_is_the_only_rotation_path(ws: pipeline.Workspace):
 
 
 def test_findings_carry_record_type(ws: pipeline.Workspace):
-    for finding in ws.confirmed_findings():
+    for finding in ws.ledger_records():
         assert finding["record_type"] in ("finding", "supersession")
 
 
 def test_ledger_after_rotation_keeps_one_unbroken_chain(ws: pipeline.Workspace):
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    ledger = ws.confirmed_findings()
+    ledger = ws.ledger_records()
     for i, record in enumerate(ledger):
         if i == 0:
             assert record["provenance"]["prev_hash"] is None
@@ -188,7 +188,7 @@ def test_ingest_after_rotation_still_works(ws: pipeline.Workspace):
 
 def test_supersession_json_shape_is_stable(ws: pipeline.Workspace):
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
-    record = ws.confirmed_findings()[-1]
+    record = ws.ledger_records()[-1]
     assert set(record) >= {
         "record_type",
         "event_type",

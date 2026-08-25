@@ -1281,6 +1281,71 @@ exist). **Limit stated:** the mutation baselines for provenance and
 sealing are unchanged by ruling until the next audit; sealing gained
 nine lines here that are unmeasured until then.
 
+## D-070 — F-2 fixed FULL: one shared filter in the ledger read path (director, STEP-06 stop one, 2026-08-25)
+
+**Ruled:** `Workspace.confirmed_findings()` drops supersession records
+once, so all four emitters inherit it; `emit-tracker`'s own skip stays
+as a second layer, now the explicit shared behaviour rather than a lucky
+accident. Controls captured red for markdown, sarif and flare
+(KeyError tracebacks) against a rotated store, plus the shared-filter
+test, before the fix; tests/test_emit_after_rotation.py.
+
+**Two records, in the director's words:** (a) this is an ESCAPE against
+the STEP-05 close, direction named: the close ritual rotated and
+verified but never emitted after rotating, so every emitter was
+certified against a store shape the rotation feature immediately
+invalidates; the director's ritual missed it too, a joint escape.
+(b) The finder was examples/03-rotation-drill: a documentation exercise
+found a product defect the suite and two rituals missed, the
+proof-artifacts addendum earning its place in one stroke. **Standing:
+close rituals gain an emit-after-rotation row, all four formats.**
+
+## D-071 — Schema 0.5.0 ratified under W4's narrow path: ATLAS, id patterns, remediation (director, STEP-06 stop one)
+
+F-3: add `taxonomy.atlas`, pattern-pinned to ATLAS 5.6.0's id grammar
+(`AML.T####`, sub-techniques `AML.T####.###`), null/empty legal,
+mapping rows in the same commit. F-4: pattern pins on
+`taxonomy.owasp_llm` (the fetched 2025 id form) and `taxonomy.saif`
+(the fetched saif-data vocabulary), version pinned in the pattern's
+description; empty and null stay legal everywhere: constrain the shape
+of what IS claimed, never require a claim. Q-1: add `remediation`,
+optional, null default, written only by the human at the gate like the
+severity rationale; the `--ai` path gains NO remediation capability in
+this arc (a suggested remediation is parked as a named future `--ai`
+job beside the semantic preview); STANDARDS.md's row cites the Guide.
+One minor bump, one migration note.
+
+## D-072 — PROV-3 ratified: normalised showcase comparison (director, STEP-06 stop one)
+
+Byte-match modulo a committed, named normalisation list, each entry
+justified in the check's docstring; anything differing outside the list
+fails. Byte identity requiring key material in the tree would violate
+D-010 to satisfy a showcase. The list is part of the check's honesty: it
+names exactly what the showcase does not prove.
+
+## D-073 — Quoted standards may carry a banned phrase under three conditions (director, STEP-06 stop one)
+
+(a) verbatim in quotation marks, (b) attributed to its source by name,
+(c) immediately followed by our narrower claim. The check learns the
+exemption under those three conditions so it stays mechanical; bare
+unquoted use stays banned everywhere forever.
+
+## D-074 — The gate gains a verdict file; never pipe the gate (director, STEP-06 stop one)
+
+C-009 is C-008's mechanism biting the gate itself: gate.py piped to
+tail masked gate.py's own exit code, the mask-killer masked. Ruled:
+`tools/gate.py --verdict-file <path>` writes one line (`GATE: PASS` or
+`GATE: FAIL ...` plus the exit code); the standing rule becomes NEVER
+PIPE THE GATE: read the verdict file if you need the tail. The rule
+converts from a sentence broken twice into a mechanism that makes
+piping unnecessary.
+
+## D-075 — DEV-20 accepted as applied; C-009 accepted as recorded (director, STEP-06 stop one)
+
+The redone-from-scratch honesty of the resume report (naming what died
+with the old session rather than patching around it) noted as done
+right.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1300,7 +1365,7 @@ Nothing here is proposed; each waits on the director's word.
 | # | Decision taken | Options | Why least irreversible | Cost to reverse | Status |
 |---|---|---|---|---|---|
 | ~~PROV-2~~ **CLOSED: ratified as Apache-2.0 (D-048)** | pyproject ships WITHOUT a license field or license classifier | (a) omit, all-rights-reserved by legal default, director picks at stop one; (b) builder picks a permissive license | (a): adding a license later is one line; un-granting a wrongly-granted one is practically impossible. A rights decision belongs to the owner. | one pyproject edit once ruled | OPEN, pending ratification at STEP-04 stop one |
-| PROV-3 | The W3 showcased-equals-current control compares committed example artifacts to a fresh re-run AFTER normalising the fields that derive from the store key, the clock and the operator (ids, cluster ids, sealed refs, keyed digests, 64-hex hashes, timestamps, identity, path separators), instead of the byte-match the director's word asked for | (a) normalised comparison, volatile list short and visible in examples/run_example.py, docstring states exactly what a pass proves; (b) commit a fixed example key and inject a clock so bytes match; (c) no control | (a): byte identity is impossible without key material in the tree, which key-inside-repo and the D-058 secret scan both exist to refuse, and the tool has no clock injection (a product change, Section C). (a) is reversible by editing one list. | one file if ruled the other way | OPEN, pending ratification at STEP-06 stop one |
+| PROV-3 | The W3 showcased-equals-current control compares committed example artifacts to a fresh re-run AFTER normalising the fields that derive from the store key, the clock and the operator (ids, cluster ids, sealed refs, keyed digests, 64-hex hashes, timestamps, identity, path separators), instead of the byte-match the director's word asked for | (a) normalised comparison, volatile list short and visible in examples/run_example.py, docstring states exactly what a pass proves; (b) commit a fixed example key and inject a clock so bytes match; (c) no control | (a): byte identity is impossible without key material in the tree, which key-inside-repo and the D-058 secret scan both exist to refuse, and the tool has no clock injection (a product change, Section C). (a) is reversible by editing one list. | one file if ruled the other way | **RATIFIED (a)** by the director at STEP-06 stop one (D-072) |
 | PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | **RATIFIED (a)** by the director at stop one; note added to OB-6 and §4d via DEV-9: canonical form and schema can change independently and only one has a version - the identity problem's fourth hat |
 
 ## Obligations register (carried by name until discharged)

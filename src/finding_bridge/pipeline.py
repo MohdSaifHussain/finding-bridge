@@ -203,8 +203,21 @@ class Workspace:
 
     # -- verification and emission --
 
-    def confirmed_findings(self) -> list[dict]:
+    def ledger_records(self) -> list[dict]:
+        """Every ledger row, findings AND supersession records, in chain
+        order. For verification, rotation and tests of the chain itself."""
         return _read_jsonl(self.ledger_path)
+
+    def confirmed_findings(self) -> list[dict]:
+        """Confirmed FINDINGS only, for emitters (D-070, finding F-2).
+
+        The ledger also holds supersession records after a key rotation
+        (D-051). They are chain bookkeeping, not findings, and every
+        emitter inherits their exclusion from this one reader instead of
+        each adapter re-learning it. verify and rotate read the raw
+        ledger themselves, because they must see the supersession rows.
+        """
+        return [r for r in _read_jsonl(self.ledger_path) if r.get("record_type") != "supersession"]
 
     def rotate_key(self, identity: str, reason: str) -> dict:
         """Rotate the ENCRYPTION key as a supersession event (D-052).

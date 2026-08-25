@@ -45,7 +45,7 @@ def _both_orderings(real: str) -> list[str]:
 def test_supersession_content_tamper_detected_both_orderings(rotated):
     """Kills provenance L279 ('!=' weakened): the supersession record's own
     content hash, checked in both hash orderings."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     for forged in ("0" * 64, "f" * 64):
         chain = copy.deepcopy(ledger)
         chain[-1]["provenance"]["content_hash"] = forged
@@ -55,7 +55,7 @@ def test_supersession_content_tamper_detected_both_orderings(rotated):
 
 def test_supersession_prev_hash_break_detected_both_orderings(rotated):
     """Kills provenance L291 ('!=' weakened): the join's own chain link."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     for forged in ("0" * 64, "f" * 64):
         chain = copy.deepcopy(ledger)
         chain[-1]["provenance"]["prev_hash"] = forged
@@ -66,7 +66,7 @@ def test_supersession_prev_hash_break_detected_both_orderings(rotated):
 def test_supersession_attestation_detected_both_orderings(rotated):
     """Kills provenance L452 ('!=' weakened): the attestation comparison,
     the third occurrence of this class in this project."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     for forged in ("0" * 64, "f" * 64):
         chain = copy.deepcopy(ledger)
         chain[-1]["provenance"]["attestation_hash"] = forged
@@ -85,7 +85,7 @@ def test_old_head_describes_a_different_chain_and_is_caught(rotated):
     mutant alive under a green test. Fixed: build an old_head that is
     internally VALID but describes a different chain, so the comparison is
     the only thing that can catch it."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     chain = copy.deepcopy(ledger)
     record = chain[-1]
     wrong_but_valid = prov.chain_head([])  # self-consistent, wrong chain
@@ -106,7 +106,7 @@ def test_epoch_start_advances_across_two_rotations(rotated):
     rotated.ingest_garak(HITLOG)
     rotated.confirm(rotated.list_candidates()[0]["id"], IDENTITY)
     rotated.rotate_key(IDENTITY, reason="second rotation")
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     assert [r["record_type"] for r in ledger].count("supersession") == 2
     assert prov.verify_chain(ledger) == [], "two joins must both verify"
     assert ledger[-1]["old_head"]["count"] == len(ledger) - 1
@@ -116,7 +116,7 @@ def test_remap_pointing_backwards_is_not_accepted(rotated):
     """Kills provenance L495 (`records[i + 1:]`, 12 slice mutants): an id
     that exists BEFORE the join does not satisfy a remap claiming to have
     produced it after."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     chain = copy.deepcopy(ledger)
     record = chain[-1]
     existing_before = [r["id"] for r in chain if r.get("record_type") == "finding"][0]
@@ -135,7 +135,7 @@ def test_supersession_is_not_verified_as_a_finding(rotated):
     run through the finding checks (it has no id and no dedup, so treating
     it as a finding would produce id-mismatch noise) and a finding must
     never be run through the supersession checks."""
-    ledger = rotated.confirmed_findings()
+    ledger = rotated.ledger_records()
     assert prov.verify_chain(ledger) == []
     supersession = [r for r in ledger if r["record_type"] == "supersession"]
     assert len(supersession) == 1
@@ -145,15 +145,13 @@ def test_supersession_is_not_verified_as_a_finding(rotated):
 def test_validate_record_routes_each_kind_to_its_own_schema(rotated):
     """Kills schema L95: both kinds validate, and a finding shaped like a
     supersession (or vice versa) refuses."""
-    for record in rotated.confirmed_findings():
+    for record in rotated.ledger_records():
         validate_record(record)
-    finding = [r for r in rotated.confirmed_findings() if r["record_type"] == "finding"][0]
+    finding = [r for r in rotated.ledger_records() if r["record_type"] == "finding"][0]
     mislabeled = dict(finding, record_type="supersession")
     with pytest.raises(SchemaValidationError):
         validate_record(mislabeled)
-    supersession = [r for r in rotated.confirmed_findings() if r["record_type"] == "supersession"][
-        0
-    ]
+    supersession = [r for r in rotated.ledger_records() if r["record_type"] == "supersession"][0]
     with pytest.raises(SchemaValidationError):
         validate_record(dict(supersession, record_type="finding"))
 
