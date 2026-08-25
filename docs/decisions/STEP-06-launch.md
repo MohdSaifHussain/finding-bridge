@@ -415,3 +415,39 @@ the director's yes. C-009-class note: none this half.
 **Handoff:** everything committed; uncommitted: nothing. Next: the
 director's read of example 04 and rulings on F-10..F-13, OB-5, the
 provenance wording; then W7.
+
+## W6c CLOSE report (builder, 2026-08-25)
+
+**State:** origin/master = b6eb3da, 110 commits pushed under the
+director's word after the delta audit (evidence/prepush-audit-w6c.md: 59
+blobs, zero secret shapes, zero local paths, zero key/store files, zero
+real-data files, workflows unchanged). This report is commit 111, local
+until the director's next push word.
+
+**CI on b6eb3da:** gate 32833567799 success on all four jobs
+(ubuntu/windows x 3.12/3.14); container 32833567815 success; GHCR
+`:latest` republished as sha256:e8a2a3d40aa3..., still private.
+
+**Fixes landed (rulings D-079..D-083), controls red first (15 red / 5
+green before, 20 green after; tests/test_real_shapes.py):**
+- F-12: both garak shapes; unrecognised shape refuses `invalid-hitlog`;
+  fixture-currency table `docs/FIXTURE-VERSIONS.md` with a test;
+  `source_tool_version` stays null with the reason stated.
+- F-10: `--grammar human-assistant`, exact, operator-named, never
+  auto-detected, mixing refuses; SOP and USAGE updated.
+- F-11/F-13: `--environment KEY=VALUE` to `manual.<key>`; garak message
+  facts to `garak.<side>.<key>`; `notes` sealed as context.
+
+**Real ingestion re-run end to end, before/after:** probe sealed
+**0/699 to 739/739**; response sealed 699/699 to 739/739; duplicates 253
+to 62 (C-011: the earlier count was inflated by the bug). Example 04
+re-captured; all four examples regenerated; fixture scan CONFORMING (10
+fixtures, 18 outputs); real-string scan CLEAN (5,000 windows, 4,784
+texts); showcase check SAME x4; gate PASS.
+
+**OB-5:** open, narrowed to one coverage-guided run on the Ubuntu runner
+(D-082). **Provenance wording:** "a human director who wrote none of it"
+ratified (D-083); nothing further.
+
+**Handoff:** nothing uncommitted. W7 waits on the director's close of
+W6c.
