@@ -1510,6 +1510,24 @@ measured with its run parameters beside it; the director's wording "a
 human director who wrote none of it" STANDS, ratified; no further
 personal wording without the director's explicit line.
 
+## D-084 — W6c CLOSED; W7 open (director, 2026-08-25)
+
+Verified by the director: 111 commits, origin at b6eb3da, tree clean,
+both CI runs green, the real-string scan re-run a third time CLEAN
+(5,000 windows, 6 artifacts). The project has processed 39,660 real
+adversarial records, sealed 739 real attack prompts and 739 real
+responses, refused what it should have, and leaked nothing, measured by
+three independent scan runs, two of them the director's. C-011 accepted
+as the corrected-instrument-moves-the-figure class in its purest form.
+The present-but-textless refusal noted as curing the class, not the
+symptom; FIXTURE-VERSIONS.md as the census pattern at its fastest; the
+version-flag proposal parked as proposed. **W7 open:** everything short
+of the flip, as contracted, with two published numbers ruled for the
+release notes: the test count with its product/governance split, and the
+real-data validation figures (739/739 sealed, three clean leak scans),
+each naming where it is checked. The flip happens on the director's
+one-line word and not otherwise.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

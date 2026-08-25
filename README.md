@@ -163,7 +163,7 @@ in a fresh venv on every push (`.github/workflows/gate.yml`):
 pip install build
 python -m build --wheel
 pip install --require-hashes -r constraints.txt
-pip install --no-deps dist/finding_bridge-0.1.0-py3-none-any.whl
+pip install --no-deps dist/finding_bridge-1.0.0-py3-none-any.whl
 ```
 
 `constraints.txt` locks every runtime dependency to an exact version

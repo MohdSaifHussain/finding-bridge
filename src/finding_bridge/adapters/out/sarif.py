@@ -17,6 +17,7 @@ references and keyed previews.
 import json
 
 from finding_bridge import __version__
+from finding_bridge.core.schema import load_schema
 
 REASON_UNCONFIRMED = "unconfirmed"
 
@@ -37,6 +38,9 @@ TAMPER_BOUND = (
     "drift and casual edit; they do not defend against an attacker with "
     "write access to both the ledger and its head."
 )
+
+INFORMATION_URI = "https://github.com/MohdSaifHussain/finding-bridge"
+CANONICAL_SCHEMA_VERSION = load_schema()["properties"]["schema_version"]["const"]
 
 TAXONOMY_NAMES = {
     "owasp_llm": "OWASP LLM Top 10",
@@ -183,8 +187,16 @@ def render_sarif(findings: list[dict], artifact_uri: str) -> dict:
             "driver": {
                 "name": "finding-bridge",
                 "version": __version__,
+                # OB-7 prepared (D-040.3, D-058): the public repository URL.
+                # Meaningless until the flip makes it resolvable; the
+                # obligation row says so. Never a fabricated URL: this one is
+                # the repository's own, private today, public on the
+                # director's word.
+                "informationUri": INFORMATION_URI,
                 "rules": rules,
-                "properties": {"canonicalSchemaVersion": "0.4.0"},
+                # F-14 (W7): this label was a hard-coded "0.4.0" that no test
+                # tied to the schema; it now reads the schema's own constant.
+                "properties": {"canonicalSchemaVersion": CANONICAL_SCHEMA_VERSION},
             }
         },
         "artifacts": [

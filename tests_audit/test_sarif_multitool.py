@@ -73,7 +73,9 @@ def test_multitool_accepts_our_sarif(emitted: Path):
     import re
 
     warnings = set(re.findall(r"warning ([A-Z]+\d+)", combined))
-    assert warnings == {"SARIF2005"}, f"warning set changed: {sorted(warnings)}"
+    # OB-7 prepared (W7): informationUri is wired, so SARIF2005 is gone and
+    # the expected warning set is EMPTY; any warning is a loud change.
+    assert warnings == set(), f"warning set changed: {sorted(warnings)}"
 
 
 def test_multitool_flags_corrupted_input(tmp_path: Path):
