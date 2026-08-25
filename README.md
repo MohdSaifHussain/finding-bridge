@@ -31,8 +31,8 @@ below. Every figure names the command or file it is computed from, at
 commit time; a figure that did not compute cleanly is absent, not
 rounded.
 
-- **Tests: 324 collected; 242 (74.7 percent) exercise the product, 82
-  (25.3 percent) exercise the governance instruments that keep the AI
+- **Tests: 349 collected; 261 (74.8 percent) exercise the product, 88
+  (25.2 percent) exercise the governance instruments that keep the AI
   honest.** Counted by node id from `python -m pytest --collect-only -q`.
   Governance means the instruments themselves: the gate guard, the
   overclaim scanner, the digest-comparison scan, the boundary table, the
@@ -41,8 +41,9 @@ rounded.
   (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
   `test_no_inline_digest_compare.py`, `test_boundary_table.py`,
   `test_environment.py`, `test_ai_caged.py`, `test_readme_badges.py`,
-  `test_installed_package.py`, and three named tests in
-  `test_schema.py`). RFC 8785 conformance vectors count as product.
+  `test_installed_package.py`, `test_release_labels.py`, three named
+  drift tests in `test_schema.py`, and the fixture-currency test in
+  `test_real_shapes.py`). RFC 8785 conformance vectors count as product.
 - **Every governance tool was built after its failure class occurred.**
   The rule census (`docs/RULE-CENSUS.md`, D-068) states it as a
   measurement: "Seven-for-seven: every rule that is now a check became
@@ -57,11 +58,11 @@ rounded.
   became a tool both times (the gate-half-run rule, seven instances,
   converted to `tools/gate.py`; the digest-comparison rule, three
   failures, converted to one helper plus a scan).
-- **Corrections: 10 entries, 5 of the director's errors and 5 of the
+- **Corrections: 11 entries, 5 of the director's errors and 6 of the
   AI's**, each with the original claim quoted, what proved it wrong, and
   the direction it moved, including the director's own false alarm
   (C-007). Counted from the corrections table in `DECISIONS.md`.
-- **Rulings: 78 numbered, across 6 phase contracts, each with declared
+- **Rulings: 84 numbered, across 6 phase contracts, each with declared
   review stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
   `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in
   the PROV register, all later ratified.
@@ -245,17 +246,17 @@ command, and the reason-code reference.
 Every figure here names the command that produced it and the date. If a
 figure and the tree disagree, the tree wins and the figure is wrong.
 
-- **Tests: 287 passed, 1 skipped**, run by `python tools/gate.py` on
-  2026-08-25 with no API key in the environment (the suite scrubs
+- **Tests: 348 passed, 1 skipped**, run by `python tools/gate.py` on
+  2026-08-25 at the 1.0.0 release commit with no API key in the environment (the suite scrubs
   key-bearing variables and proves it). The one skip is the Windows key
   file permission check, which needs a POSIX file mode.
-- **Product versus governance tests: 259 versus 29.** Governance tests
+- **Product versus governance tests: 261 versus 88.** Governance tests
   check the project's own rules and record rather than finding
   behaviour (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
   `test_no_inline_digest_compare.py`, `test_installed_package.py`,
-  `test_environment.py`, `test_readme_badges.py`). Counted by
-  `python -m pytest --collect-only -q` over those six files (29 of 288
-  collected).
+  `test_environment.py`, `test_readme_badges.py`, and the rest of the
+  governance list in the provenance section above). Counted by node id
+  from `python -m pytest --collect-only -q` (88 of 349 collected).
 - **Mutation testing, reported both ways** (raw, and excluding the
   annotation-class equivalents, the frozen method of D-066). Last
   audit at the STEP-05 close, `evidence/mutation-audit-step05-close.md`:
