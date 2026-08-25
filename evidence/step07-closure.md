@@ -62,3 +62,12 @@ click. D-086 F1 fully closed.
 
 Not a document and deliberately unchanged: the container base
 `python:3.12-slim` (the declared floor; 3.13 and 3.14 slim tags exist).
+
+## Alert #2 dismissed (2026-08-25T13:36:41Z, director's word, via API)
+
+The exhibit alert was dismissed with GitHub's reason "used in tests"
+and the comment "Synthetic exhibit: finding-bridge's own SARIF uploaded
+to prove code-scanning rendering (F-15, D-089). Not a defect." Read
+back: state=dismissed, by MohdSaifHussain. The capture and the JSON
+above remain the proof; the Security tab no longer shows an open alert
+that means nothing.
