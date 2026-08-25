@@ -120,6 +120,26 @@ FLARE-AI has not published a machine-readable schema, so this mapping
 comes from the field names in the FLARE-AI paper. Check the field names
 before you submit anything based on it.
 
+### Rotate the encryption key
+
+```
+finding-bridge rotate-key --reason "quarterly rotation"
+```
+
+This re-encrypts every sealed blob under a fresh encryption key and
+records the event in the ledger as a **supersession record**: what
+happened, who confirmed it, both chain heads, and an attestation over all
+of it. `verify` then walks through that record, so history stays checkable
+across the change.
+
+Your finding ids do not change. The reference key that produces sealed
+references is separate from the encryption key and is **not** rotated.
+
+**Limit, stated plainly: the reference key is permanent.** Rotating it
+would change every sealed reference, content hash and finding id in the
+store. That is possible in principle through the same supersession
+mechanism, but it is not implemented and it is not free.
+
 ### Unseal (explicit and logged)
 
 ```
@@ -175,7 +195,10 @@ Plain statements of what this tool does not do.
 - **Duplicate detection is exact-match only.** Two findings with identical
   evidence are merged. Similar-but-different findings are not clustered.
 - **Input is capped at 10 MiB.** A configurable cap may come later.
-- **The sealing key has no rotation yet.** Losing the key means losing
-  access to sealed content.
+- **The encryption key rotates; the reference key does not.**
+  `rotate-key` rotates the key that encrypts content. The separate key
+  that produces sealed references is permanent, because changing it would
+  change every reference, hash and id. Losing the reference key means
+  losing the link between findings and their sealed content.
 - **On Windows, key file permissions are not locked by the tool.** Use
   `icacls` to restrict the key file yourself.
