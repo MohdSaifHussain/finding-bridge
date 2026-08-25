@@ -72,3 +72,28 @@ edition had been published 2026-08-03. Re-fetched from OWASP (page and
 PDF), re-pinned, 2025 row kept as superseded, delta stated. Finder: the
 director, from outside the record. Builder's failure class, named: I
 pinned what I fetched without asking whether it was the latest.
+
+## F-6: the documented hash-verified install route did not run (builder, W5 rehearsal; FIXED as a doc defect, DEV-19 rule 4)
+
+Rehearsing gate.yml's fresh-wheel step locally on 2026-08-25:
+`pip install dist/finding_bridge-0.1.0-py3-none-any.whl -c constraints.txt`
+in a fresh venv fails: "Hashes are required in --require-hashes mode, but
+they are missing from some requirements" (the wheel itself). Cause, from
+pip's secure-installs guide (fetched 2026-08-25): once any requirement
+has a hash, hashes become required for all. The STEP-04 proof
+(evidence/fresh-venv-proof-step04.md) installed the wheel WITHOUT the
+constraints file; the `-c constraints.txt` wheel command was written into
+README and USAGE at D-050 and never run. D-057's class: "this is the
+route we test" named no check, and it was not tested.
+
+Fix, executed before written: constraints.txt is now a full runtime lock
+(11 packages, 278 hashes from PyPI's JSON API), the route is
+`pip install --require-hashes -r constraints.txt` then
+`pip install --no-deps <wheel>`, rehearsed in a fresh venv (import from
+site-packages, `pip check` clean, `finding-bridge --help`), with a
+negative control: both rfc8785 hashes zeroed, pip refuses with the
+mismatch named, exit 1. (A first negative control tampered ONE of the two
+hashes and passed, because pip accepts a match on either; the control was
+wrong, not the lock.) README and USAGE reworded (listed for the stop-two
+report as rule-4 rephrasings), gate.yml and the Dockerfile use the route,
+the overclaim check bans the broken form.

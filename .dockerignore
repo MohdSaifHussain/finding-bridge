@@ -1,0 +1,19 @@
+# Nothing that could carry key material or a workspace enters the build context.
+.fb-store/
+**/*.key
+**/fb.key
+**/exposure_log.jsonl
+.git/
+.github/
+build/
+dist/
+*.whl
+**/__pycache__/
+cr-*.sqlite
+cr-*.toml
+tests/
+tests_audit/
+evidence/
+docs/
+examples/
+schemas/

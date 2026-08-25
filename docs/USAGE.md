@@ -15,19 +15,24 @@ Python 3.12 or newer.
 pip install -e .
 ```
 
-For a hash-verified install, build a wheel first:
+For a hash-verified install, install the locked dependencies first, then
+the wheel without dependencies:
 
 ```
 pip install build
 python -m build --wheel
-pip install dist/finding_bridge-0.1.0-py3-none-any.whl -c constraints.txt
+pip install --require-hashes -r constraints.txt
+pip install --no-deps dist/finding_bridge-0.1.0-py3-none-any.whl
 ```
 
-`constraints.txt` pins the exact hash of `rfc8785`, the library that does
-canonical hashing. It sits inside the hash path, so its version is locked.
-`pip` cannot hash-check an install from a source directory, which is why
-the verified route uses a wheel. Either route installs the same pinned
-version (0.1.4).
+`constraints.txt` locks every runtime dependency to an exact version
+with PyPI's hashes. `rfc8785`, the library that does canonical hashing,
+and `cryptography`, which does the sealing, sit inside the hash path, so
+their versions are locked and a major bump of either stops for a ruling.
+`pip` cannot hash-check an install from a source directory, and once any
+requirement carries a hash it requires one for all of them, which is why
+the verified route installs the lock first and the wheel with
+`--no-deps`. Either route installs the same pinned `rfc8785` (0.1.4).
 
 ## How the pipeline works
 

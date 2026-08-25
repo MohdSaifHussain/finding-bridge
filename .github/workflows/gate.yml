@@ -1,0 +1,102 @@
+# The gate (STEP-06 W5). Runs tools/gate.py, the fresh-wheel proof, and the
+# fixture scan on two operating systems and two Pythons.
+#
+# NO SECRETS ARE USED OR NEEDED. Every step runs with the default GITHUB_TOKEN
+# at read-only permissions. The pipeline's own guarantee is that the whole
+# suite passes with no API key in the environment (charter rule 1, R-10);
+# a secret here would undermine the thing being proven.
+#
+# tests_audit/ is NOT run here, by ruling D-027 / D-032: the AUDIT cadence
+# (mutation testing, the SARIF Multitool, the audit guard, the showcase
+# re-run) is once per phase close, never per commit. pyproject's testpaths
+# already excludes it; the gate constituents are tests/ + ruff, and this
+# file adds nothing from tests_audit.
+#
+# Every action is pinned to a full-length commit SHA, per GitHub's security
+# hardening guide ("Pinning an action to a full-length commit SHA is
+# currently the only way to use an action as an immutable release", fetched
+# 2026-08-25). The tag beside each SHA is the human-readable name only.
+
+name: gate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: gate (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.12", "3.14"]  # the floor pyproject declares, and current
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the package with its dev extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Git identity for the human-gate tests (D-011; a local config, not a secret)
+        run: |
+          git config --global user.name "gate-runner"
+          git config --global user.email "gate-runner@users.noreply.github.com"
+
+      - name: The gate (each constituent's exit code read directly; never piped, D-074)
+        run: python tools/gate.py --verdict-file gate-verdict.txt
+
+      - name: Fixture scan (D-012 as a check; sweeps schemas/fixtures, examples inputs, example outputs)
+        run: python tools/fixture_scan.py
+
+      # NAMED DELIVERABLE (contract W5): the project's only skip is the
+      # Windows key-file permission check (D-023). On Ubuntu that test must
+      # EXECUTE, so the skip count is 0 there and exactly 1 on Windows. A
+      # skip that quietly grew or moved would fail this step.
+      - name: The one skip executes on Ubuntu, and only there
+        shell: bash
+        run: |
+          python -m pytest -q -rs tests/test_sealing.py > skips.txt 2>&1 || { cat skips.txt; exit 1; }
+          count=$(grep -c "^SKIPPED" skips.txt || true)
+          echo "skips on ${{ matrix.os }}: $count"
+          if [ "${{ runner.os }}" = "Linux" ] && [ "$count" != "0" ]; then cat skips.txt; echo "the key-permission test did not execute on Linux"; exit 1; fi
+          if [ "${{ runner.os }}" = "Windows" ] && [ "$count" != "1" ]; then cat skips.txt; echo "expected exactly the one recorded Windows skip"; exit 1; fi
+
+      # The fresh-wheel proof (D-047, D-050): build a wheel, install it into
+      # a venv that has never seen the source tree, with hash verification
+      # against constraints.txt (the locked deps first with --require-hashes,
+      # then the wheel with --no-deps: pip's secure-installs route, F-6), and
+      # prove the installed package imports
+      # from site-packages and runs.
+      - name: Fresh-wheel proof
+        shell: bash
+        run: |
+          python -m pip install build
+          python -m build --wheel
+          python -m venv "${RUNNER_TEMP}/fb-venv"
+          if [ "${{ runner.os }}" = "Windows" ]; then VPY="${RUNNER_TEMP}/fb-venv/Scripts/python.exe"; else VPY="${RUNNER_TEMP}/fb-venv/bin/python"; fi
+          "$VPY" -m pip install --upgrade pip
+          "$VPY" -m pip install --require-hashes -r constraints.txt
+          "$VPY" -m pip install --no-deps dist/finding_bridge-*.whl
+          "$VPY" -m pip check
+          cd "${RUNNER_TEMP}"
+          "$VPY" -c "import finding_bridge, sys; print('finding_bridge imported from:', finding_bridge.__file__); assert 'site-packages' in finding_bridge.__file__"
+          if [ "${{ runner.os }}" = "Windows" ]; then "${RUNNER_TEMP}/fb-venv/Scripts/finding-bridge.exe" --help > /dev/null; else "${RUNNER_TEMP}/fb-venv/bin/finding-bridge" --help > /dev/null; fi
+
+      - name: Upload the gate verdict
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gate-verdict-${{ matrix.os }}-py${{ matrix.python }}
+          path: gate-verdict.txt

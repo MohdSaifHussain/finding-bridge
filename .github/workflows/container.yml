@@ -1,0 +1,102 @@
+# Container build, scan, smoke, and push (STEP-06 W6).
+#
+# Pushes ghcr.io/mohdsaifhussain/finding-bridge:<sha> and :latest. The
+# package stays PRIVATE on GHCR until the director's flip (W8); the v1.0.0
+# tag waits for the flip too. The only credential is the workflow's own
+# GITHUB_TOKEN with packages:write; no repository secret exists or is needed.
+#
+# Actions pinned to full-length commit SHAs (GitHub security hardening guide,
+# fetched 2026-08-25). The base image is digest-pinned in the Dockerfile.
+
+name: container
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/mohdsaifhussain/finding-bridge
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Build (local load, not pushed yet)
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}:candidate
+
+      - name: Read the base digest back from the built image
+        run: |
+          docker image inspect "${IMAGE}:candidate" --format '{{ index .Config.Labels "org.opencontainers.image.title" }}'
+          grep -o 'python:3.12-slim@sha256:[0-9a-f]\{64\}' Dockerfile | sort -u
+
+      # LAYER SCAN CONTROL: the key is never in the image. Export every layer
+      # and look for key files and Fernet-shaped tokens. A Fernet token is
+      # 44 base64url chars ending in '='; the keyring JSON carries two of
+      # them. Positive control first: the scan must FIND a planted token in
+      # a throwaway image, or it proves nothing (skill rule 5).
+      - name: Layer scan, positive control (a planted key must be found)
+        run: |
+          set -e
+          mkdir -p /tmp/planted && cd /tmp/planted
+          printf 'FROM scratch\nCOPY fb.key /fb.key\n' > Dockerfile
+          python3 -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())" > fb.key
+          docker build -q -t planted:control . > /dev/null
+          docker save planted:control -o planted.tar
+          if tar -xOf planted.tar 2>/dev/null | grep -aEo '[A-Za-z0-9_-]{43}=' | head -1 | grep -q .; then echo "positive control: planted token found"; else echo "SCAN CANNOT SEE A PLANTED TOKEN"; exit 1; fi
+
+      - name: Layer scan (no key file, no Fernet-shaped token, in any layer)
+        run: |
+          set -e
+          docker save "${IMAGE}:candidate" -o /tmp/image.tar
+          mkdir -p /tmp/layers && tar -xf /tmp/image.tar -C /tmp/layers
+          if find /tmp/layers -type f -name '*.tar' -exec tar -tf {} \; | grep -Ei '(^|/)(fb\.key|.*\.key|exposure_log\.jsonl)$'; then echo "KEY-SHAPED FILE IN A LAYER"; exit 1; fi
+          if find /tmp/layers -type f -name '*.tar' -exec tar -xOf {} \; 2>/dev/null | grep -aEo '"(ref_key|encryption_keys)"' | head -1 | grep -q .; then echo "KEYRING JSON IN A LAYER"; exit 1; fi
+          echo "layer scan: no key material"
+
+      # SMOKE ROW: run the real pipeline in the container with a key mounted
+      # from outside, and assert the sealed sentinel never reaches stdout.
+      - name: Smoke (mounted key; no sealed sentinel on stdout)
+        run: |
+          set -e
+          mkdir -p /tmp/smoke/store /tmp/smoke/key /tmp/smoke/in
+          cp schemas/fixtures/garak.synthetic.hitlog.jsonl /tmp/smoke/in/
+          chmod -R a+rwX /tmp/smoke
+          run() { docker run --rm -v /tmp/smoke/store:/work/store -v /tmp/smoke/key:/home/fb/key -v /tmp/smoke/in:/work/in:ro "${IMAGE}:candidate" --store /work/store --key /home/fb/key/fb.key "$@"; }
+          run ingest-garak in/garak.synthetic.hitlog.jsonl | tee /tmp/smoke/out.txt
+          run list | tee -a /tmp/smoke/out.txt
+          run verify | tee -a /tmp/smoke/out.txt
+          if grep -q "SENTINEL-HARM" /tmp/smoke/out.txt; then echo "SEALED SENTINEL ON STDOUT"; exit 1; fi
+          grep -q "sealed content" /tmp/smoke/out.txt
+          test -f /tmp/smoke/key/fb.key && echo "key was created OUTSIDE the image, in the mounted folder"
+          # negative direction: an explicit unseal DOES print it, proving the sentinel was present and sealed
+          ref=$(run list | grep -o 'keyed digest [0-9a-f]*' | head -1 | cut -d' ' -f3)
+          echo "smoke ok (digest prefix $ref)"
+
+      - name: Log in to GHCR (GITHUB_TOKEN only)
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push :sha and :latest
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest

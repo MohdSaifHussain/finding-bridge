@@ -129,6 +129,10 @@ INSTALL_MUST_NOT_APPEAR = [
     # pip cannot hash-check a source-directory install; this exact line was
     # in the README and FAILED when the director questioned it (D-048).
     r"pip install -e \. -c constraints\.txt",
+    # F-6 (STEP-06): pip requires hashes for ALL requirements once any has
+    # one, so a wheel installed with -c constraints.txt fails in a fresh
+    # venv. Documented for two phases; never run until the CI rehearsal.
+    r"\.whl\s+-c\s+constraints\.txt",
 ]
 
 
@@ -146,6 +150,8 @@ def test_install_docs_explain_the_wheel_route():
     for doc in (REPO / "README.md", REPO / "docs" / "USAGE.md"):
         text = flat(doc_text(doc)).lower()
         assert "python -m build --wheel" in text, f"{doc.name}: wheel route missing"
+        assert "--require-hashes -r constraints.txt" in text, f"{doc.name}: lock step missing"
+        assert "--no-deps" in text, f"{doc.name}: the --no-deps wheel step is missing"
         assert "hash-check" in text or "hash verification" in text, (
             f"{doc.name}: the reason for the wheel route must be stated"
         )

@@ -1,0 +1,31 @@
+# Dependabot (STEP-06 W5b). Options per GitHub's Dependabot options
+# reference (docs.github.com, fetched 2026-08-25): package-ecosystem,
+# directory, schedule.interval, open-pull-requests-limit, labels.
+#
+# STANDING RULE (director, STEP-06 contract): a Dependabot PR merges only on
+# a green gate, and a green gate is necessary but NOT sufficient for a MAJOR
+# bump of anything in the hash path. rfc8785 (canonical bytes, hence every
+# hash and id) and cryptography (Fernet sealing) stop for the director's
+# ruling regardless of green. The pinned hashes in constraints.txt make an
+# rfc8785 bump fail the fresh-wheel proof until a human re-pins them, which
+# is the mechanism behind the rule.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "pip"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "github-actions"]
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "docker"]

@@ -101,18 +101,24 @@ pip install -e .
 
 This gives you the `finding-bridge` command.
 
-To verify dependency hashes as well, build and install a wheel. This is
-the route we test:
+To verify dependency hashes as well, install the locked dependencies
+first, then the wheel without dependencies. This is the route CI runs
+in a fresh venv on every push (`.github/workflows/gate.yml`):
 
 ```
 pip install build
 python -m build --wheel
-pip install dist/finding_bridge-0.1.0-py3-none-any.whl -c constraints.txt
+pip install --require-hashes -r constraints.txt
+pip install --no-deps dist/finding_bridge-0.1.0-py3-none-any.whl
 ```
 
-Hash verification needs a wheel. `pip` cannot hash-check an install from
-a source directory, so `-c constraints.txt` does not work with
-`pip install -e .`.
+`constraints.txt` locks every runtime dependency to an exact version
+with PyPI's hashes, and `--require-hashes` makes pip refuse anything
+that does not match. Hash-checking needs a wheel and `--no-deps`: pip
+cannot hash-check an install from a source directory, and once any
+requirement carries a hash pip requires one for all of them, so
+`-c constraints.txt` on a wheel install does not work either (finding
+F-6, STEP-06).
 
 ## Five-minute tour
 
