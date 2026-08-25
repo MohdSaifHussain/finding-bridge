@@ -228,3 +228,10 @@ wrapper that refuses when any earlier command in its line failed (or the
 simpler rule the census can enforce by grep on the builder's own
 transcripts: no `;` before `git commit`). Cost small; worth building
 before the next arc.
+
+Converted after the flip (D-090, proposed by the director): the
+garak-freshness habit (a human remembering to re-check fixture currency
+when garak releases) is now `.github/workflows/currency.yml` +
+`tools/currency_check.py`, with D-076's standards successor-check made
+mechanical for the two sources with a reliable signal. The remaining
+manual sources are named in the tool, not hidden.

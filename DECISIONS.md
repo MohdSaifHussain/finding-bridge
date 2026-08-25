@@ -1651,6 +1651,26 @@ table: every cited edition current. **Register after, pending the OB-5
 word:** OB-4 (trust boundary), OB-6 via parked E (demand), D-018 adapter
 pack (demand), the semantic preview (future --ai): all demand-gated.
 
+## D-090 — The garak-freshness habit becomes a check (director's post-release authorization, 2026-08-25)
+
+`tools/currency_check.py` plus `.github/workflows/currency.yml` (weekly
+cron and dispatch, read-only public APIs, GITHUB_TOKEN with issues:write
+only): a newer garak release (GitHub releases, PyPI fallback) than the
+"Pinned garak version" line in docs/FIXTURE-VERSIONS.md opens a
+`fixture-currency` issue carrying the standing procedure; a newer OWASP
+LLM Top 10 edition year or ATLAS version opens a `standards-currency`
+issue; both idempotent on an open issue with the same version.
+Manually-checked-only, stated rather than scraped: the OWASP GenAI Red
+Teaming Guide, SAIF, and NIST AI 600-1 (whose CSRC page answered 200 then
+404 within an hour during the build; a flickering page is not a signal).
+Honest limit in the header and the issue body: releases are detected,
+shape changes are not; the fixture-currency test and the real-data drill
+remain the verification. Controls: selftest (duplicate detector
+discriminates by version), positive control (forced older pin decides
+WOULD-OPEN in dry run), the idempotency check before every create. Out
+of the gate (D-027). Census: one more HABIT converted, proposed by the
+director.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

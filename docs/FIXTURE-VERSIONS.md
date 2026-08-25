@@ -10,6 +10,8 @@ against. The second half is the real-data drill (examples/04-real-data),
 whose re-run refreshes this table. tests/test_real_shapes.py fails if a
 garak fixture is missing from it.
 
+Pinned garak version: 0.16.0 (machine-read by tools/currency_check.py, D-090)
+
 | Fixture | Mimics | Verified against | Date |
 |---|---|---|---|
 | garak.synthetic.hitlog.jsonl | garak pre-0.16 flat Message shape (`prompt`/`output` carry `text` at the top level) | `garak/evaluators/base.py` on `main`, 2026-08-24; real 0.16.0 output no longer has this shape | 2026-08-24 |

@@ -1,0 +1,65 @@
+# Currency check (D-090): notice a new garak release or a newer standards
+# edition and open a labeled issue, idempotently. Converts the HABIT of the
+# director remembering to re-check fixture currency into a CHECK.
+#
+# HONEST LIMITS (also in the issue body): this detects RELEASES, not shape
+# changes. A new garak version with an unchanged hitlog format still opens
+# the issue; closing it after checking is correct and cheap. A shape change
+# on an unreleased main branch is invisible here. The real verification is
+# tests/test_real_shapes.py, docs/FIXTURE-VERSIONS.md and the real-data
+# drill (D-079); this workflow only guarantees the trigger is noticed.
+#
+# Machine signals: garak (GitHub releases, PyPI fallback), OWASP LLM Top 10
+# edition year, ATLAS version. Manually-checked-only, deliberately not
+# scraped (a check that cries wolf gets disabled): the OWASP GenAI Red
+# Teaming Guide, SAIF, NIST AI 600-1 (D-076 procedure).
+#
+# D-027: currency checking is not the audit and stays out of the gate.
+# Read-only against public APIs; the only credential is GITHUB_TOKEN with
+# issues:write, used to open the issue. Actions pinned to commit SHAs.
+#
+# Controls (tools/currency_check.py): --selftest proves the duplicate
+# detector discriminates by version; test_mode with force_garak_pin proves
+# the issue path CAN fire (WOULD-OPEN, dry run, nothing created); the
+# idempotency check runs before every create.
+
+name: currency
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # weekly, Monday 06:17 UTC
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "positive control: pretend the pinned garak version is this (dry run, no issue)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  currency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Selftest (the duplicate detector must discriminate; the pin must parse)
+        run: python tools/currency_check.py --selftest
+
+      - name: Positive control or the real check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # the dispatch input reaches the shell only via env, validated as a version
+          TEST_PIN: ${{ github.event.inputs.test_mode }}
+        run: |
+          case "$TEST_PIN" in
+            '') python tools/currency_check.py ;;
+            *[!0-9.]*) echo "test_mode must be a version like 0.15.0"; exit 2 ;;
+            *) python tools/currency_check.py --force-garak-pin "$TEST_PIN" --dry-run | tee out.txt
+               grep -q "WOULD-OPEN" out.txt || { echo "positive control FAILED: a forced older pin did not decide to open"; exit 1; } ;;
+          esac
