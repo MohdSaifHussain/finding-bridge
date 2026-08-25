@@ -10,11 +10,6 @@
 [![gate](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml)
 [![container](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml)
 
-Every badge above states a fact that a test checks
-(`tests/test_readme_badges.py`). The gate and container badges landed in
-the commit after their first observed green runs
-(`evidence/ci-first-run-step06.md`), never before.
-
 Turn AI red-team tool output into standard, sealed, provenance-stamped
 findings. Feed them into the systems your team already uses.
 
