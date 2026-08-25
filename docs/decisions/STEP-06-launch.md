@@ -388,3 +388,30 @@ artifacts against real strings sampled from the local copy. OB-5 fires
 (30-minute fuzzing pass or the structured alternative, reported). Every
 crash, mis-parse, silent field loss or wrong refusal is a finding for
 ruling. Then STOP for the director's read of example 04.
+
+## W6c report (builder, 2026-08-25), STOP for the director's read of example 04
+
+**State:** `git rev-list --count HEAD` = 107 after this commit; tree
+clean; origin/master at 2d97085 (six commits ahead, NOT pushed: the push
+is the director's word).
+
+**Done:** examples/04-real-data (README, fetch.py with pinned checksum,
+run_garak.py, committed output/ with transcript and four artifacts);
+real garak run (0.16.0, llama3.2:1b on Ollama 0.32.15, 505.51 s, 699
+hits, 253 exact duplicates marked); 40 Anthropic red-team transcripts
+ingested (alternatives recorded); tools/realdata_leak_scan.py (5,000
+real windows, CLEAN, selftest); OB-5 pass (11,063 inputs, 30 min, zero
+escapes; Atheris unavailable, attempt recorded); the provenance headline
+as measurements (78 rulings, 324 tests 74.7/25.3, 10 corrections 5/5,
+census by section; escape trend dropped as too small and said so).
+
+**Findings for ruling (evidence/step06-findings.md):** F-12 the garak
+adapter silently loses the prompt on a real 0.16.0 hitlog (product,
+FULL); F-10 the transcript grammar refuses the real-world marker form;
+F-11 no per-record metadata passthrough; F-13 dropped output fields.
+OB-5 disposition. The "non-coder" wording (the director's own): held for
+the director's yes. C-009-class note: none this half.
+
+**Handoff:** everything committed; uncommitted: nothing. Next: the
+director's read of example 04 and rulings on F-10..F-13, OB-5, the
+provenance wording; then W7.
