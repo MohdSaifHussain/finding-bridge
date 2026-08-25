@@ -28,7 +28,7 @@ otherwise; nothing here performs the flip.
 | 17 | Standards pins re-checked for a newer edition within days of the flip (D-076) | re-fetch the five sources' index pages; update `docs/STANDARDS.md` rows' "successor last checked" dates | pending: run on flip day |
 | 18 | Release notes drafted with the two ruled numbers, each naming its check | `docs/RELEASE-NOTES-1.0.0.md` | drafted 2026-08-25 |
 | 19 | Pre-push delta audit on the release push | the standard delta audit | clean: evidence/prepush-audit-w7.md (18 blobs, zero on every row) |
-| 20 | Director's STOP THREE read | by hand | pending |
+| 20 | Director's STOP THREE read | by hand | done 2026-08-25: every row read against its check; fixture scan and real-string scan re-run by the director (third and fourth personal runs), clean |
 
 ## At the flip (director's word; then the builder verifies each by API)
 
@@ -38,7 +38,7 @@ otherwise; nothing here performs the flip.
 | F2 | Branch-protection ruleset on master: block force-push and deletion, require the four gate checks; single-operator admin bypass recorded | `gh api repos/.../rulesets` (rulesets need Pro or a public repo: 403 while private, so this row runs immediately after F1; the precondition, gate.yml having run, is already met) |
 | F3 | Secret scanning and push protection enabled | `gh api repos/... --jq .security_and_analysis` |
 | F4 | Private vulnerability reporting enabled | `gh api repos/.../private-vulnerability-reporting` |
-| F5 | Tag v1.0.0 on the release commit, GitHub Release published from the drafted notes | `git tag -v` / `gh release view v1.0.0` |
+| F5 | Tag v1.0.0 on the release commit, GitHub Release published from the drafted notes; the container image gets its `:1.0.0` tag (the release notes advertise it; today only `:sha` and `:latest` exist) by re-tagging the release commit's existing manifest, no rebuild: `docker buildx imagetools create -t ghcr.io/mohdsaifhussain/finding-bridge:1.0.0 ghcr.io/mohdsaifhussain/finding-bridge@<digest of the e98809d build>` | `git tag -v` / `gh release view v1.0.0`; `gh api user/packages/container/finding-bridge/versions` shows the `1.0.0` tag on the same digest as the `e98809d...` tag |
 | F6 | OB-7 verified: informationUri resolves; optional code-scanning ingestion of our own SARIF | `curl -I` the URL; the code-scanning upload run |
 | F7 | Row 17 (pins) done on the day | `docs/STANDARDS.md` dates |
 | F8 | Record closed: census, register, builder eval updated | `DECISIONS.md`, `docs/RULE-CENSUS.md`, `evidence/builder-eval-step06.md` |

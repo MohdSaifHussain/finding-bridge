@@ -1528,6 +1528,22 @@ real-data validation figures (739/739 sealed, three clean leak scans),
 each naming where it is checked. The flip happens on the director's
 one-line word and not otherwise.
 
+## D-085 — STOP THREE ritual complete and clean (director, 2026-08-25)
+
+Verified by the director's own hands: 116 commits, remote at e98809d,
+tree clean, GATE: PASS via the verdict file, both CI runs on the release
+commit green, fixture scan CONFORMING and real-string scan CLEAN (the
+director's third and fourth personal runs). The 20 pre-flip checklist
+rows read against their named checks (18 green, row 17 pending by design
+for flip day, row 20 the director's own read); the 8 flip rows gated
+behind the word, including the ruleset-after-flip sequencing (403 while
+private, verified). The four release documents read in full. **One item
+added to the flip:** the release notes advertise
+`ghcr.io/mohdsaifhussain/finding-bridge:1.0.0`, which does not exist yet
+(only `:sha` and `:latest`); the flip produces it by re-tagging the
+release commit's manifest (checklist F5). **The flip word itself has not
+been given in this message; the bright line stands until it is.**
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
