@@ -74,6 +74,14 @@ def _check(text: str) -> list[str]:
             assert m, proc.stdout[-300:]
             if f"tests-{m.group(1)}%20collected-" not in label:
                 problems.append(f"tests badge says {label}, pytest collects {m.group(1)}")
+        elif label.startswith("garak%20fixtures-"):
+            pin = re.search(
+                r"Pinned garak version:\s*(\d+\.\d+\.\d+)",
+                (REPO / "docs" / "FIXTURE-VERSIONS.md").read_text(encoding="utf-8"),
+            )
+            assert pin, "docs/FIXTURE-VERSIONS.md has no pinned garak version line"
+            if f"garak%20fixtures-{pin.group(1)}-" not in label:
+                problems.append(f"garak badge says {label}, FIXTURE-VERSIONS pins {pin.group(1)}")
         elif label.startswith("AI%20in%20the%20evidence%20path-none"):
             if not (REPO / "tests" / "test_environment.py").exists():
                 problems.append("no-AI badge without the environment scrub test")

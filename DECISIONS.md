@@ -1683,6 +1683,19 @@ PDF is byte-identical to the one this project cited (sha256
 6e73620ab6b64e90..., 1,174,643 bytes). airc.nist.gov (the AI Resource
 Center and the RMF Playbook) is noted as the resource hub, not scraped.
 
+## D-091 — OB-5 DISCHARGED (director's word, 2026-08-25); the garak pin as a badge
+
+OB-5 closed on the two runs named in its row. Before the word, the
+director asked for the garak version to be re-confirmed: PyPI latest
+0.16.0 (files dated 2026-08-04), GitHub release v0.16.0 (2026-08-04),
+the venv that produced example 04 reports 0.16.0, the docs pin 0.16.0.
+The pin joins the README badges as a checked fact
+(`tests/test_readme_badges.py` reads the "Pinned garak version" line).
+**The register now holds only demand-gated items:** OB-4 (a store
+crossing a trust boundary), OB-6 via parked E (a user asking to
+correlate across stores), the D-018 adapter pack (demand), the semantic
+preview (a future --ai job). Nothing is owed.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1715,7 +1728,7 @@ Nothing here is proposed; each waits on the director's word.
 | ~~OB-2~~ | ~~Key rotation path~~ **DISCHARGED 2026-08-25 (D-064)**: implemented as a supersession event per D-052, evidenced by the three controls (red-then-green) AND the director's two independent double-rotation runs. | closed | closed |
 | ~~OB-3~~ | ~~Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons~~ **DISCHARGED 2026-08-24 by adoption** (STEP-02 D1, ruling Q3(a), five DEV-6 conditions met; DEV-2 discharged with it; migration note docs/decisions/canonical-jcs-migration.md; measured impact on existing data: none, forms byte-identical on the current value space) | was: v1-completion phase | explicit entry, as the condition demanded |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
-| OB-5 | Coverage-guided fuzzing of parsers (D-027). Fired 2026-08-25; structured pass (evidence/ob5-fuzz-step06.md) then the coverage-guided run on ubuntu-latest with Atheris (evidence/ob5-atheris-step07.md: run 32846272639, 8,101,169 executions in 30 min, 216 edges, 0 crashes, exit 0). **DISCHARGE PROPOSED at the STEP-07 stop; the director's word closes it.** fuzz.yml stays at audit cadence. | STEP-07 | discharge proposed |
+| ~~OB-5~~ | ~~Coverage-guided fuzzing of parsers~~ **DISCHARGED 2026-08-25 (D-091, director's word)**: structured pass (evidence/ob5-fuzz-step06.md, 11,063 inputs, zero escapes) and the coverage-guided Atheris run on ubuntu-latest (evidence/ob5-atheris-step07.md: run 32846272639, 8,101,169 executions in 30 min, 216 edges, 0 crashes). fuzz.yml stays at audit cadence, re-run per phase close. | closed | closed |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
 | ~~OB-7~~ | ~~GitHub Code Scanning ingestion test~~ **DISCHARGED for ingestion 2026-08-25 (D-086 F6)**: informationUri resolves (200), our SARIF uploaded and analysed (1 result, 1 rule, no warning). **NARROWED to F-15**: 0 alerts rendered because the artifact URI is SARIF-relative, not repository-rooted; the D-033 rendering half is open under that name. | first post-launch phase (F-15) | ingestion closed; rendering open as F-15 |
 
