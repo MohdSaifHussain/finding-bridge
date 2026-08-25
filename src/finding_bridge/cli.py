@@ -3,6 +3,7 @@ gate, or adapter call; refusals exit nonzero and print the reason code."""
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -22,6 +23,36 @@ DEFAULT_KEY = Path.home() / ".finding-bridge" / "fb.key"
 
 def _workspace(args) -> pipeline.Workspace:
     return pipeline.Workspace(Path(args.store), Path(args.key), Path.cwd())
+
+
+def _show_ai_suggestions(ws, finding_id: str, model: str) -> None:
+    """Print caged AI suggestions for the analyst to weigh, then return.
+
+    Charter rule 2 made operational: this function PRINTS and returns. It
+    writes nothing, and its failure is never fatal - a refusal is reported
+    and the confirmation proceeds exactly as it would with no --ai flag.
+    The ai package is imported HERE, inside the flag's branch, so a run
+    without --ai never loads it (proven by tests/test_ai_caged.py).
+    """
+    candidates = [c for c in ws.list_candidates() if c.get("id") == finding_id]
+    if not candidates:
+        return  # the confirm below will refuse with unknown-id
+    from finding_bridge.ai import suggest as ai_suggest
+
+    for call in (ai_suggest.suggest_severity_rationale, ai_suggest.suggest_taxonomy):
+        try:
+            suggestion = call(candidates[0], model=model)
+        except ai_suggest.AiUnavailable as exc:
+            print(f"[ai] {exc.reason_code}: {exc.detail}", file=sys.stderr)
+            continue
+        print(f"[ai SUGGESTED - {suggestion['kind']}, not written to the finding]")
+        print(f"    {suggestion['value']}")
+        print(
+            f"    (model {suggestion['ai_provenance']['model']}, prompt "
+            f"{suggestion['ai_provenance']['prompt_sha256'][:12]}, response "
+            f"{suggestion['ai_provenance']['response_sha256'][:12]})"
+        )
+    print("[ai] accept or reject by hand; nothing above has been recorded")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -44,6 +75,18 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("list", help="list candidate findings")
     p = sub.add_parser("confirm", help="confirm a candidate (human gate)")
     p.add_argument("finding_id")
+    p.add_argument(
+        "--ai",
+        action="store_true",
+        help="ask the caged AI for SUGGESTIONS before you confirm (severity "
+        "rationale, taxonomy). Suggestions are shown, never written; you "
+        "accept or reject. Needs ANTHROPIC_API_KEY and --ai-model.",
+    )
+    p.add_argument(
+        "--ai-model",
+        default=os.environ.get("FB_AI_MODEL", ""),
+        help="exact model id (or set FB_AI_MODEL). Pinned by you, never defaulted in code.",
+    )
     p = sub.add_parser("reject", help="reject a candidate")
     p.add_argument("finding_id")
     sub.add_parser("verify", help="verify the confirmed ledger chain + head")
@@ -90,6 +133,8 @@ def main(argv: list[str] | None = None) -> int:
                 flag = f" duplicate-of {dup}" if dup else ""
                 print(f"{c['id']}  {c['source_tool']}  {c['preview'] or 'no preview'}{flag}")
         elif args.command == "confirm":
+            if getattr(args, "ai", False):
+                _show_ai_suggestions(ws, args.finding_id, args.ai_model)
             confirmed = ws.confirm(args.finding_id, gate.get_git_identity())
             print(f"confirmed {confirmed['id']} by {confirmed['provenance']['confirmed_by']}")
         elif args.command == "reject":

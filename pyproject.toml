@@ -37,6 +37,11 @@ dev = [
 audit = [
     "cosmic-ray>=8.7",
 ]
+# OPTIONAL by ruling: the package installs and the whole suite runs
+# without it. Only the --ai flag needs it.
+ai = [
+    "anthropic==1.0.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
