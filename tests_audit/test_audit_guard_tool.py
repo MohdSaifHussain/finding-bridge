@@ -89,7 +89,14 @@ def test_release_reports_a_leftover_mutant_and_says_discard(sandbox):
 
 
 def test_guard_re_derives_from_git_rather_than_a_cached_echo():
-    """The lesson, asserted in the tool itself (D-067)."""
-    source = GUARD.read_text(encoding="utf-8")
+    """The lesson, asserted in the tool itself (D-067).
+
+    Whitespace is normalized before matching: the sentence is line-wrapped
+    in the docstring, and an unnormalized version of this test failed on
+    the wrap - the same class as D-046's required-phrase check. Wrapping
+    is formatting, not meaning."""
+    import re
+
+    source = re.sub(r"\s+", " ", GUARD.read_text(encoding="utf-8"))
     assert "git" in source and "porcelain" in source
-    assert "SINGLE WITNESS" in source.upper()
+    assert "SINGLE WITNESS restating a cached check" in source
