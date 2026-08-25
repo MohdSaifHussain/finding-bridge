@@ -1071,6 +1071,66 @@ history objects scanned for GitHub, AWS, OpenAI, Slack, PEM and Fernet
 token shapes with zero hits; all 64 commits authored AND committed as the
 noreply address; no `C:\Users\...` path in committed content.
 
+## D-059 — The ratchet: per-module baselines, new surface seats its own (director, STEP-05 stop one)
+
+**Ruling, applying D-029's own logic exactly as dedup and schema were
+handled at their first measurement:** a NEW surface seats its own first
+baseline; EXISTING baselines never drop. The composed figure is reported
+alongside, never instead.
+
+**Measured at stop one** (method: `git diff --unified=0` between the
+pre-W1 commit `5d0ef0c` and HEAD gives the lines W1 added or changed;
+every mutant is attributed to the pre-W1 or W1-new surface by its line):
+
+| Scope | STEP-04 | STEP-05 W1 | Verdict |
+|---|---|---|---|
+| provenance, pre-W1 lines | 161/195 = 82.6% | 161/195 = 82.6% | HELD, identical |
+| sealing, pre-W1 lines | 125/130 = 96.2% | 115/119 = 96.6% | HELD, up |
+| schema, pre-W1 lines | 1/10 = 10% | 1/10 = 10% | HELD, identical |
+| dedup (untouched) | 49/63 = 77.8% | 49/63 = 77.8% | HELD |
+| **pre-W1 surface, composed** | | **277/324 = 85.5%** | |
+| **W1-new surface, FIRST BASELINE** | | **146/195 = 74.9%** | seated |
+| **full core, composed** | 360/419 = 85.9% | **472/582 = 81.1%** | composition effect |
+
+**No pre-existing module dropped**, so no pre-W2 kill work is owed under
+the ruling's second branch. The 81.1% headline is composition, confirmed
+by measurement rather than asserted.
+
+**Two binding conditions:** (1) the W1-new baseline (74.9%) must move UP
+at the arc close, not down; (2) the growing proportion of
+reasoned-not-verified equivalence claims is a NAMED LIMIT in the register
+with its number beside it: **95 of 110 surviving mutants are dispositioned
+as equivalent by the builder's reasoning, not machine-verified.**
+
+## D-060 — The comparison-weakening class, closed in CODE (director, STEP-05 stop one)
+
+**Diagnosis, the builder's own sentence adopted as the ruling's reason:**
+the fix lived in tests, not in a habit, so fresh code re-created the gap.
+Third occurrence.
+
+**Ruling:** one shared verification-comparison helper in core, through
+which every hash and head equality check in verify paths flows, with the
+both-orderings property tested ONCE against the helper, plus a mechanical
+check that no verify path compares digests inline. Code using the helper
+cannot recreate the class; code bypassing it is findable by machine. Same
+move the boundary table was for tracebacks: close the class, not the
+instance.
+
+## D-061 — Ordered-checks tests must prove they reached their check (director, STEP-05 stop one)
+
+**Standing rule, from stop one's finding 2:** a test of an ordered
+sequence of checks must assert the failing check's OWN detail string, not
+merely the shared reason code, so a test that dies at an earlier check
+fails loudly instead of passing hollow. Applied to the W1 controls now and
+to everything after.
+
+## D-062 — The D-057 self-application is the gate-half-run family's FOURTH instance (director, STEP-05 stop one)
+
+The mechanism, recorded because it is the point: the edit script's anchor
+assert FAILED, and the commit message claiming both docs were updated was
+written anyway. A check fired and the claim ignored it. That is D-057
+meeting the gate-half-run family, and it is the family's fourth instance.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
