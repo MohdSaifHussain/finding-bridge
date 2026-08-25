@@ -1,0 +1,110 @@
+{
+  "note": "Dispositions for surviving mutants (tool C5). A claim here is REASONING, not verification: nothing in this file proves a mutant is truly equivalent. It exists so that no survivor is undispositioned and no disposition outlives its code. Judging the claims is the fourth quadrant (D-027) and stays human.",
+  "frozen_classes_from": "D-066",
+  "claims": [
+    {
+      "module": "provenance.py",
+      "class": "annotation-equivalent",
+      "dated": "2026-08-25",
+      "reason": "PEP 649 lazy annotations are never evaluated at runtime, so a mutated `str | None` union cannot change behaviour. Killable only by introspecting annotations, which tests nothing about the code."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:307",
+      "dated": "2026-08-25",
+      "reason": "record_type dispatch comparison. Both branches end in failures for a mislabeled record: a supersession run through finding checks fails on its missing id; a finding run through supersession checks fails on its missing old_head. Reasoned-equivalent in effect, not proven."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:315",
+      "dated": "2026-08-25",
+      "reason": "As :307, the second dispatch site."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:338",
+      "dated": "2026-08-25",
+      "reason": "`continue` after supersession checks. Removing it re-runs finding checks on a supersession, adding failures to an already-failing record; no observable difference on a valid chain."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:387",
+      "dated": "2026-08-25",
+      "reason": "`i == 0` on non-negative list indices; `<= 0` is identical on that domain."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:431",
+      "dated": "2026-08-25",
+      "reason": "`or {}` guard against a record with no provenance key, which schema validation already refuses before verification sees it."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:542",
+      "dated": "2026-08-25",
+      "reason": "The `records[i + 1:]` slice family. Partially killed by the backwards-remap test; residual mutants shift the slice by amounts that still exclude pre-join ids, so they remain equivalent on shapes a real ledger can hold."
+    },
+    {
+      "module": "provenance.py",
+      "class": "provenance.py:148",
+      "dated": "2026-08-25",
+      "reason": "digests_match's None guard: with `and` instead of `or`, a (None, 'x') pair falls through to comparing 'None' against 'x', which is still False. Same outcome."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:60",
+      "dated": "2026-08-25",
+      "reason": "KEYRING_VERSION constant; nothing branches on its value today."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:99",
+      "dated": "2026-08-25",
+      "reason": "Keyring-shape detection; a legacy raw key falls through to the upgrade path either way."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:125",
+      "dated": "2026-08-25",
+      "reason": "Excluding ref_key_bytes from the written payload; the alternative raises on non-serialisable bytes, which is a crash rather than a silent wrong write."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:126",
+      "dated": "2026-08-25",
+      "reason": "json.dumps formatting arguments for the keyring file; readability only."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:132",
+      "dated": "2026-08-25",
+      "reason": "PLATFORM-CONDITIONAL, not equivalent: chmod 0o600 has no effect on Windows, where the permission test skips (D-023's recorded limit). Killable on POSIX."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:190",
+      "dated": "2026-08-25",
+      "reason": "`> 1` vs `!= 1` on a match count whose zero case returned earlier as blob-missing."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:195",
+      "dated": "2026-08-25",
+      "reason": "matches[0] vs matches[-1] reached only when exactly one match exists."
+    },
+    {
+      "module": "sealing.py",
+      "class": "sealing.py:202",
+      "dated": "2026-08-25",
+      "reason": "sort_keys on exposure-log rows; rows are consumed as parsed JSON and byte order is not a stated guarantee."
+    }
+  ],
+  "corrections": [
+    {
+      "dated": "2026-08-25",
+      "what": "A claim asserted that sealing.py had annotation-equivalent survivors.",
+      "correction": "It has none; all twelve of its survivors are specific lines. The claim was the builder's bookkeeping error, caught by this tool on its FIRST run as a stale disposition.",
+      "direction": "Toward the less flattering answer: a disposition existed for a class that did not exist."
+    }
+  ]
+}

@@ -1,7 +1,28 @@
 # The rule census (D-068)
 
-**Status: DRAFT for the director's ruling. STANDARD tier, one stop, which
-is this document.**
+**Status: RULED 2026-08-25. C1, C2, C3, C5 built; C4 deliberately not
+built. Reclassifications below are dated.**
+
+## THE HEADLINE FINDING (ruled into the census by the director)
+
+> **This project doesn't anticipate its failure classes; it converts
+> them.**
+
+Seven-for-seven: every rule that is now a check became one *after* it
+failed at least once. That makes it a measurement, not an aphorism.
+
+**Its corollary, stated honestly:** conversion requires the failure to
+happen at least once, so **the method's floor is one instance of every
+class**. This method cannot prevent a class it has never seen; it can only
+guarantee it does not see it twice.
+
+**The census's own limit is the same boundary.** I classified my own rules
+and counted my own breaches: a rule I have forgotten entirely would be
+invisible here, and so would its absence. That is precisely D-027's
+**fourth quadrant** - "where we do not know the question... the rest is
+adversarial review by someone who did not build the thing" - which the
+testing policy already records as permanently human. The census closes
+that loop rather than pretending to escape it.
 
 Every standing rule in this project, classified:
 
@@ -33,7 +54,7 @@ Inventory: 68 numbered decisions, 26 test files, 30 reason codes, 1 tool.
 | Never fabricate absent values | **PARTIAL CHECK** | per-adapter tests assert nulls stay null; no general check that a NEW adapter cannot invent |
 | Key never inside the repo | **CHECK** | `key-inside-repo` refusal + test; fired on its own author during W2 |
 | Unsealing explicit and logged | **CHECK** | two-row exposure protocol, controls both directions |
-| D-012: no real harmful content, ever | **SENTENCE** | nothing scans fixtures for real harm. *Correctly a sentence?* Arguably not — see proposal C1 |
+| D-012: no real harmful content, ever | ~~SENTENCE~~ **CHECK (2026-08-25)** | `tools/fixture_scan.py`; it caught a real nonconformance on its first run |
 
 ## 2. Rules that failed and became checks (the project's best pattern)
 
@@ -55,9 +76,9 @@ instruments, and each became one *after* it failed.
 | Rule | Class | Times broken | What a check would cost |
 |---|---|---|---|
 | D-057: a process claim names its check or says "unchecked" | **HABIT** | 2 | Hard. "Did I actually do what I claimed" is not machine-decidable in general. **Correctly a sentence** for the general case; see C2 for the one checkable slice |
-| D-062 / gate-half-run: never let a claim outlive a failed check | **HABIT** | **6** | **Cheap and now precisely known** — see C2 |
-| D-061: ordered-check tests assert their own check's detail | **HABIT** | 1 | Moderate: an AST rule that a test asserting a shared reason code must also assert a detail substring. Worth it — see C3 |
-| Never chain a gate run and a commit | **HABIT** | 2 | Same fix as C2 |
+| D-062 / gate-half-run: never let a claim outlive a failed check | ~~HABIT~~ **CHECK (2026-08-25)** | **7** (one more while writing this census) | Converted by C2: `tools/gate.py` |
+| D-061: ordered-check tests assert their own check's detail | ~~HABIT~~ **CHECK (2026-08-25)** | 1 | Moderate: an AST rule that a test asserting a shared reason code must also assert a detail substring. Worth it — see C3 |
+| Never chain a gate run and a commit | ~~HABIT~~ **CHECK (2026-08-25)** | 2 | Converted by C2 |
 | Write files with the file tool, not heredocs | **HABIT** | **4 this arc** | Cheap — see C4 |
 | Re-derive, never restate (skill rule 13) | **HABIT** | 2 (C-005 counts, C-007 is the director's) | Hard in general; the specific instances are already covered by C2 and the guard |
 | PROV at the moment of temptation (D-043.1) | **HABIT** | 1 | Not checkable. **Correctly a sentence** |
@@ -147,3 +168,42 @@ combined.**
 **The census's own limit:** I classified my own rules and counted my own
 breaches. A rule I have forgotten entirely would not appear here, and
 nothing in this document would reveal that.
+
+
+---
+
+## 7. Built at the census stop (2026-08-25)
+
+| Tool | Converts | First-run result |
+|---|---|---|
+| `tools/gate.py` (C2) | the gate-half-run family, 7 instances, one mechanism | its control DEMONSTRATES the mask (`false \| tail` exits 0) and proves the gate sees through it |
+| `tools/fixture_scan.py` (C1) | D-012, the most safety-critical sentence | **found a real nonconformance immediately**: a fixture goal with no sentinel marker |
+| `tools/ordered_check_lint.py` (C3) | D-061 | clean, 34 ambiguous codes tracked |
+| `tools/equivalence_register.py` (C5) | 125 reasoned-not-verified survivors | **caught my own stale claim on its first run** - a disposition for a class that did not exist |
+
+Three of the four found something the moment they ran. That is the
+seven-for-seven pattern continuing: instruments find what their author
+does not.
+
+## 8. C4, and why "no check" is a real answer
+
+Ruled and recorded verbatim, because a census that never says this would
+be a census that converts rules into ceremony:
+
+> **The compiler already catches it immediately, and "no check" is the
+> honest disposition.**
+
+The heredoc-escape hazard cost four corruptions in one arc and zero
+escaped defects, because every instance was a syntax error caught within
+seconds. A check would add surface to catch what is already caught. The
+rule stays a habit, deliberately, and this paragraph is the record that
+the decision was made rather than overlooked.
+
+## 9. Final classification after the census
+
+- **CHECK: 20** (16 + D-012, D-062, D-061, and the gate-commit chaining)
+- **HABIT: 3** (heredoc-by-choice, re-derive-don't-restate, D-057's
+  general case)
+- **SENTENCE: 6**, all judged correctly prose
+
+**Every habit with a known mechanical cause is now a check.**
