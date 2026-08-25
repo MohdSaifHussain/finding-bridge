@@ -50,3 +50,17 @@ read path). Product-code change: Section C, needs the director's word.
 **Effect on this arc's documents until ruled:** the rotation drill does
 not emit after rotating, and says why in its README; the SOP's rotation
 procedure carries the limit in its own text.
+
+## F-3: no schema field for MITRE ATLAS technique ids (OPEN, for ruling)
+
+Raised by docs/STANDARDS.md with the proposal (taxonomy.atlas, schema
+0.5.0, two field-map rows). Nothing applied.
+
+## F-4: taxonomy ids are unconstrained strings; the version pin is prose (OPEN, for ruling)
+
+Raised by docs/STANDARDS.md with the proposal (pattern constraints so a
+stale or misspelled id refuses with schema-invalid). Nothing applied.
+
+## Q-1: no remediation field (question, not a finding)
+
+Raised by docs/STANDARDS.md; no proposal, the director's call.

@@ -259,6 +259,22 @@ The record uses short prefixes. Decoded once, here:
 The full list, in user language, is in
 [docs/USAGE.md](docs/USAGE.md#limits).
 
+## Operations, examples, standards
+
+- [SOP.md](SOP.md): the runbook. Every procedure was executed before it
+  was written: init, ingest, the gate with and without `--ai`, verify
+  with a 2am reason-code table, unseal with the exposure log read back,
+  every emit, backup and restore, the rotation walk, and the incident
+  path for a `verify` failure you did not expect.
+- [examples/](examples/): three worked examples with the real emitted
+  artifacts and complete run transcripts committed, refusals included.
+- [docs/STANDARDS.md](docs/STANDARDS.md): field-by-field alignment with
+  OWASP Top 10 for LLM Applications 2025, the OWASP GenAI Red Teaming
+  Guide 1.0, Google SAIF, MITRE ATLAS 5.6.0 and NIST AI 600-1, from
+  fetched sources, with the non-alignments stated.
+- [docs/showcase/](docs/showcase/): screenshots, each named for the one
+  claim it proves that text cannot.
+
 ## Project record
 
 Every decision, limit, and open obligation is written down:
