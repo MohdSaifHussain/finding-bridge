@@ -145,3 +145,26 @@ says it, this row confirms it.
 - Context rule: commit each document as it reaches a reviewable state;
   on approaching context exhaustion, stop at a clean commit and append a
   one-paragraph handoff note here (done / next / uncommitted).
+
+**DEV-19 (the preservation rule for existing documents, director's
+addendum, 2026-08-25, binding on all of W1-W4):** README.md and
+docs/USAGE.md were read and ratified by the director at STEP-04. This arc
+RESTRUCTURES them to the lineage and standards shape; it does not rewrite
+them.
+1. Work by edit, never by regeneration. New sections (badges, mermaid
+   diagram, Notation, honest numbers, standards vocabulary, showcase
+   references) are ADDED; existing sections may be REORDERED or have
+   content MOVED between documents; ratified sentences travel verbatim.
+2. Rephrasing an existing sentence is the exception and carries a burden:
+   only where a fetched standard requires different vocabulary, a fact
+   changed (counts, versions), or a defect exists (D-042/D-046 violation,
+   broken command). Every rephrasing is listed in the stop-one report as
+   old sentence, new sentence, reason. A rephrasing with no reason on
+   that list is a finding against the arc. The director's follow-up word:
+   no rephrasing; restructuring only, to the highest applicable 2026
+   standards.
+3. The diff is the proof: at stop one, the diffstat per document is shown
+   beside the documents. A mostly-additive diff with a short listed set
+   of rewordings is the arc done right.
+4. The rule protects prose, not errors: anything factually wrong,
+   overclaiming, or failing a check is fixed regardless, and listed.
