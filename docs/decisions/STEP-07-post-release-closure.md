@@ -35,8 +35,10 @@ audit.
 CODE_OF_CONDUCT, issue templates, a pull-request template. Folded into
 this phase as documentation only: CONTRIBUTING.md (the governed method,
 the definition of done, D-012/D-036/D-042/D-057), CODE_OF_CONDUCT.md
-(Contributor Covenant v2.1 fetched from contributor-covenant.org, the
-contact line the only edit), one issue template (reason code and
+(Contributor Covenant v3.0, the current version on
+contributor-covenant.org on 2026-08-25, first drafted from v2.1 and
+replaced on the director's word that everything must be current; the
+contact placeholders the only edit), one issue template (reason code and
 location, never the value), a config pointing security reports to
 private reporting, and the PR template carrying CLAUDE.md's definition
 of done. Re-measured by the same API after the push.
