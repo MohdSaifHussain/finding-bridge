@@ -124,6 +124,13 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("emit-sarif", help="emit confirmed findings as SARIF 2.1.0")
     p.add_argument("out", help="output .sarif path")
     p.add_argument(
+        "--artifact-uri-base",
+        default=None,
+        help="repository-relative folder the findings artifact is committed under; "
+        "when given, SARIF locations use uriBaseId %%SRCROOT%% so GitHub code "
+        "scanning renders alerts against the record (F-15)",
+    )
+    p.add_argument(
         "--artifact-name",
         default="findings.fb.jsonl",
         help="findings record file written beside the SARIF; SARIF locations point at its lines",
@@ -193,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(packet)
         elif args.command == "emit-sarif":
             findings = ws.confirmed_findings()
-            log = sarif.render_sarif(findings, args.artifact_name)
+            log = sarif.render_sarif(findings, args.artifact_name, args.artifact_uri_base)
             out_path = Path(args.out)
             artifact_path = out_path.parent / args.artifact_name
             writing.write_text_output(artifact_path, sarif.render_findings_artifact(findings))

@@ -1,0 +1,78 @@
+# OB-5: coverage-guided fuzzing of both ingest parsers (STEP-07 P2).
+#
+# workflow_dispatch ONLY: audit cadence (D-027), never on push. Runs on
+# ubuntu-latest because Atheris ships Linux wheels only (the Windows
+# development machine ran the structured alternative, tools/fuzz_ingest.py,
+# on 2026-08-25; D-082 narrowed OB-5 to this run).
+#
+# Budget: 30 minutes of libFuzzer time, stated here (-max_total_time=1800).
+# Corpus: the synthetic fixtures (garak, both shapes; transcripts, both
+# grammars), each prefixed with the harness's parser-selector byte. No
+# real data is fetched or used on the runner.
+#
+# No secrets. Actions pinned to full-length commit SHAs.
+
+name: fuzz
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "libFuzzer budget in minutes (default 30)"
+        required: false
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  atheris:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install the package and Atheris
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install atheris
+          python -c "import atheris; print('atheris', atheris.__version__ if hasattr(atheris, '__version__') else 'imported')"
+
+      - name: Build the seed corpus from the synthetic fixtures (selector byte + fixture bytes)
+        run: |
+          python - <<'EOF'
+          from pathlib import Path
+          fx = Path("schemas/fixtures"); out = Path("corpus"); out.mkdir(exist_ok=True)
+          n = 0
+          for p in sorted(fx.glob("garak.*.jsonl")):
+              (out / f"g-{p.stem}").write_bytes(b"\x00" + p.read_bytes()); n += 1
+          for p in sorted(fx.glob("transcript.*")):
+              (out / f"t-{p.stem}").write_bytes(b"\x01" + p.read_bytes()); n += 1
+              (out / f"f-{p.stem}").write_bytes(b"\x02" + p.read_bytes()); n += 1
+          print("seeds:", n)
+          EOF
+
+      - name: Coverage-guided run (budget stated above; harness docstring states what a pass does not prove)
+        run: |
+          mkdir -p findings
+          set +e
+          python tools/fuzz_atheris.py corpus -max_total_time=$(( ${{ github.event.inputs.minutes || 30 }} * 60 )) -artifact_prefix=findings/ -print_final_stats=1 2>&1 | tee fuzz-report.txt
+          rc=${PIPESTATUS[0]}
+          set -e
+          echo "atheris exit $rc" | tee -a fuzz-report.txt
+          echo "crash artifacts: $(ls findings | wc -l)" | tee -a fuzz-report.txt
+          # exit 0 only when libFuzzer ran to its budget with no crash artifact
+          test "$(ls findings | wc -l)" = "0"
+
+      - name: Upload the report and any crash artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fuzz-report
+          path: |
+            fuzz-report.txt
+            findings/

@@ -95,7 +95,7 @@ def _taxonomies(findings: list[dict]) -> tuple[list[dict], dict[str, int]]:
     return components, index_of
 
 
-def _result(finding: dict, artifact_uri: str, line: int, taxonomy_index: dict[str, int]) -> dict:
+def _result(finding: dict, location: dict, line: int, taxonomy_index: dict[str, int]) -> dict:
     provenance = finding.get("provenance") or {}
     if provenance.get("confirmed_by") is None:
         raise SarifAdapterError(
@@ -110,7 +110,7 @@ def _result(finding: dict, artifact_uri: str, line: int, taxonomy_index: dict[st
         "locations": [
             {
                 "physicalLocation": {
-                    "artifactLocation": {"uri": artifact_uri, "index": 0},
+                    "artifactLocation": {**location, "index": 0},
                     "region": {"startLine": line},
                 },
                 "logicalLocations": [
@@ -167,8 +167,46 @@ def _result(finding: dict, artifact_uri: str, line: int, taxonomy_index: dict[st
     return result
 
 
-def render_sarif(findings: list[dict], artifact_uri: str) -> dict:
-    """Render confirmed findings as a SARIF 2.1.0 log object."""
+REASON_INVALID_URI_BASE = "invalid-uri-base"
+
+
+def _repo_relative(uri_base: str | None, artifact_name: str) -> tuple[str, bool]:
+    """F-15 (STEP-07, GitHub SARIF support doc fetched 2026-08-25): code
+    scanning resolves relative artifact paths against the repository root.
+    With a base, the URI is <base>/<name> under uriBaseId %SRCROOT%; without
+    one, the bare name beside the SARIF (the pre-1.0.1 shape) is kept. A
+    base must be a plain repository-relative path: no absolute path, no
+    drive, no '..'."""
+    if uri_base is None:
+        return artifact_name, False
+    base = uri_base.replace("\\", "/").strip()
+    while base.startswith("./"):
+        base = base[2:]
+    base = base.strip("/")
+    parts = [x for x in base.split("/") if x not in ("", ".")]
+    if (
+        uri_base.startswith(("/", "\\"))
+        or (len(uri_base) > 1 and uri_base[1] == ":")
+        or any(x == ".." for x in parts)
+    ):
+        raise SarifAdapterError(
+            REASON_INVALID_URI_BASE,
+            "artifact URI base must be a repository-relative path (no absolute path, "
+            "drive, or '..')",
+        )
+    return "/".join([*parts, artifact_name]), True
+
+
+def render_sarif(findings: list[dict], artifact_uri: str, uri_base: str | None = None) -> dict:
+    """Render confirmed findings as a SARIF 2.1.0 log object.
+
+    `uri_base` is the repository-relative folder the findings artifact is
+    committed under; when given, locations carry uriBaseId %SRCROOT% so
+    GitHub code scanning renders alerts against the record (F-15)."""
+    artifact_uri, rooted = _repo_relative(uri_base, artifact_uri)
+    location = {"uri": artifact_uri}
+    if rooted:
+        location["uriBaseId"] = "%SRCROOT%"
     taxonomies, taxonomy_index = _taxonomies(findings)
     rules = []
     seen_rules = []
@@ -199,15 +237,26 @@ def render_sarif(findings: list[dict], artifact_uri: str) -> dict:
                 "properties": {"canonicalSchemaVersion": CANONICAL_SCHEMA_VERSION},
             }
         },
+        **(
+            {
+                "originalUriBaseIds": {
+                    "%SRCROOT%": {
+                        "description": {
+                            "text": "The root of the repository holding the findings artifact."
+                        }
+                    }
+                }
+            }
+            if rooted
+            else {}
+        ),
         "artifacts": [
             {
-                "location": {"uri": artifact_uri},
+                "location": dict(location),
                 "description": {"text": "finding-bridge findings record file (JSON Lines)"},
             }
         ],
-        "results": [
-            _result(f, artifact_uri, i + 1, taxonomy_index) for i, f in enumerate(findings)
-        ],
+        "results": [_result(f, location, i + 1, taxonomy_index) for i, f in enumerate(findings)],
         "properties": {
             "locationSemantics": LOCATION_SEMANTICS,
             "tamperEvidenceBound": TAMPER_BOUND,

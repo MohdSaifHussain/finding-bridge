@@ -16,6 +16,11 @@ name: container
 on:
   push:
     branches: [master]
+    # STEP-07 P3: a release tag v* also publishes :X.Y.Z, so the next
+    # release's version tag comes from the workflow, not a hand re-tag
+    # (v1.0.0's :1.0.0 was hand re-tagged, D-086 F5). A plain branch push
+    # produces :sha and :latest only.
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -108,11 +113,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push :sha and :latest
+      - name: Compute the tag list (:sha and :latest; plus :X.Y.Z on a v* tag push)
+        id: tags
+        run: |
+          tags="${IMAGE}:${{ github.sha }},${IMAGE}:latest"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            v="${{ github.ref_name }}"; v="${v#v}"
+            tags="${tags},${IMAGE}:${v}"
+            echo "release tag push: adding :${v}"
+          else
+            echo "branch push: :sha and :latest only"
+          fi
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+
+      - name: Push the computed tags
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.IMAGE }}:${{ github.sha }}
-            ${{ env.IMAGE }}:latest
+          tags: ${{ steps.tags.outputs.tags }}
