@@ -115,9 +115,8 @@ def scan_output_artifact(path: Path) -> list[str]:
     if path.name != "run-transcript.md":
         for lineno, line in enumerate(text.splitlines(), start=1):
             if HARM_SENTINEL.search(line):
-                problems.append(
-                    f"{path.parent.parent.name}/output/{path.name}:{lineno}: sealed-content sentinel in an emitted artifact (LEAK)"
-                )
+                where = f"{path.parent.parent.name}/output/{path.name}:{lineno}"
+                problems.append(f"{where}: sealed-content sentinel in an emitted artifact (LEAK)")
         return problems
     after_explicit_unseal = False
     for lineno, line in enumerate(text.splitlines(), start=1):
@@ -125,9 +124,8 @@ def scan_output_artifact(path: Path) -> list[str]:
             after_explicit_unseal = "unseal" in line and "--explicit" in line
             continue
         if HARM_SENTINEL.search(line) and not after_explicit_unseal:
-            problems.append(
-                f"{path.parent.parent.name}/output/{path.name}:{lineno}: sealed-content sentinel outside an explicit unseal (LEAK)"
-            )
+            where = f"{path.parent.parent.name}/output/{path.name}:{lineno}"
+            problems.append(f"{where}: sealed-content sentinel outside an explicit unseal (LEAK)")
     return problems
 
 
