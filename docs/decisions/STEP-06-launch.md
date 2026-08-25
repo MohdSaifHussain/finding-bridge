@@ -276,3 +276,102 @@ read-back) and the layer scan / smoke rows, which run first on CI.
 director's push go, then observe the runs, record run URLs and the
 read-back digest in evidence/, land badges in the same commit as the first
 observed green, then STOP TWO proper (director's docker run from ghcr).
+
+## STOP TWO report and ritual (builder, 2026-08-25)
+
+**State:** `git rev-list --count HEAD` = 99; origin/master = 3376970 =
+local HEAD at the time of this report (the ritual text below is the one
+commit after it). Pushed under the director's word after the delta
+pre-push audit (evidence/prepush-audit-step06.md): 98 new blobs, zero
+secret shapes, zero local paths, zero key/store files, uniform noreply
+identity, workflows SHA-pinned, no pull_request_target, no untrusted
+input in run blocks, only GITHUB_TOKEN in container.yml.
+
+**W6 local rehearsal (D-077, evidence/w6-local-rehearsal.md)** found three
+things before CI: F-7 (lock incomplete on 3.12), F-8 (no git in the image,
+so no human gate), and a blind layer scan whose positive control said so.
+All three fixed and re-run locally; CI's first run then confirmed rather
+than discovered.
+
+**CI, first runs (evidence/ci-first-run-step06.md):** gate 32822503809
+green on all four jobs; skips 0 on Ubuntu, 1 on Windows; fresh-wheel proof
+imported from site-packages with `pip check` clean. container 32822503853
+green: digest read-back on the runner equals the pin
+(`sha256:3ecf5ebe...`), layer scan CLEAN after its positive control, smoke
+with mounted key and gitconfig, no sealed sentinel on stdout. GHCR package
+API-verified PRIVATE with `:latest` and `:<sha>`. Dependabot's three
+ecosystems ran; the pip job reads constraints.txt (PROV-4 condition 1
+verified). Badges landed in commit 3376970, after the first observed
+green. The ghcr image was pulled and run on the builder's machine with the
+mounts below (D-049: the handed command was run first).
+
+**Second run pair, on 3376970 (gate 32822828831, container 32822828852),
+both green.** The skip step now quotes its line: Ubuntu `(no SKIPPED
+line: the key-permission test executed)`; Windows `SKIPPED [1]
+tests	est_sealing.py:248: Windows ACLs are not set by chmod; operator
+step is icacls (recorded limit)`. That is the named deliverable quoted
+from the log, as contracted.
+
+**Findings this half:** F-7, F-8 (fixed, W6 scope), the blind scan
+(replaced by a tool), and one instrument defect in the pre-push audit
+(the first object-scan row read 0 blobs; corrected and both rows kept).
+
+### The director's stop-two ritual (Windows CMD)
+
+Docker Desktop must be running first (start it, wait for the whale to
+settle). Each command was run by the builder on this machine on
+2026-08-25 before being written here; expected results are stated.
+
+1. Log in to GHCR with your gh token (it carries write:packages):
+
+```
+gh auth token | docker login ghcr.io -u MohdSaifHussain --password-stdin
+```
+Expected: `Login Succeeded`.
+
+2. Pull the image and read its digest back:
+
+```
+docker pull ghcr.io/mohdsaifhussain/finding-bridge:latest
+docker image inspect ghcr.io/mohdsaifhussain/finding-bridge:latest --format "{{index .RepoDigests 0}} user={{.Config.User}} entrypoint={{.Config.Entrypoint}}"
+```
+Expected: `ghcr.io/mohdsaifhussain/finding-bridge@sha256:01f7448cc226a0b164f8bd527cc5a4767acdb00313188fedbba3874fc3f147dc user=fb entrypoint=[finding-bridge]`
+(`latest` was republished by the second run, on commit 3376970; the GHCR
+API lists exactly this digest for `latest`. If a later push republishes,
+re-read it from `gh api user/packages/container/finding-bridge/versions`
+and compare.)
+
+3. Make a scratch folder OUTSIDE the repo and run the pipeline in the
+container with the store, the key and your gitconfig mounted:
+
+```
+mkdir %TEMP%\fb-ritual\store %TEMP%\fb-ritual\key %TEMP%\fb-ritual\in
+copy schemas\fixtures\garak.synthetic.hitlog.jsonl %TEMP%\fb-ritual\in\
+set FB=docker run --rm -v "%TEMP%\fb-ritual\store:/work/store" -v "%TEMP%\fb-ritual\key:/home/fb/key" -v "%TEMP%\fb-ritual\in:/work/in:ro" -v "%USERPROFILE%\.gitconfig:/home/fb/.gitconfig:ro" ghcr.io/mohdsaifhussain/finding-bridge:latest --store /work/store --key /home/fb/key/fb.key
+%FB% ingest-garak in/garak.synthetic.hitlog.jsonl
+%FB% list
+%FB% confirm <an id from list>
+%FB% verify
+%FB% unseal sealed/0000000000000000 --explicit
+dir %TEMP%\fb-ritual\key
+```
+Expected, in order: `{"ingested": 3, "total_candidates": 3,
+"duplicates_marked": 1}`; three lines of safe metadata previews, one
+marked duplicate-of; `confirmed fb-... by <your git identity>`; `chain
+verifies clean`; the negative control `blob-missing: no blob for ref
+'sealed/0000000000000000'` with exit code 1 (`echo %ERRORLEVEL%` shows 1);
+and `fb.key` present in the mounted key folder, proving the key lives
+outside the image. Nothing on stdout contains `SENTINEL-HARM`.
+
+4. Read by eye: the Actions tab, both workflows green on master; the
+package page (private); `evidence/ci-first-run-step06.md` against the run
+logs; the README's badges rendering green. Take
+`docs/showcase/02-ci-green-both-oses.png` per the showcase plan if you
+choose to.
+
+5. Rulings needed to open Part Three: none pending except the ritual's
+own result. The release act (W7 preparation, then W8) remains behind the
+bright line.
+
+**Handoff note:** everything committed; nothing uncommitted after the
+ritual commit. Next: the director's ritual result, then W7.

@@ -101,3 +101,17 @@ Dependabot reads the lock.** No pull requests were opened on this run.
 
 The gate and container badges land in the commit that records this
 file, per contract 3.2: their first observed green run is the one above.
+
+## Second run pair, commit 3376970
+
+gate 32822828831 and container 32822828852, both success. The skip step
+now prints its line: Ubuntu `(no SKIPPED line: the key-permission test
+executed)`; Windows `SKIPPED [1] tests	est_sealing.py:248: Windows ACLs
+are not set by chmod; operator step is icacls (recorded limit)`.
+`latest` republished as
+`sha256:01f7448cc226a0b164f8bd527cc5a4767acdb00313188fedbba3874fc3f147dc`
+(tags `latest`, `3376970...`); the first build keeps its `d857430...` tag.
+The builder pulled and ran `:latest` on the development machine with the
+ritual's mounts: ingest, list, confirm (real git identity via the mounted
+gitconfig), verify clean, `blob-missing` negative control exit 1, key
+created in the mounted folder.
