@@ -42,3 +42,14 @@ contact placeholders the only edit), one issue template (reason code and
 location, never the value), a config pointing security reports to
 private reporting, and the PR template carrying CLAUDE.md's definition
 of done. Re-measured by the same API after the push.
+
+## STOP report (builder, 2026-08-25)
+
+Everything in D-089, with the evidence files named there. Section order
+of the README achieved as ruled (D-088). Rephrasings of ratified
+sentences: none; rule-4 fact fixes: two ("three worked examples" to
+four; OWASP 2025 to 2026), listed. New prose in the README: the Contents
+block, headings, four one-line example pointers, the shrunken top
+paragraph, the container route (copied from the SOP), the License line.
+Pushed under the standard delta audit; community profile re-measured
+after the push. Open for the director's word: OB-5 discharge.

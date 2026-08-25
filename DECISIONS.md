@@ -1632,6 +1632,25 @@ addendum), checked by re-deriving the count from pytest; it fired on its
 first run (349 in the paragraph, 357 collected after STEP-07's tests),
 and the figures are settled at 357 here.
 
+## D-089 — STEP-07 closure results (builder's report for the director's ruling, 2026-08-25)
+
+P1 F-15: the SARIF emitter roots artifact URIs at the repository with
+`--artifact-uri-base` and `%SRCROOT%` (GitHub SARIF support doc fetched
+2026-08-25; controls red first; DEV-4 survives). Proof: the rooted SARIF
+uploaded against 0ce66f5 rendered code-scanning alert #2 at
+examples/01-garak-triage/output/findings.fb.jsonl:1; the director's
+capture is docs/showcase/03-code-scanning-alert.png (125,570 bytes).
+F-15 closed; OB-7's rendering half done. P2 OB-5: coverage-guided run
+green, report read (evidence/ob5-atheris-step07.md); discharge proposed.
+P3: container.yml publishes :X.Y.Z on v* tag pushes; the branch push
+after it printed "branch push: :sha and :latest only" (negative case
+observed); the positive case waits for the next tag by design. P4:
+package visibility public, API-verified 2026-08-25; D-086 F1 closed.
+DEV-22: community files. D-088/C-013: README reorder. Document currency
+table: every cited edition current. **Register after, pending the OB-5
+word:** OB-4 (trust boundary), OB-6 via parked E (demand), D-018 adapter
+pack (demand), the semantic preview (future --ai): all demand-gated.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1664,7 +1683,7 @@ Nothing here is proposed; each waits on the director's word.
 | ~~OB-2~~ | ~~Key rotation path~~ **DISCHARGED 2026-08-25 (D-064)**: implemented as a supersession event per D-052, evidenced by the three controls (red-then-green) AND the director's two independent double-rotation runs. | closed | closed |
 | ~~OB-3~~ | ~~Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons~~ **DISCHARGED 2026-08-24 by adoption** (STEP-02 D1, ruling Q3(a), five DEV-6 conditions met; DEV-2 discharged with it; migration note docs/decisions/canonical-jcs-migration.md; measured impact on existing data: none, forms byte-identical on the current value space) | was: v1-completion phase | explicit entry, as the condition demanded |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
-| OB-5 | Coverage-guided fuzzing of parsers (D-027). **FIRED 2026-08-25 (D-078)**; structured pass ran 2026-08-25 (evidence/ob5-fuzz-step06.md: 11,063 inputs, 8 families, both parsers, 30 min, zero escaped exceptions, 7,654 governed refusals; Atheris attempt recorded, no Windows wheels). **NOT discharged (D-082); NARROWED** to one coverage-guided run on the Ubuntu runner, audit cadence. | first post-launch audit | open, narrowed |
+| OB-5 | Coverage-guided fuzzing of parsers (D-027). Fired 2026-08-25; structured pass (evidence/ob5-fuzz-step06.md) then the coverage-guided run on ubuntu-latest with Atheris (evidence/ob5-atheris-step07.md: run 32846272639, 8,101,169 executions in 30 min, 216 edges, 0 crashes, exit 0). **DISCHARGE PROPOSED at the STEP-07 stop; the director's word closes it.** fuzz.yml stays at audit cadence. | STEP-07 | discharge proposed |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
 | ~~OB-7~~ | ~~GitHub Code Scanning ingestion test~~ **DISCHARGED for ingestion 2026-08-25 (D-086 F6)**: informationUri resolves (200), our SARIF uploaded and analysed (1 result, 1 rule, no warning). **NARROWED to F-15**: 0 alerts rendered because the artifact URI is SARIF-relative, not repository-rooted; the D-033 rendering half is open under that name. | first post-launch phase (F-15) | ingestion closed; rendering open as F-15 |
 
