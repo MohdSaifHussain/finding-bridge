@@ -42,3 +42,16 @@ otherwise; nothing here performs the flip.
 | F6 | OB-7 verified: informationUri resolves; optional code-scanning ingestion of our own SARIF | `curl -I` the URL; the code-scanning upload run |
 | F7 | Row 17 (pins) done on the day | `docs/STANDARDS.md` dates |
 | F8 | Record closed: census, register, builder eval updated | `DECISIONS.md`, `docs/RULE-CENSUS.md`, `evidence/builder-eval-step06.md` |
+
+## Flip rows, as verified (2026-08-25, D-086)
+
+| # | Result |
+|---|---|
+| F1 | repo PUBLIC (API); package: no REST endpoint (404), director's package-settings click pending, verify with `gh api user/packages/container/finding-bridge` |
+| F2 | ruleset 21420275 active: deletion, non_fast_forward, four required gate checks; admin bypass always (recorded) |
+| F3 | secret_scanning enabled, push protection enabled (GET re-read) |
+| F4 | private vulnerability reporting enabled=true |
+| F5 | tag v1.0.0 -> e98809d (annotated, pushed, ref verified); Release published 2026-08-25T11:48:26Z; image :1.0.0 = sha256:ed236168d02d... (same digest as :latest), GHCR tags ["1.0.0","e98809d...","latest"] |
+| F6 | informationUri HTTP 200; SARIF upload processed, analysis 1668515001, 1 result, no warning; alerts rendered 0 (F-15: artifact URI not repo-rooted) |
+| F7 | OWASP 2026 current, RT Guide no successor listed, ATLAS 5.6.0, saif-data fe77c44, NIST 600-1 Final: no pin moved |
+| F8 | D-086, OB-7 row, census addendum, builder eval; final push |

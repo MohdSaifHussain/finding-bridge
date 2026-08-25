@@ -207,3 +207,24 @@ the decision was made rather than overlooked.
 - **SENTENCE: 6**, all judged correctly prose
 
 **Every habit with a known mechanical cause is now a check.**
+
+
+## 8. Addendum at the v1.0.0 flip (2026-08-25)
+
+Converted to CHECK during STEP-06: fixture shape currency
+(docs/FIXTURE-VERSIONS.md + test, D-079 b); the dependency lock
+(tools/lock.py --check); key material in the image
+(tools/layer_scan.py, selftest); real content in committed artifacts
+(tools/realdata_leak_scan.py, selftest); the gate's exit code
+(tools/gate.py --verdict-file, D-074); the SARIF driver labels
+(tests/test_release_labels.py); the quotation exemption in the wording
+law (D-073, mechanical). Structured fuzzing exists as a tool
+(tools/fuzz_ingest.py) but OB-5 stays open for the coverage-guided run.
+
+Still HABIT, and it fired twice more (C-009, C-012): a claim outliving a
+failed step in the same shell line. The verdict file covers the gate;
+the edit-script path does not have a check. Candidate C6: a commit
+wrapper that refuses when any earlier command in its line failed (or the
+simpler rule the census can enforce by grep on the builder's own
+transcripts: no `;` before `git commit`). Cost small; worth building
+before the next arc.

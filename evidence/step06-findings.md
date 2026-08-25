@@ -197,3 +197,19 @@ first in tests/test_real_shapes.py; FIXTURE-VERSIONS.md check). F-10 FIXED
 F-11/F-13 FIXED by mapping into reproduction.environment, namespaced;
 `notes` sealed as context. source_tool_version: stays null with the
 reason stated (D-079 d). OB-5 open, narrowed.
+
+## F-14: the SARIF driver advertised canonicalSchemaVersion 0.4.0 after 0.5.0 (W7; FIXED)
+
+A hard-coded label no test tied to its source. Now reads the schema's
+constant; tests/test_release_labels.py.
+
+## F-15: code-scanning alerts do not render from our SARIF (found at the flip, D-086 F6; OPEN)
+
+Upload accepted (analysis 1668515001, 1 result, 1 rule, no warning), 0
+alerts. The result's artifact location is `findings.fb.jsonl` relative to
+the SARIF's own folder (D-039.3), which GitHub resolves against the
+repository root, where no such file exists. The D-033 assumption held for
+ingestion, not for rendering. Proposal: an emit-time option to root the
+artifact URI at a repository-relative path (or emit `originalUriBaseIds`);
+owner the first post-launch phase. Not a release blocker: the SARIF is
+valid and consumed; the alert view is the unserved half.

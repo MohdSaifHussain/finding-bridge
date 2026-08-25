@@ -28,6 +28,10 @@ returned 200. No source in this table is claimed from memory.
 Standing rule (D-076): every pinned edition row carries its publication
 date AND the date we last checked for a successor, and the release
 checklist re-checks every pin within days of the flip.
+Flip-day re-check, 2026-08-25 (D-086 F7): OWASP resources index names
+the 2026 LLM Top 10 as current and lists no successor to the GenAI Red
+Teaming Guide v1.0; ATLAS.yaml still 5.6.0; saif-data main still
+fe77c44; NIST AI 600-1 status Final. No pin moved.
 
 ## Field-by-field alignment
 

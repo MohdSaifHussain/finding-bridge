@@ -1544,6 +1544,57 @@ added to the flip:** the release notes advertise
 release commit's manifest (checklist F5). **The flip word itself has not
 been given in this message; the bright line stands until it is.**
 
+## D-086 — THE FLIP, executed on the director's word; finding-bridge v1.0.0 released (2026-08-25)
+
+Each row verified by API before the next, as the checklist specifies:
+
+- **F1** repository PUBLIC (`gh repo view`: visibility=PUBLIC,
+  private=false). The GHCR package: GitHub exposes no REST endpoint for
+  container-package visibility (PATCH answered 404); it is a
+  package-settings action for the director, verified afterwards by
+  `gh api user/packages/container/finding-bridge` (visibility=private at
+  the time of this ruling; the row stays open until the click).
+- **F2** ruleset `master-protection` id 21420275, enforcement active:
+  rules deletion, non_fast_forward, required_status_checks (the four
+  gate jobs); bypass RepositoryRole 5 (admin) mode always, the
+  single-operator bypass, recorded honestly: the director's own pushes
+  (and the builder's under the director's token) go through it, which
+  is why a required check on a direct push does not block the operator;
+  D-058's never-rewrite sentence is now the non_fast_forward rule.
+- **F3** secret_scanning enabled, secret_scanning_push_protection
+  enabled (PATCH, then GET re-read). **F4** private vulnerability
+  reporting enabled (204, then GET enabled=true).
+- **F5** annotated tag v1.0.0 on e98809d (the CI-green, audited release
+  commit), pushed, verified by `git/ref/tags/v1.0.0`; the GitHub Release
+  published from docs/RELEASE-NOTES-1.0.0.md (draft=false,
+  prerelease=false, 2026-08-25T11:48:26Z); the image `:1.0.0` created by
+  re-tagging the release commit's manifest (digest
+  sha256:ed236168d02d..., the same digest as `:latest` and the `e98809d`
+  tag), verified on GHCR: tags ["1.0.0", "e98809d...", "latest"]. The
+  notes' advertised tag resolves. The container workflow does NOT yet
+  tag on git tags; a future release repeats the re-tag step or adds it
+  to container.yml (noted, not built).
+- **F6** OB-7: informationUri resolves (HTTP 200). Our own SARIF
+  (example 01) uploaded to code scanning against the tag: processing
+  complete, no errors, analysis 1668515001 for tool finding-bridge with
+  1 result and 1 rule. **Alerts rendered: 0** (finding F-15): the SARIF's
+  artifact URI is relative to the SARIF's own location, so against the
+  repository root nothing resolves; the D-033 named assumption held for
+  ingestion and failed for rendering. OB-7 DISCHARGED for ingestion and
+  NARROWED to F-15 (root the artifact URI or accept a repo-relative path
+  at emit time), owner the first post-launch phase.
+- **F7** pins re-checked on the day: OWASP resources index names the
+  2026 LLM Top 10 as current; no successor to the GenAI Red Teaming
+  Guide v1.0 listed (a Q2 2026 "Solutions Landscape" and a vendor
+  evaluation guide exist, different documents); ATLAS.yaml still 5.6.0;
+  saif-data main still fe77c44; NIST AI 600-1 status Final. No pin moved.
+- **F8** this ruling; register, census addendum, builder eval
+  (evidence/builder-eval-step06.md); one final push under the bypass.
+
+**finding-bridge v1.0.0 is released.** 116 commits at the tag's base;
+the release commit e98809d; Apache-2.0, publicly, per D-048's scope
+sentence now fulfilled.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1578,7 +1629,7 @@ Nothing here is proposed; each waits on the director's word.
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
 | OB-5 | Coverage-guided fuzzing of parsers (D-027). **FIRED 2026-08-25 (D-078)**; structured pass ran 2026-08-25 (evidence/ob5-fuzz-step06.md: 11,063 inputs, 8 families, both parsers, 30 min, zero escaped exceptions, 7,654 governed refusals; Atheris attempt recorded, no Windows wheels). **NOT discharged (D-082); NARROWED** to one coverage-guided run on the Ubuntu runner, audit cadence. | first post-launch audit | open, narrowed |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
-| OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it. **Explicitly NOT discharged by the private remote (D-058):** a private URL is not readable by the ecosystem. | due when a PUBLIC repository exists (publishing is a separate future ruling) | opened at STEP-02 ratification; trigger narrowed at D-058 |
+| ~~OB-7~~ | ~~GitHub Code Scanning ingestion test~~ **DISCHARGED for ingestion 2026-08-25 (D-086 F6)**: informationUri resolves (200), our SARIF uploaded and analysed (1 result, 1 rule, no warning). **NARROWED to F-15**: 0 alerts rendered because the artifact URI is SARIF-relative, not repository-rooted; the D-033 rendering half is open under that name. | first post-launch phase (F-15) | ingestion closed; rendering open as F-15 |
 
 ## STEP-01 readings, confirmed
 
