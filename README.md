@@ -5,10 +5,13 @@
 [![Canonical schema 0.5.0](https://img.shields.io/badge/canonical%20schema-0.5.0-informational)](src/finding_bridge/schemas/finding.schema.json)
 [![SARIF 2.1.0](https://img.shields.io/badge/emits-SARIF%202.1.0-informational)](docs/USAGE.md)
 [![AI in the evidence path: none](https://img.shields.io/badge/AI%20in%20the%20evidence%20path-none-success)](tests/test_environment.py)
+[![gate](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml)
+[![container](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml)
 
 Every badge above states a fact that a test checks
-(`tests/test_readme_badges.py`). A build or container badge appears only
-after its workflow has been observed green, in the same commit.
+(`tests/test_readme_badges.py`). The gate and container badges landed in
+the commit after their first observed green runs
+(`evidence/ci-first-run-step06.md`), never before.
 
 Turn AI red-team tool output into standard, sealed, provenance-stamped
 findings. Feed them into the systems your team already uses.

@@ -70,6 +70,7 @@ jobs:
           python -m pytest -q -rs tests/test_sealing.py > skips.txt 2>&1 || { cat skips.txt; exit 1; }
           count=$(grep -c "^SKIPPED" skips.txt || true)
           echo "skips on ${{ matrix.os }}: $count"
+          grep "^SKIPPED" skips.txt || echo "(no SKIPPED line: the key-permission test executed)"
           if [ "${{ runner.os }}" = "Linux" ] && [ "$count" != "0" ]; then cat skips.txt; echo "the key-permission test did not execute on Linux"; exit 1; fi
           if [ "${{ runner.os }}" = "Windows" ] && [ "$count" != "1" ]; then cat skips.txt; echo "expected exactly the one recorded Windows skip"; exit 1; fi
 
