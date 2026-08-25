@@ -67,9 +67,9 @@ JailbreakBench/JBB-Behaviors (MIT, behaviour CSVs, goals only). Chosen:
 the Anthropic set, the only one carrying real model RESPONSES, which is
 what the transcript adapter seals.
 
-Sample: 40 transcripts, indices drawn with seed 20260825, markers
-rewritten to the adapter's grammar (finding F-10), written under
-DATA_DIR/prepared/.
+Sample: 40 transcripts, indices drawn with seed 20260825, written
+unchanged under DATA_DIR/prepared/ with a facts sidecar each (the first
+pass rewrote the markers; D-080 made that unnecessary).
 
 ## Ingest
 
