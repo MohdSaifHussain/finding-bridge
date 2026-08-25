@@ -46,7 +46,8 @@ Every document under the repository root, docs/, examples/ and
 evidence/ was regenerated or re-read during W1-W7 of this arc; the
 director's STOP THREE read is the second reader. Figures restated in
 prose were settled once at the release total (rule 14): 349 tests, 261
-product / 88 governance, 84 rulings, 11 corrections.
+product / 88 governance, 84 rulings, 12 corrections (C-012 added by the
+settling commit itself).
 
 ## Limits of this audit
 

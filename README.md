@@ -58,7 +58,7 @@ rounded.
   became a tool both times (the gate-half-run rule, seven instances,
   converted to `tools/gate.py`; the digest-comparison rule, three
   failures, converted to one helper plus a scan).
-- **Corrections: 11 entries, 5 of the director's errors and 6 of the
+- **Corrections: 12 entries, 5 of the director's errors and 7 of the
   AI's**, each with the original claim quoted, what proved it wrong, and
   the direction it moved, including the director's own false alarm
   (C-007). Counted from the corrections table in `DECISIONS.md`.
