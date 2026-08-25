@@ -45,3 +45,20 @@ proof and stands on its own.
 `gh api user/packages/container/finding-bridge --jq .visibility` =
 `public`, verified 2026-08-25 after the director's package-settings
 click. D-086 F1 fully closed.
+
+## Document currency check (director's rule: every cited edition current as of 2026; checked 2026-08-25)
+
+| Cited in | Pinned | Latest on the official source that day | Status |
+|---|---|---|---|
+| CHANGELOG.md | Keep a Changelog 1.1.0 | keepachangelog.com lists 1.1.0 only | current |
+| CHANGELOG.md | Semantic Versioning 2.0.0 | semver.org/spec/v2.0.0.html | current |
+| SARIF emitter, STANDARDS.md | SARIF 2.1.0 (errata01) | docs.oasis-open.org/sarif lists v2.0 and v2.1.0 | current |
+| CODE_OF_CONDUCT.md | Contributor Covenant 3.0 | contributor-covenant.org serves 3.0 (a 2.1 draft was replaced the same hour) | current |
+| STANDARDS.md | OWASP Top 10 for LLM Applications 2026; GenAI Red Teaming Guide 1.0; ATLAS 5.6.0; saif-data fe77c44; NIST AI 600-1 | re-checked at the flip (D-086 F7) | current |
+| STEP-07 evidence | GitHub docs: SARIF support, community profiles, About READMEs, security hardening, rulesets API | fetched 2026-08-25 | current |
+| examples/04, evidence | garak 0.16.0 | PyPI latest 0.16.0 | current |
+| fuzz.yml | Atheris 3.1.0 | PyPI latest 3.1.0 | current |
+| constraints.txt | rfc8785 0.1.4, cryptography 50.0.0, jsonschema 4.26.0 | PyPI latest, same | current |
+
+Not a document and deliberately unchanged: the container base
+`python:3.12-slim` (the declared floor; 3.13 and 3.14 slim tags exist).
