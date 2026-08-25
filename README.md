@@ -22,6 +22,22 @@ provable, sealed, and ready to share.
 
 **It never replaces your tools. It feeds them.**
 
+## Provenance: AI-built, human-governed
+
+Every line of code here was written by an AI (Claude, in Claude Code)
+under a human director who wrote none of it and instead ruled on
+contracts, reviewed at declared stops, and verified every phase by hand.
+The project is as much a study in governed AI orchestration as in
+red-team tooling. The full method is on the record: `DECISIONS.md`
+(78 numbered rulings at this commit, counted by `grep -c "^## D-0" DECISIONS.md`), the phase contracts in
+`docs/decisions/`, and the corrections table, where both the AI's and
+the director's errors are recorded with the direction of each error
+named.
+
+The boundary, stated so the method is not overclaimed: the AI wrote the
+code; the human ruled, reviewed, and verified; neither alone produced
+this.
+
 ```
 garak hitlogs  ──┐                              ┌──> Markdown packet
                  ├──> seal + hash + dedup + ────┤
@@ -217,12 +233,10 @@ figure and the tree disagree, the tree wins and the figure is wrong.
   77.8 percent. Of the surviving mutants, 111 of 125 are judged
   equivalent by the builder's reasoning, not by a machine; that number
   is a stated limit, not a footnote.
-- **Built by an AI under a human director.** The code, tests, and
-  documents were written by Claude (Anthropic) in Claude Code. A human
-  director ruled on every decision, ran every phase-close verification
-  by hand, and caught defects the test suite did not. `DECISIONS.md`
-  records who decided what, and the corrections table records where
-  either of them was wrong.
+- **Built by an AI under a human director:** see the provenance
+  paragraph at the top of this file; the figures here are the AI's
+  measurements and the director's re-runs, and the corrections table
+  records where either was wrong.
 
 ## Notation
 

@@ -204,6 +204,26 @@ the standing limit that the grey-scale evidence is secondhand), not on
 any of the five standards here. Stated so nobody reads a standards
 alignment into it.
 
+## Meta-alignment: the method that built this tool
+
+Claimed only as far as the fetched text supports (D-042 applies to
+claims about the method exactly as to claims about the sealing). NIST AI
+600-1 GV-1.5-003 asks for a retained history of test, evaluation,
+validation and verification; MS-2.8-002 asks that the instructions given
+to AI red-teamers be documented; the OWASP GenAI Red Teaming Guide's
+reporting section (printed page 44) asks for "detailed documentation of
+all activities, findings, and recommendations" as the basis of
+transparency and improvement. Those texts concern governing AI systems
+under human oversight with a documented decision trail. This project is
+itself an instance of that discipline applied to AI-assisted software
+development: every line of code was written by an AI under a human
+director who ruled on contracts, reviewed at declared stops and verified
+each phase by hand, and the record (`DECISIONS.md`, `docs/decisions/`,
+the corrections table with both parties' errors) is the evidence. Not
+claimed: that either standard prescribes this development method, or
+that the record has been assessed against either by anyone but its
+authors.
+
 ## Findings raised by this document
 
 | # | Finding | Disposition |
