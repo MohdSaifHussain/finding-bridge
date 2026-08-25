@@ -1595,6 +1595,22 @@ Each row verified by API before the next, as the checklist specifies:
 the release commit e98809d; Apache-2.0, publicly, per D-048's scope
 sentence now fulfilled.
 
+## D-087 — Repository topics and description, post-release discoverability (director's task, 2026-08-25)
+
+Topics are metadata, not marketing: each names something the tool IS
+(D-042). Chosen, ten, each with an active topic page (repository counts
+from the search API on 2026-08-25 in parentheses): `ai-red-teaming` (116),
+`red-teaming-tools` (66), `red-team` (already set), `llm-security`
+(3,036), `ai-safety` (6,198), `trust-and-safety` (210), `sarif` (1,028),
+`garak` (37), `security-tools` (10,981), `provenance` (2,469). Dropped:
+`findings-management` (0 repositories: a page nobody browses). Not
+added: `llm` (120,107 repositories: true but too broad to be found in).
+Description set to the README's first two sentences, per the director's
+instruction, replacing the earlier short-form provenance line (which
+lives in the README's provenance section and the release notes). No
+website field: none exists yet. All three verified by
+`gh api repos/MohdSaifHussain/finding-bridge` after the edit.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
