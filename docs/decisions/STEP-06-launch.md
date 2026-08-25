@@ -176,3 +176,57 @@ fixed now rather than parked for stop one. This is the 3.1 exception
 taken by ruling, not by builder initiative. Files: pipeline.py,
 core/sealing.py, tests/test_boundary_table.py, docs/USAGE.md (two new
 reason-code rows). No other product code changes in this arc.
+
+## STOP ONE report (builder, 2026-08-25, after W1-W4)
+
+**Commits:** `git rev-list --count HEAD` = 92 at this report (91 before
+it). Nothing pushed since resume; origin/master is at 40e4df6 (83).
+
+**Deliverable reconciliation against the contract and DEV-18:**
+
+| Item | State | Where |
+|---|---|---|
+| W1 badges, true facts, checked | done | README top; tests/test_readme_badges.py (2 negative controls) |
+| W1 mermaid with the sealing boundary | done | README "Architecture" |
+| W1 five-minute tour, captured | done | README; scratch store+key outside the repo, 2026-08-25 |
+| W1 Notation, honest numbers, built-by-AI sentence | done | README; figures settled once at this report (287 passed / 1 skipped; 259 v 29; mutation both ways from evidence/mutation-audit-step05-close.md) |
+| W1 limits extended, D-046 on final text | done | 6 bullets added; test_no_overclaim green |
+| W2 SOP runbook, every procedure executed first | done | SOP.md; captures from sop-capture and the example transcripts |
+| W3 three examples, output/, transcripts with refusals | done | examples/; 12 artifacts; refusals: 01 x2, 02 x2, 03 x1 (verify after tamper) |
+| W3 fixture_scan over examples/ and output/ | done | tools/fixture_scan.py; leak direction with control |
+| W3 byte-match control | done as NORMALISED comparison | PROV-3, pending ratification |
+| W4 STANDARDS with fetched sources | done | docs/STANDARDS.md; all five re-fetched (OWASP with a browser UA) |
+| W4 field mapping, version pins, ATLAS, NIST, non-alignments | done; F-3, F-4, Q-1 raised | docs/STANDARDS.md |
+| Screenshots plan | done (plan; captures are the director's) | docs/showcase/README.md |
+
+**Findings for ruling (evidence/step06-findings.md):**
+F-1 fixed by D-069 (director's word). **F-2** three of four emitters
+crash after any rotation (product; proposal: filter supersession records
+once in the ledger read path; FULL). **F-3** no ATLAS field (proposal:
+taxonomy.atlas, 0.5.0). **F-4** taxonomy ids unconstrained (proposal:
+patterns). **Q-1** no remediation field (question). **PROV-3** normalised
+comparison. **C-009** the builder committed with the gate red through a
+pipe mask; recorded.
+
+**DEV-19 proof, the diff:** `git diff --stat 40e4df6 -- README.md docs/USAGE.md`
+= README.md +178 / -0, docs/USAGE.md +2 / -0 (two reason-code rows for
+D-069). **Rephrasings of ratified sentences: none.** Fact changes in NEW
+sentences only (figures settled above).
+
+**D-042/D-046 sweep over every artifact this arc wrote** (banned list
+from tests/test_no_overclaim.py, run ad hoc over SOP, STANDARDS,
+showcase, three example READMEs, README, USAGE, findings): clean, with
+one flagged item for the director: docs/STANDARDS.md contains
+"tamper-proof" twice, both as QUOTATIONS of NIST MS-2.8-003, immediately
+followed by the sentence that this tool's claim is narrower
+(tamper-evident, OB-4). The law bans the claim; the quotation is
+reported, not hidden, for the ruling on whether a quoted standard may
+carry the phrase.
+
+**Deferred to W5-W6, not started:** gate.yml, dependabot, container.
+Nothing has gone to CI.
+
+**Handoff note (context rule):** everything above is committed; the tree
+is clean at this commit. Next is the director's stop-one reading and
+rulings on F-2, F-3, F-4, Q-1, PROV-3 and the quotation question, then
+W5. Uncommitted: nothing.

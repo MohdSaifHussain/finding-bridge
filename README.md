@@ -185,16 +185,16 @@ command, and the reason-code reference.
 Every figure here names the command that produced it and the date. If a
 figure and the tree disagree, the tree wins and the figure is wrong.
 
-- **Tests: 284 passed, 1 skipped**, run by `python tools/gate.py` on
+- **Tests: 287 passed, 1 skipped**, run by `python tools/gate.py` on
   2026-08-25 with no API key in the environment (the suite scrubs
   key-bearing variables and proves it). The one skip is the Windows key
   file permission check, which needs a POSIX file mode.
-- **Product versus governance tests: 259 versus 26.** Governance tests
+- **Product versus governance tests: 259 versus 29.** Governance tests
   check the project's own rules and record rather than finding
   behaviour (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
   `test_no_inline_digest_compare.py`, `test_installed_package.py`,
-  `test_environment.py`). Counted by
-  `python -m pytest --collect-only -q` over those five files (26 of 285
+  `test_environment.py`, `test_readme_badges.py`). Counted by
+  `python -m pytest --collect-only -q` over those six files (29 of 288
   collected).
 - **Mutation testing, reported both ways** (raw, and excluding the
   annotation-class equivalents, the frozen method of D-066). Last
