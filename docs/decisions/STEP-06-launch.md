@@ -308,7 +308,7 @@ mounts below (D-049: the handed command was run first).
 **Second run pair, on 3376970 (gate 32822828831, container 32822828852),
 both green.** The skip step now quotes its line: Ubuntu `(no SKIPPED
 line: the key-permission test executed)`; Windows `SKIPPED [1]
-tests	est_sealing.py:248: Windows ACLs are not set by chmod; operator
+tests\test_sealing.py:248: Windows ACLs are not set by chmod; operator
 step is icacls (recorded limit)`. That is the named deliverable quoted
 from the log, as contracted.
 

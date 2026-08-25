@@ -106,7 +106,7 @@ file, per contract 3.2: their first observed green run is the one above.
 
 gate 32822828831 and container 32822828852, both success. The skip step
 now prints its line: Ubuntu `(no SKIPPED line: the key-permission test
-executed)`; Windows `SKIPPED [1] tests	est_sealing.py:248: Windows ACLs
+executed)`; Windows `SKIPPED [1] tests\test_sealing.py:248: Windows ACLs
 are not set by chmod; operator step is icacls (recorded limit)`.
 `latest` republished as
 `sha256:01f7448cc226a0b164f8bd527cc5a4767acdb00313188fedbba3874fc3f147dc`
