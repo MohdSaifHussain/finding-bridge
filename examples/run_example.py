@@ -35,6 +35,7 @@ unset).
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -43,6 +44,10 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+DATA_DIR = Path(
+    os.environ.get("FB_REALDATA_DIR")
+    or Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "finding-bridge-realdata"
+)
 EXIT_OK, EXIT_DIFF, EXIT_COULD_NOT_RUN = 0, 1, 2
 
 # Volatile fields, normalised before comparison. Each derives from the key,
@@ -107,6 +112,34 @@ EXAMPLES: dict[str, list] = {
         ("driver", "RESTORE: copy backup/ back over the store folder and the key file", "restore"),
         "verify",
     ],
+    # Real data (W6c). Inputs live OUTSIDE the tree at DATA_DIR (D-012); the
+    # transcript shows them as <DATA_DIR>/... and never a local path.
+    "04-real-data": [
+        "ingest-garak {data}/garak/fb-real.hitlog.jsonl",
+        (
+            "driver",
+            "ingest every prepared real transcript under <DATA_DIR>/prepared/",
+            "ingest_prepared",
+        ),
+        (
+            "driver",
+            "count candidates by source, and duplicates (metadata only)",
+            "count_candidates",
+        ),
+        ("driver", "list: the first 5 lines of N (safe metadata previews only)", "list_head"),
+        "confirm {id0}",
+        "ingest-garak {data}/red_team_attempts.jsonl.gz",
+        "verify",
+        "emit-markdown output/packet.md",
+        "emit-sarif output/findings.sarif",
+        "emit-tracker output/findings.tracker.json",
+        "emit-flare output/findings.flare.json",
+        (
+            "driver",
+            "real-string leak scan of every emitted artifact (tools/realdata_leak_scan.py)",
+            "leak_scan",
+        ),
+    ],
 }
 
 
@@ -133,7 +166,8 @@ class Run:
         shown = command
         command = command.replace("{id0}", self.ids[0] if self.ids else "{id0}")
         command = command.replace("{ref0}", self.refs[0] if self.refs else "{ref0}")
-        shown = command
+        shown = command.replace("{data}", "<DATA_DIR>")
+        command = command.replace("{data}", DATA_DIR.as_posix())
         argv = ["finding-bridge", "--store", str(self.store), "--key", str(self.key)]
         argv += _split(command)
         proc = subprocess.run(argv, cwd=self.cwd, capture_output=True, text=True, encoding="utf-8")
@@ -156,6 +190,58 @@ class Run:
         self.lines.append(getattr(self, fn)())
         self.lines.append("[driver step done]")
         self.lines.append("")
+
+    def _cli(self, *args: str) -> subprocess.CompletedProcess:
+        argv = ["finding-bridge", "--store", str(self.store), "--key", str(self.key), *args]
+        return subprocess.run(argv, cwd=self.cwd, capture_output=True, text=True, encoding="utf-8")
+
+    def ingest_prepared(self) -> str:
+        files = sorted((DATA_DIR / "prepared").glob("*.txt"))
+        ok, refused = 0, {}
+        for f in files:
+            proc = self._cli(
+                "ingest-transcript", str(f), "--target-model", "hh-rlhf red-team model"
+            )
+            if proc.returncode == 0:
+                ok += 1
+            else:
+                code = proc.stderr.split(":", 1)[0].strip()
+                refused[code] = refused.get(code, 0) + 1
+        n_ref = sum(refused.values())
+        return f"{len(files)} files: ingested {ok}, refused {n_ref} {refused or ''}".strip()
+
+    def count_candidates(self) -> str:
+        import json as _json
+
+        rows = [
+            _json.loads(ln)
+            for ln in (self.store / "candidates.jsonl").read_text(encoding="utf-8").splitlines()
+            if ln.strip()
+        ]
+        by_tool: dict[str, int] = {}
+        for r in rows:
+            by_tool[r["source_tool"]] = by_tool.get(r["source_tool"], 0) + 1
+        dups = sum(1 for r in rows if r["dedup"]["duplicate_of"])
+        self.ids = [r["id"] for r in rows if r["source_tool"] == "garak"] or [r["id"] for r in rows]
+        return f"candidates: {len(rows)} by source {by_tool}; marked duplicate: {dups}"
+
+    def list_head(self) -> str:
+        proc = self._cli("list")
+        lines = proc.stdout.splitlines()
+        return "\n".join(lines[:5] + [f"... {len(lines)} lines in total"])
+
+    def leak_scan(self) -> str:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(HERE.parent / "tools" / "realdata_leak_scan.py"),
+                str(self.out_dir),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        return (proc.stdout + proc.stderr).strip() + f"\n[exit {proc.returncode}]"
 
     def show_exposure_log(self) -> str:
         log = self.store / "sealed" / "exposure_log.jsonl"
@@ -226,6 +312,13 @@ def run_one(example: str, check: bool) -> int:
         return EXIT_COULD_NOT_RUN
     if shutil.which("finding-bridge") is None:
         print("could-not-run: finding-bridge is not on PATH (pip install -e .)", file=sys.stderr)
+        return EXIT_COULD_NOT_RUN
+    if example == "04-real-data" and not (DATA_DIR / "garak" / "fb-real.hitlog.jsonl").exists():
+        print(
+            f"could-not-run: no real data under {DATA_DIR}; run examples/04-real-data/fetch.py "
+            "and run_garak.py first (the data is never committed, D-012)",
+            file=sys.stderr,
+        )
         return EXIT_COULD_NOT_RUN
     committed = HERE / example / "output"
     if check:

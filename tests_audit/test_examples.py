@@ -26,6 +26,15 @@ import run_example  # noqa: E402
 
 @pytest.mark.parametrize("example", sorted(run_example.EXAMPLES))
 def test_committed_example_output_matches_a_fresh_run(example):
+    if (
+        example == "04-real-data"
+        and not (run_example.DATA_DIR / "garak" / "fb-real.hitlog.jsonl").exists()
+    ):
+        # W6c: the real data is never committed (D-012). Without a local
+        # copy the re-run cannot happen; this is a stated skip in the AUDIT
+        # cadence, not in the gate, and the gate's single-skip deliverable
+        # (W5) is unaffected.
+        pytest.skip("no local real data under DATA_DIR; run examples/04-real-data/fetch.py")
     proc = subprocess.run(
         [sys.executable, str(DRIVER), example, "--check"], capture_output=True, text=True
     )

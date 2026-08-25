@@ -119,3 +119,72 @@ every test machine has it.
 Recorded in evidence/w6-local-rehearsal.md section 3: the shell scan
 reported clean while its positive control reported SCAN BLIND. Not
 believed; replaced by a tool with a selftest and a shape-precise marker.
+
+## W6c real-data findings (2026-08-25), for ruling before W7
+
+### F-10: the transcript grammar refuses the most common real-world marker form (limit, raised)
+
+The Anthropic red-team-attempts transcripts (38,961 records) write turns
+as `
+
+Human:` / `
+
+Assistant:` (counted over the whole file: 127,217
+and 127,321 occurrences; zero `USER:`). The adapter's grammar is exact
+uppercase `USER:`/`ASSISTANT:`/`SYSTEM:` at column 0 (D-041, D-049), and
+`Assistant:` at column 0 is refused as a case variant. As shipped, not one
+real transcript from the largest public red-team corpus ingests without
+a rewrite. `examples/04-real-data/fetch.py` does that rewrite outside the
+tree, and says so. Proposal for ruling: none applied; options are (a) a
+documented pre-processing step (what example 04 does), (b) an explicit
+`--markers human-assistant` flag choosing a second exact grammar (no
+guessing, D-049 intact), (c) leave as a stated limit. (b) is a product
+change, Section C.
+
+### F-11: the transcript adapter has no home for per-record source metadata (limit, raised)
+
+Each dataset record carries `rating`, `task_description`, `model_type`,
+`num_params`, `red_team_member_id`, `tags`. The adapter accepts only
+`--target-model`, `--target-model-version`, `--discovered-at`; the rest
+has no field and is dropped before ingestion (not by the tool, which never
+sees it). `reproduction.environment` carries only `turn_count`. Proposal:
+an `--environment key=value` passthrough into `reproduction.environment`
+(the garak adapter already stores run facts there). Section C.
+
+### F-12: the garak adapter SILENTLY LOSES THE PROMPT on a real garak 0.16.0 hitlog (defect, raised)
+
+Ingesting the real hitlog (197 hits, snapshot of the run in progress):
+`probe.value` null and `probe.sealed_ref` empty on 197 of 197; the
+response sealed on 197 of 197. Cause, from the data and the code: garak
+0.16.0 writes `prompt` as a Conversation, `{"turns": [{"role": "user",
+"content": {"text": ..., "lang": ..., "data_path": ..., ...}}], "notes":
+{...}}` (every one of the 197 records has exactly that shape), while
+`_extract_text` (adapters/in_/garak.py:44) descends into `turns` but
+treats each turn as a Message: it looks for `text` on the turn itself and
+never into the turn's `content` object, so the turn yields None and the
+prompt becomes null. The synthetic fixture (built from the `main` branch
+evaluator on 2026-08-24) carried the older Message shape, so every test
+passed. This is silent field loss on the primary adapter's primary field:
+the attack prompt, the thing a red-team finding is about. The response
+survived because `output` is a Message with `text` at the top level.
+Proposal: descend into a turn's `content` (Message) in `_extract_text`,
+with a fixture line in the exact 0.16.0 shape (synthetic text, D-012) and
+a control asserting the probe is sealed; keep the older shapes. Product
+code, FULL (adapter feeding the seal path), Section C.
+
+### F-13: fields the real hitlog carries that the adapter drops (limit, raised)
+
+`output.lang`, `output.notes`, `output.data_path`, `output.data_type`,
+`output.data_checksum`, and `prompt.notes` are not mapped. `goal` and
+`triggers` ARE kept: both are sealed into the context blob (garak.py:103,
+120). `triggers` was null on all 197 real hits. Stated as a limit; no
+proposal beyond noting `lang` as the one with a natural home
+(`reproduction.environment`).
+
+### The real ingest, as it stood (counts only)
+
+`{"ingested": 197, "total_candidates": 197, "duplicates_marked": 7}`;
+detectors `mitigation.MitigationBypass` 107, `dan.DAN` 90; probes
+`dan.Ablation_Dan_11_0` 196, `dan.AutoDANCached` 1; previews from 16 to
+1,208 chars; target `ollama llama3.2:1b`. 7 exact-duplicate responses
+across 197 hits from a 1B model under DAN ablations.
