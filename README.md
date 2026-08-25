@@ -1,5 +1,15 @@
 # finding-bridge
 
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
+[![Canonical schema 0.4.0](https://img.shields.io/badge/canonical%20schema-0.4.0-informational)](src/finding_bridge/schemas/finding.schema.json)
+[![SARIF 2.1.0](https://img.shields.io/badge/emits-SARIF%202.1.0-informational)](docs/USAGE.md)
+[![AI in the evidence path: none](https://img.shields.io/badge/AI%20in%20the%20evidence%20path-none-success)](tests/test_environment.py)
+
+Every badge above states a fact that a test checks
+(`tests/test_readme_badges.py`). A build or container badge appears only
+after its workflow has been observed green, in the same commit.
+
 Turn AI red-team tool output into standard, sealed, provenance-stamped
 findings. Feed them into the systems your team already uses.
 
@@ -14,6 +24,52 @@ garak hitlogs  ──┐                              ┌──> Markdown packet
                  ├──> seal + hash + dedup + ────┤
 transcripts    ──┘    human confirm             └──> SARIF 2.1.0
 ```
+
+## Architecture
+
+The sealing boundary is the line that matters. Raw model output crosses it
+once, on the way in, and comes back out only through an explicit, logged
+unseal.
+
+```mermaid
+flowchart LR
+    subgraph sources[Sources]
+        G[garak hitlog JSONL]
+        T[attack transcript, text or JSON]
+    end
+    subgraph core[Deterministic core: no AI, no API key]
+        I[ingest, adapters/in_]
+        subgraph boundary[Sealing boundary: raw content encrypted at rest]
+            S[(sealed store, Fernet blobs)]
+            X[(exposure log, append-only)]
+        end
+        P[safe metadata preview]
+        H[stamp: RFC 8785 hash and chain]
+        D[dedup, exact match]
+        C{human gate: confirm or reject}
+        L[(ledger and head)]
+    end
+    subgraph out[Destinations]
+        M[Markdown packet]
+        SA[SARIF 2.1.0]
+        TR[tracker JSON]
+        F[FLARE-AI, provisional]
+    end
+    AI[caged --ai: prose suggestions only, off by default]
+    G --> I
+    T --> I
+    I -->|raw content| S
+    I --> P --> H --> D --> C --> L
+    L --> M
+    L --> SA
+    L --> TR
+    L --> F
+    S -.->|unseal --explicit, every read logged| X
+    AI -.->|reads the preview, never sealed content| C
+```
+
+Nothing to the right of the human gate carries raw content. Every
+emitted artifact carries the preview and metadata only.
 
 ## What it does
 
@@ -74,8 +130,100 @@ finding-bridge emit-sarif out/findings.sarif
 finding-bridge emit-flare out/findings.flare.json
 ```
 
+What you will see, captured from a real run on 2026-08-25 (store and key
+in a scratch folder outside the repo; ids and hashes are store-local, so
+yours will differ):
+
+```
+$ finding-bridge ingest-garak schemas/fixtures/garak.synthetic.hitlog.jsonl
+{"ingested": 3, "total_candidates": 3, "duplicates_marked": 1}
+[exit 0]
+
+$ finding-bridge list
+fb-d867243a67f8131d  garak  [sealed content: 77 chars, 1 lines, keyed digest 2a9876b5; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-2fc91b3d90be8c23  garak  [sealed content: 77 chars, 1 lines, keyed digest 2a9876b5; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-d867243a67f8131d
+fb-0b8f4fd0e93add46  garak  [sealed content: 47 chars, 1 lines, keyed digest a67633f5; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+[exit 0]
+
+$ finding-bridge confirm fb-d867243a67f8131d
+confirmed fb-d867243a67f8131d by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+[exit 0]
+
+$ finding-bridge verify
+chain verifies clean
+[exit 0]
+
+$ finding-bridge emit-markdown out/packet.md
+wrote out/packet.md
+[exit 0]
+
+$ finding-bridge emit-sarif out/findings.sarif
+wrote out\findings.sarif and out\findings.fb.jsonl
+[exit 0]
+```
+
+And two refusals, because how the tool refuses is part of the product:
+
+```
+$ finding-bridge confirm fb-0000000000000000
+unknown-id: no candidate with id 'fb-0000000000000000'
+[exit 1]
+
+$ finding-bridge unseal sealed/2a9876b508a0d513
+unseal-not-explicit: unseal of 'sealed/2a9876b508a0d513' requires explicit=True (charter: unsealing is always explicit and logged)
+[exit 1]
+```
+
+The artifacts from a run like this, with the full transcript beside
+them, are committed under [examples/](examples/).
+
 See [docs/USAGE.md](docs/USAGE.md) for the full walk-through, every
 command, and the reason-code reference.
+
+## Honest numbers
+
+Every figure here names the command that produced it and the date. If a
+figure and the tree disagree, the tree wins and the figure is wrong.
+
+- **Tests: 284 passed, 1 skipped**, run by `python tools/gate.py` on
+  2026-08-25 with no API key in the environment (the suite scrubs
+  key-bearing variables and proves it). The one skip is the Windows key
+  file permission check, which needs a POSIX file mode.
+- **Product versus governance tests: 259 versus 26.** Governance tests
+  check the project's own rules and record rather than finding
+  behaviour (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
+  `test_no_inline_digest_compare.py`, `test_installed_package.py`,
+  `test_environment.py`). Counted by
+  `python -m pytest --collect-only -q` over those five files (26 of 285
+  collected).
+- **Mutation testing, reported both ways** (raw, and excluding the
+  annotation-class equivalents, the frozen method of D-066). Last
+  audit at the STEP-05 close, `evidence/mutation-audit-step05-close.md`:
+  provenance 226/341 = 66.3 percent raw, 226/242 = 93.4 percent
+  adjusted; sealing 139/151 = 92.1 percent both ways. Carried unmeasured
+  since their last audit: schema 10/26 = 38.5 percent, dedup 49/63 =
+  77.8 percent. Of the surviving mutants, 111 of 125 are judged
+  equivalent by the builder's reasoning, not by a machine; that number
+  is a stated limit, not a footnote.
+- **Built by an AI under a human director.** The code, tests, and
+  documents were written by Claude (Anthropic) in Claude Code. A human
+  director ruled on every decision, ran every phase-close verification
+  by hand, and caught defects the test suite did not. `DECISIONS.md`
+  records who decided what, and the corrections table records where
+  either of them was wrong.
+
+## Notation
+
+The record uses short prefixes. Decoded once, here:
+
+| Prefix | Meaning | Where |
+|---|---|---|
+| D-nnn | a numbered ruling by the director | `DECISIONS.md` |
+| OB-n | an obligation carried by name until discharged | obligations register in `DECISIONS.md` |
+| DEV-n | a numbered deviation from a ratified phase contract | the `docs/decisions/STEP-nn-*.md` file it deviates from |
+| PROV-n | a provisional decision taken alone, pending ratification | PROV register in `DECISIONS.md` |
+| C-nnn | a correction: original claim quoted, correction, proof, direction | corrections table in `DECISIONS.md` |
+| STEP-nn | a phase contract | `docs/decisions/` |
 
 ## Honest limits (short form)
 
@@ -93,6 +241,20 @@ command, and the reason-code reference.
   recorded in the ledger as a supersession event. The separate key that
   produces sealed references is permanent and is not rotated.
 - Input files are capped at 10 MiB.
+- The sealed key file is not permission-locked by the tool on Windows;
+  the operator does it with `icacls` (see `docs/USAGE.md`).
+- The chain head has no external trust anchor. Verification is against
+  the store's own head, so the bound above is the whole guarantee (OB-4,
+  due the first time a store crosses a trust boundary).
+- The parsers have not been fuzzed against data at volume that this
+  project did not generate (OB-5, scoped out until that happens).
+- The FLARE-AI export is provisional: FLARE-AI has published no
+  machine-readable schema, so the field names come from its paper.
+- The grey-scale idea behind the preview is research-informed, not
+  research-proven: the cited evidence is image-moderation research, not
+  a red-teaming trial (charter section 6).
+- The mutation figures above are the builder's measurement, and most
+  surviving mutants are dispositioned by the builder's reasoning.
 
 The full list, in user language, is in
 [docs/USAGE.md](docs/USAGE.md#limits).
