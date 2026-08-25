@@ -21,6 +21,7 @@ keys are strings by construction.
 
 import copy
 import hashlib
+import hmac
 from datetime import UTC, datetime
 
 import rfc8785
@@ -118,13 +119,45 @@ def chain_head_internal_ok(head: dict) -> bool:
         [head.get("count"), head.get("last_content_hash"), head.get("canonical_form")]
     )
     expected = hashlib.sha256(HEAD_DOMAIN.encode("utf-8") + payload).hexdigest()
-    return head.get("head_hash") == expected
+    return digests_match(head.get("head_hash"), expected)
 
 
 def attestation_hash(digest: str, confirmed_by: str, confirmed_at: str) -> str:
     """Bind who confirmed what and when to the content hash (review R-1)."""
     payload = canonical_dumps([digest, confirmed_by, confirmed_at])
     return hashlib.sha256(ATTESTATION_DOMAIN.encode("utf-8") + payload).hexdigest()
+
+
+def digests_match(actual: str | None, expected: str | None) -> bool:
+    """The ONLY way a verify path compares two digests (ruling D-060).
+
+    Why a helper and not an inline `==`: the comparison-weakening class
+    recurred three times in this project. Each time the fix lived in a
+    test, so the next hand-written verify path re-created the hole. One
+    function is one place a mutation can weaken, killed once by one
+    both-orderings property test, and every bypass is findable by machine
+    (tests/test_no_inline_digest_compare.py). Same move the boundary table
+    was for tracebacks: close the class, not the instance.
+
+    Constant-time by construction (hmac.compare_digest) - not the reason
+    it exists, but not unwelcome in a provenance tool. None never matches
+    anything, including another None: a missing digest is an absent claim,
+    not a matching one. Callers that must treat "both absent" as fine say
+    so explicitly at the call site.
+    """
+    if actual is None or expected is None:
+        return False
+    return hmac.compare_digest(str(actual), str(expected))
+
+
+def _prev_link_ok(prev: str | None, expected: str | None) -> bool:
+    """Chain linkage, where BOTH-ABSENT is legitimate (the first record has
+    no predecessor). Stated explicitly rather than folded into
+    digests_match, because 'no digest matches nothing' is the safer default
+    everywhere else."""
+    if prev is None and expected is None:
+        return True
+    return digests_match(prev, expected)
 
 
 def stamp(finding: dict, prev_hash: str | None = None) -> dict:
@@ -165,7 +198,7 @@ def confirm(finding: dict, confirmed_by: str, confirmed_at: str | None = None) -
         raise ProvenanceError(REASON_UNCONFIRMED, "confirmed_by identity is empty")
     stored = (finding.get("provenance") or {}).get("content_hash")
     recomputed = content_hash(finding)
-    if stored != recomputed:
+    if not digests_match(stored, recomputed):
         raise ProvenanceError(
             REASON_CONTENT_TAMPERED,
             f"stored content_hash {stored!r} != recomputed {recomputed!r}; "
@@ -240,7 +273,7 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
             )
         else:
             actual = chain_head(findings)
-            if actual["head_hash"] != expected_head["head_hash"]:
+            if not digests_match(actual["head_hash"], expected_head["head_hash"]):
                 failures.append(
                     {
                         "index": None,
@@ -282,7 +315,7 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
         if finding.get("record_type") == RECORD_TYPE_SUPERSESSION:
             # its attestation covers the whole event, checked above; the
             # generic gate-record checks below do not apply to it
-            if stored != recomputed:
+            if not digests_match(stored, recomputed):
                 failures.append(
                     {
                         "index": i,
@@ -294,7 +327,7 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
             expected_prev = (
                 (findings[i - 1].get("provenance") or {}).get("content_hash") if i else None
             )
-            if prev != expected_prev:
+            if not _prev_link_ok(prev, expected_prev):
                 failures.append(
                     {
                         "index": i,
@@ -314,7 +347,7 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
                 )
             else:
                 expected = attestation_hash(recomputed, confirmed_by, confirmed_at)
-                if attestation != expected:
+                if not digests_match(attestation, expected):
                     failures.append(
                         {
                             "index": i,
@@ -334,7 +367,7 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
                     "detail": "unconfirmed record carries an attestation_hash",
                 }
             )
-        if stored != recomputed:
+        if not digests_match(stored, recomputed):
             failures.append(
                 {
                     "index": i,
@@ -455,7 +488,7 @@ def _verify_supersession(record: dict, records: list[dict], i: int) -> list[dict
     failures: list[dict] = []
     provenance = record.get("provenance") or {}
 
-    if provenance.get("attestation_hash") != supersession_attestation(record):
+    if not digests_match(provenance.get("attestation_hash"), supersession_attestation(record)):
         failures.append(
             {
                 "index": i,
@@ -483,7 +516,7 @@ def _verify_supersession(record: dict, records: list[dict], i: int) -> list[dict
         # than adding one, which is the direction the contract's bound
         # warning asks for.
         actual = chain_head(records[:i])
-        if actual["head_hash"] != old_head.get("head_hash"):
+        if not digests_match(actual["head_hash"], old_head.get("head_hash")):
             failures.append(
                 {
                     "index": i,
