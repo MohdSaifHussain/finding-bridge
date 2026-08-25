@@ -102,3 +102,25 @@ def test_gate_states_what_a_pass_does_not_prove():
 def test_every_constituent_is_named_in_output(name: str):
     result = run_gate(REPO)
     assert name in result.stdout
+
+
+def test_verdict_file_carries_the_verdict_and_exit_code(tmp_path: Path):
+    """D-074: the verdict file makes piping unnecessary. Negative control:
+    a planted failure lands in the file as FAIL with exit 1."""
+    verdict = tmp_path / "verdict.txt"
+    result = subprocess.run(
+        [sys.executable, str(GATE), "--verdict-file", str(verdict)],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    lines = verdict.read_text(encoding="utf-8").splitlines()
+    assert lines[0].startswith("GATE: ") and lines[1] == f"exit {result.returncode}"
+    assert lines[0] == result.stdout.strip().splitlines()[-1]
+
+
+def test_verdict_file_is_the_only_argument_accepted():
+    result = subprocess.run(
+        [sys.executable, str(GATE), "--verdict-file"], cwd=REPO, capture_output=True, text=True
+    )
+    assert result.returncode == 2

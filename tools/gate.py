@@ -10,6 +10,8 @@ WHY THIS EXISTS. The gate-half-run family reached six instances before its
 mechanism was pinned, and all six share one cause: a failing command's
 exit code was masked. Two shell constructs do it:
 
+  python tools/gate.py | tail -2 && ...   <- C-009: the gate ITSELF, masked
+                                           (use --verdict-file, never a pipe)
   pytest ... | tail -1 && git commit ...   <- the PIPELINE exits with
                                               tail's status, which is 0
   python script.py                          <- a newline, not `&&`, so a
@@ -76,9 +78,29 @@ def run_constituent(name: str, argv: list[str]) -> tuple[str, int, str]:
     return name, result.returncode, tail[-1] if tail else ""
 
 
+def _verdict(verdict_file: Path | None, line: str, code: int) -> int:
+    """D-074: write the one-line verdict plus the exit code to a file, so
+    nobody ever needs to pipe the gate to read its tail. NEVER PIPE THE
+    GATE: a pipe reports the last command's status, not the gate's
+    (C-008, C-009)."""
+    print(line)
+    if verdict_file is not None:
+        verdict_file.write_text(f"{line}\nexit {code}\n", encoding="utf-8")
+    return code
+
+
 def main(argv: list[str]) -> int:
-    if len(argv) > 1:
-        print(f"gate takes no arguments (got {argv[1:]}); there is no override", file=sys.stderr)
+    verdict_file: Path | None = None
+    args = list(argv[1:])
+    if len(args) == 2 and args[0] == "--verdict-file":
+        verdict_file = Path(args[1])
+        args = []
+    if args:
+        print(
+            f"gate takes no arguments except --verdict-file <path> (got {args}); "
+            "there is no override",
+            file=sys.stderr,
+        )
         return EXIT_COULD_NOT_RUN
 
     failed: list[str] = []
@@ -93,13 +115,11 @@ def main(argv: list[str]) -> int:
             failed.append(name)
 
     if could_not_run:
-        print(f"GATE: COULD-NOT-RUN ({', '.join(could_not_run)})")
-        return EXIT_COULD_NOT_RUN
+        line = f"GATE: COULD-NOT-RUN ({', '.join(could_not_run)})"
+        return _verdict(verdict_file, line, EXIT_COULD_NOT_RUN)
     if failed:
-        print(f"GATE: FAIL ({', '.join(failed)})")
-        return EXIT_FAILED
-    print("GATE: PASS")
-    return EXIT_PASS
+        return _verdict(verdict_file, f"GATE: FAIL ({', '.join(failed)})", EXIT_FAILED)
+    return _verdict(verdict_file, "GATE: PASS", EXIT_PASS)
 
 
 if __name__ == "__main__":

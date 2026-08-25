@@ -10,7 +10,51 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parent.parent
-USER_DOCS = [REPO / "README.md", REPO / "docs" / "USAGE.md"]
+USER_DOCS = [
+    p
+    for p in [
+        REPO / "README.md",
+        REPO / "docs" / "USAGE.md",
+        REPO / "SOP.md",
+        REPO / "docs" / "STANDARDS.md",
+        REPO / "docs" / "showcase" / "README.md",
+        REPO / "CHANGELOG.md",
+        REPO / "SECURITY.md",
+        *sorted(REPO.glob("examples/*/README.md")),
+    ]
+    if p.exists()
+]
+# D-073: the wording law governs every artifact the launch arc produces, so
+# every user-facing document that exists is scanned; a doc that does not
+# exist yet (CHANGELOG, SECURITY) joins the list the day it lands.
+
+# D-073: a QUOTED standard may carry a banned phrase under three conditions,
+# all three checked mechanically: (a) verbatim inside quotation marks;
+# (b) attributed to its source by name within ATTRIBUTION_WINDOW chars before
+# the opening quote; (c) immediately followed (within NARROWING_WINDOW chars
+# after the closing quote) by our narrower claim. Bare unquoted use stays
+# banned everywhere forever.
+ATTRIBUTION = re.compile(r"\b(NIST|OWASP|MITRE|SAIF|Google|Guide|AI 600-1|RMF)\b")
+NARROWING = re.compile(
+    r"tamper[- ]evident|narrower|this tool's claim|our claim|not claimed|does not claim",
+    re.IGNORECASE,
+)
+ATTRIBUTION_WINDOW = 400
+NARROWING_WINDOW = 300
+
+
+def quoted_and_narrowed(text: str, start: int, end: int) -> bool:
+    """True when the match at [start, end) satisfies all three D-073 conditions."""
+    open_q = text.rfind('"', 0, start)
+    close_q = text.find('"', end)
+    if open_q == -1 or close_q == -1:
+        return False
+    if text.count('"', open_q + 1, start) or text.count('"', end, close_q):
+        return False  # a quote boundary lies between the match and the marks
+    before = text[max(0, open_q - ATTRIBUTION_WINDOW) : open_q]
+    after = text[close_q : close_q + NARROWING_WINDOW]
+    return bool(ATTRIBUTION.search(before)) and bool(NARROWING.search(after))
+
 
 # D-046 banned phrases. Each is a claim the tool does not ship. The
 # pattern is case-insensitive. Where a doc must MENTION a banned idea to
@@ -48,10 +92,10 @@ def test_user_docs_contain_no_banned_claim(doc: Path):
     text = flat(doc_text(doc))
     hits = []
     for pattern, why in BANNED.items():
-        found = re.search(pattern, text, re.IGNORECASE)
-        if found:
-            line = text[: found.start()].count("\n") + 1
-            hits.append(f"{doc.name}:{line}: '{found.group(0)}' - {why}")
+        for found in re.finditer(pattern, text, re.IGNORECASE):
+            if quoted_and_narrowed(text, found.start(), found.end()):
+                continue  # D-073 exemption, all three conditions held
+            hits.append(f"{doc.name}: '{found.group(0)}' - {why}")
     assert not hits, "banned claims found in user docs:\n" + "\n".join(hits)
 
 
@@ -96,10 +140,39 @@ def test_docs_contain_no_known_broken_command(doc: Path):
 
 
 def test_install_docs_explain_the_wheel_route():
-    """Both docs must tell the user why the verified route needs a wheel."""
-    for doc in USER_DOCS:
+    """Both INSTALL docs must tell the user why the verified route needs a
+    wheel (README and USAGE; the D-073 widening scans the others for claims,
+    not for install text)."""
+    for doc in (REPO / "README.md", REPO / "docs" / "USAGE.md"):
         text = flat(doc_text(doc)).lower()
         assert "python -m build --wheel" in text, f"{doc.name}: wheel route missing"
         assert "hash-check" in text or "hash verification" in text, (
             f"{doc.name}: the reason for the wheel route must be stated"
         )
+
+
+# --- D-073 controls: the exemption admits exactly the three-condition shape ---
+
+QUOTE_OK = (
+    'NIST AI 600-1 MS-2.8-003 says "provide a tamper-proof history of the content". '
+    "This tool's claim is narrower: tamper-evident, bounded by OB-4."
+)
+
+
+def test_quoted_attributed_narrowed_phrase_is_exempt():
+    m = re.search(r"tamper[- ]proof", QUOTE_OK)
+    assert quoted_and_narrowed(QUOTE_OK, m.start(), m.end())
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "the chain gives a tamper-proof history",  # bare
+        'someone said "a tamper-proof history" and we agree.',  # quoted only
+        'NIST says "a tamper-proof history".',  # not narrowed
+        "NIST says a tamper-proof history. Our claim is narrower.",  # not quoted
+    ],
+)
+def test_exemption_refuses_every_shape_missing_a_condition(text):
+    m = re.search(r"tamper[- ]proof", text)
+    assert not quoted_and_narrowed(text, m.start(), m.end())
