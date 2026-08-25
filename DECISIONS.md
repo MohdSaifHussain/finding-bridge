@@ -1131,6 +1131,28 @@ assert FAILED, and the commit message claiming both docs were updated was
 written anyway. A check fired and the claim ignored it. That is D-057
 meeting the gate-half-run family, and it is the family's fourth instance.
 
+## D-063 — Tracker JSON shape (builder under Section B, alternatives named)
+
+**Decision:** a FLAT JSON ARRAY of issue objects with four common
+top-level fields (summary, description, labels, priority) plus a `fields`
+object for everything tool-specific. Field names are the intersection of
+Jira, Linear and GitHub Issues, so an importer for any of them is a
+rename, not a re-parse.
+
+**Alternatives rejected:** (a) Jira's native issue JSON with its
+`fields.customfield_NNNNN` shape - vendor lock, and the custom-field ids
+differ per installation so it would not even import cleanly twice; (b) a
+nested per-tracker structure with one branch per vendor - three shapes to
+keep correct with no user asking for any of them yet.
+
+**Two judgements inside the shape, recorded because they are choices:**
+(1) an unscored finding gets priority "Unset", never a guessed band -
+inventing a priority puts a judgement in a ticket that no human made;
+(2) taxonomy labels carry a "?" suffix when the mapping is `suggested`,
+so an unconfirmed mapping cannot masquerade as a confirmed one inside a
+tracker's flat label space. **Supersession records are skipped**: ledger
+bookkeeping is not an actionable ticket.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

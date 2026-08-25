@@ -105,6 +105,7 @@ Prints `chain verifies clean`, or lists any tampering it finds.
 finding-bridge emit-markdown out/packet.md
 finding-bridge emit-sarif out/findings.sarif
 finding-bridge emit-flare out/findings.flare.json
+finding-bridge emit-tracker out/findings.tracker.json
 ```
 
 SARIF writes a second file next to it: `findings.fb.jsonl`. The SARIF
@@ -119,6 +120,33 @@ references only.
 FLARE-AI has not published a machine-readable schema, so this mapping
 comes from the field names in the FLARE-AI paper. Check the field names
 before you submit anything based on it.
+
+`emit-tracker` writes a flat JSON array of issues shaped for generic
+tracker import (Jira, Linear, GitHub Issues). Common fields are at the top
+level; anything tool-specific sits under `fields`. An unscored finding
+gets priority `Unset` rather than a guess, and a suggested taxonomy label
+carries a `?` so it cannot pass for a confirmed one.
+
+### Ask the caged AI for suggestions (optional)
+
+```
+pip install -e ".[ai]"
+set ANTHROPIC_API_KEY=...
+finding-bridge confirm <id> --ai --ai-model <exact-model-id>
+```
+
+The AI can suggest two things: a severity rationale, and taxonomy
+mappings. Both are **printed for you to weigh, never written**. You accept
+or reject by hand; nothing the AI says enters a finding on its own.
+
+What the AI sees: the safe metadata preview, the source tool, the target
+model, and the harm flags. **It never sees sealed content.** If you want
+it to see the actual text, you must unseal that text yourself first
+through the explicit, logged `unseal` path and pass it in deliberately.
+
+If the key is missing or the API is unreachable, the tool says so and
+**carries on exactly as it would without `--ai`**. The deterministic
+pipeline never depends on the AI.
 
 ### Rotate the encryption key
 

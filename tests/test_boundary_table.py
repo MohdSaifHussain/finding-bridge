@@ -229,3 +229,20 @@ def test_emit_flare_unconfirmed_refuses_governed(tmp_path, capsys):
     with pytest.raises(flare_ai.FlareAdapterError) as err:
         flare_ai.render_reports([unconfirmed])
     assert err.value.reason_code == "unconfirmed"
+
+
+def test_emit_tracker_creates_missing_parent(tmp_path):
+    """W3 emitter obeys the same output law (D-044)."""
+    args = _confirmed_workspace(tmp_path)
+    out = tmp_path / "tr" / "dir" / "findings.tracker.json"
+    assert cli.main([*args, "emit-tracker", str(out)]) == 0
+    assert out.exists()
+
+
+def test_emit_tracker_unwritable_refuses_governed(tmp_path, capsys):
+    args = _confirmed_workspace(tmp_path)
+    blocker = tmp_path / "blocker4"
+    blocker.write_text("i am a file", encoding="utf-8")
+    rc = cli.main([*args, "emit-tracker", str(blocker / "t.json")])
+    assert rc == 1
+    assert "output-unwritable" in capsys.readouterr().err

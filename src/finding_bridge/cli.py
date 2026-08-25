@@ -11,7 +11,7 @@ from finding_bridge import gate, pipeline
 from finding_bridge.adapters import reading, writing
 from finding_bridge.adapters.in_.garak import GarakAdapterError
 from finding_bridge.adapters.in_.transcript import TranscriptAdapterError
-from finding_bridge.adapters.out import flare_ai, markdown, sarif
+from finding_bridge.adapters.out import flare_ai, markdown, sarif, tracker
 from finding_bridge.core.dedup import DedupError
 from finding_bridge.core.provenance import ProvenanceError
 from finding_bridge.core.schema import SchemaValidationError
@@ -105,6 +105,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("out", help="output .json path (default name: findings.flare.json)")
     p = sub.add_parser(
+        "emit-tracker",
+        help="emit confirmed findings as generic tracker JSON (Jira/Linear/"
+        "GitHub Issues shaped; no vendor lock)",
+    )
+    p.add_argument("out", help="output .json path (default name: findings.tracker.json)")
+    p = sub.add_parser(
         "rotate-key",
         help="rotate the encryption key as a recorded supersession event "
         "(human-gated; the ref key is permanent and does not rotate)",
@@ -170,6 +176,12 @@ def main(argv: list[str] | None = None) -> int:
                 Path(args.out), json.dumps(reports, indent=2, ensure_ascii=False) + "\n"
             )
             print(f"wrote {args.out} (PROVISIONAL mapping; see the provisional block)")
+        elif args.command == "emit-tracker":
+            issues = tracker.render_issues(ws.confirmed_findings())
+            writing.write_text_output(
+                Path(args.out), json.dumps(issues, indent=2, ensure_ascii=False) + "\n"
+            )
+            print(f"wrote {args.out} ({len(issues)} issue(s))")
         elif args.command == "rotate-key":
             record = ws.rotate_key(gate.get_git_identity(), reason=args.reason)
             print(
@@ -194,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         markdown.MarkdownAdapterError,
         sarif.SarifAdapterError,
         flare_ai.FlareAdapterError,
+        tracker.TrackerAdapterError,
     ) as exc:
         print(f"{exc.reason_code}: {exc.detail}", file=sys.stderr)
         return 1
