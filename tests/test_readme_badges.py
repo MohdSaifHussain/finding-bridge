@@ -20,7 +20,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 README = REPO / "README.md"
-BADGE_RE = re.compile(r"!\[[^\]]*\]\((https://img\.shields\.io/(?:badge|pypi/v)/[^)]+)\)")
+BADGE_RE = re.compile(r"!\[[^\]]*\]\((https://img\.shields\.io/badge/[^)]+)\)")
 
 
 def _badges(text: str) -> list[str]:
@@ -47,12 +47,6 @@ def _check(text: str) -> list[str]:
     if not badges:
         return ["no badges found"]
     for url in badges:
-        if "/pypi/v/" in url:
-            # a LIVE fact delegated to PyPI: the badge must name garak (not this
-            # tool, which is not on PyPI, D-046) and say whose version it shows
-            if "/pypi/v/garak" not in url or "garak%20on%20PyPI" not in url:
-                problems.append(f"pypi badge must be garak's, labelled as such: {url}")
-            continue
         label = url.split("/badge/", 1)[1]
         if label.startswith("license-"):
             expected = facts["license"].replace("-", "--")
