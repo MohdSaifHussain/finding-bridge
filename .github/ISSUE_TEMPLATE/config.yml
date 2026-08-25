@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/MohdSaifHussain/finding-bridge/security/advisories/new
+    about: Use private vulnerability reporting, never a public issue (SECURITY.md).
