@@ -89,6 +89,9 @@ command, and the reason-code reference.
   file get different ids.
 - Duplicate detection is exact-match only. Similar-but-not-identical
   findings are not clustered.
+- The encryption key can be rotated (`rotate-key`), and the rotation is
+  recorded in the ledger as a supersession event. The separate key that
+  produces sealed references is permanent and is not rotated.
 - Input files are capped at 10 MiB.
 
 The full list, in user language, is in
