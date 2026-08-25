@@ -1254,6 +1254,33 @@ check additions, one stop at the end.
 **The framing, recorded because it is the point:** this is the project
 maturing from rules-as-prose to rules-as-instruments.
 
+## D-069 — Workspace-setup tracebacks fixed now, by the director's explicit word (STEP-06 W1, 2026-08-25)
+
+**Finding (builder, capturing the five-minute tour):** an empty `$TMPDIR`
+sent `--store` into `C:\Program Files\Git` and the CLI died with a raw
+`PermissionError` from `Workspace.__init__`'s `mkdir`. Probing the same
+shape found a second: a `--key` path whose parent is a file dies with a
+raw `FileExistsError` from `_write_keyring`. Sixth and seventh instances
+of the exception-escapes-as-traceback class (D-036), both on the
+workspace-setup side, which the boundary table had not swept (inputs at
+D-036, outputs at D-044, workspace never).
+
+**Ruling (director, mid-turn, verbatim: "PLEASE MAKE SURE TO FIX IT"):**
+fixed in this arc, as the contract's 3.1 exception by explicit ruling,
+recorded on the contract as DEV-20. Two reason codes, distinct because
+the operator's remedy differs: `store-unwritable` (pick a writable
+`--store`) and `key-unwritable` (pick a writable `--key`). Detail names
+the path and the exception class, never content (there is none at this
+boundary). Three controls captured red before the fix (two refusals as
+raw tracebacks, one positive control already green) and green after.
+Full gate re-run after the scripted edit (whole gate, not the half).
+
+**Alternative rejected:** a single `workspace-unwritable` code (the two
+remedies differ, and the 2am reason-code table is the reason codes
+exist). **Limit stated:** the mutation baselines for provenance and
+sealing are unchanged by ruling until the next audit; sealing gained
+nine lines here that are unmeasured until then.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

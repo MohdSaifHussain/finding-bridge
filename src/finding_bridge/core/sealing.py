@@ -27,6 +27,7 @@ from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 from finding_bridge.core.provenance import utc_now_iso
 
 REASON_KEY_INSIDE_REPO = "key-inside-repo"
+REASON_KEY_UNWRITABLE = "key-unwritable"
 REASON_UNSEAL_NOT_EXPLICIT = "unseal-not-explicit"
 REASON_BLOB_MISSING = "blob-missing"
 REASON_SEAL_INTEGRITY = "seal-integrity"
@@ -121,9 +122,17 @@ def load_or_create_keyring(key_path: Path, repo_root: Path) -> dict:
 
 
 def _write_keyring(key_path: Path, keyring: dict) -> None:
-    key_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {k: v for k, v in keyring.items() if k != "ref_key_bytes"}
-    key_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    try:
+        key_path.parent.mkdir(parents=True, exist_ok=True)
+        key_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    except OSError as exc:
+        # D-036 class, workspace side (D-069): the key path is operator
+        # input; refuse governed, naming the path and the exception class.
+        raise SealingError(
+            REASON_KEY_UNWRITABLE,
+            f"key file {key_path} is not writable ({type(exc).__name__})",
+        ) from exc
     # R-7 / D-023: restrict permissions where the OS honors POSIX modes. On
     # Windows this call only toggles the read-only bit and does NOT restrict
     # access; the operator step there is:

@@ -198,6 +198,8 @@ refusal.
 | `unseal-not-explicit` | You ran `unseal` without `--explicit` | Add `--explicit`. Unsealing is deliberate. |
 | `key-inside-repo` | The sealing key path is inside the repo | Move the key outside the repo. It must never be committed. |
 | `store-unreadable` | A store file is corrupt | Check the named file. |
+| `store-unwritable` | The store folder cannot be created (for example, its parent is a file, or the location is not yours to write) | Pick a writable `--store` path. |
+| `key-unwritable` | The key file cannot be created at the named path | Pick a writable `--key` path outside the repo. |
 | `head-missing` | The ledger exists but its head record is gone | The store is damaged. Restore from a backup. |
 | `schema-invalid` | A finding does not match the canonical schema | Usually a tool bug. Report it. |
 

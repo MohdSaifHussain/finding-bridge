@@ -168,3 +168,11 @@ them.
    of rewordings is the arc done right.
 4. The rule protects prose, not errors: anything factually wrong,
    overclaiming, or failing a check is fixed regardless, and listed.
+
+**DEV-20 (product-code change by explicit director ruling, D-069):** the
+five-minute tour capture exposed two raw tracebacks on workspace setup
+(store root unwritable; key parent unwritable). The director ruled them
+fixed now rather than parked for stop one. This is the 3.1 exception
+taken by ruling, not by builder initiative. Files: pipeline.py,
+core/sealing.py, tests/test_boundary_table.py, docs/USAGE.md (two new
+reason-code rows). No other product code changes in this arc.

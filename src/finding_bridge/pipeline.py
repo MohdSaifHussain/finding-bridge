@@ -28,6 +28,7 @@ from finding_bridge.core.schema import validate_record
 REASON_UNKNOWN_ID = "unknown-id"
 REASON_HEAD_MISSING = "head-missing"
 REASON_STORE_UNREADABLE = "store-unreadable"
+REASON_STORE_UNWRITABLE = "store-unwritable"
 
 CANDIDATES_FILE = "candidates.jsonl"
 REJECTED_FILE = "rejected.jsonl"
@@ -78,7 +79,16 @@ class Workspace:
 
     def __init__(self, root: Path, key_path: Path, repo_root: Path):
         self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+        try:
+            self.root.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            # D-036 class, workspace side (D-069): the store root is an
+            # untrusted path; its failure is a governed refusal naming the
+            # location and the exception class, never a traceback.
+            raise PipelineError(
+                REASON_STORE_UNWRITABLE,
+                f"store root {self.root} is not writable ({type(exc).__name__})",
+            ) from exc
         self.key_path = Path(key_path)
         self.repo_root = Path(repo_root)
         self.keyring = sealing.load_or_create_keyring(self.key_path, self.repo_root)

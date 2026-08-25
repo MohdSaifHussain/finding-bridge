@@ -246,3 +246,44 @@ def test_emit_tracker_unwritable_refuses_governed(tmp_path, capsys):
     rc = cli.main([*args, "emit-tracker", str(blocker / "t.json")])
     assert rc == 1
     assert "output-unwritable" in capsys.readouterr().err
+
+
+# --- STEP-06 W1 (director's ruling D-069, found by the five-minute tour
+# --- capture): the WORKSPACE side of the class. An empty $TMPDIR sent the
+# --- store root into C:\Program Files\Git and the CLI died with a raw
+# --- PermissionError; the key parent has the same shape. Sixth and seventh
+# --- instances of exception-escapes-as-traceback, both on workspace setup.
+
+
+def test_store_root_unwritable_refuses_governed(tmp_path, capsys):
+    """Store root whose parent is a FILE: store-unwritable, exit 1,
+    location-not-value, never a traceback."""
+    blocker = tmp_path / "blocker"
+    blocker.write_text("i am a file", encoding="utf-8")
+    key = tmp_path / "k" / "fb.key"
+    rc = cli.main(["--store", str(blocker / "store"), "--key", str(key), "list"])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "store-unwritable" in err
+    assert "store" in err
+
+
+def test_key_parent_unwritable_refuses_governed(tmp_path, capsys):
+    """Key path whose parent is a FILE: key-unwritable, exit 1,
+    location-not-value, never a traceback."""
+    blocker = tmp_path / "blocker"
+    blocker.write_text("i am a file", encoding="utf-8")
+    store = tmp_path / "store"
+    rc = cli.main(["--store", str(store), "--key", str(blocker / "k" / "fb.key"), "list"])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "key-unwritable" in err
+    assert "fb.key" in err
+
+
+def test_store_root_writable_positive_control(tmp_path):
+    """Positive control: a normal missing store root is created and works."""
+    store = str(tmp_path / "new" / "store")
+    key = str(tmp_path / "k" / "fb.key")
+    rc = cli.main(["--store", store, "--key", key, "list"])
+    assert rc == 0
