@@ -254,19 +254,25 @@ def verify_chain(findings: list[dict], expected_head: dict | None = None) -> lis
                         ),
                     }
                 )
-    epoch_start = 0
     for i, finding in enumerate(findings):
-        # EPOCH WALK (D-051/W1d). One pass, two record kinds. A
-        # supersession record ENDS the epoch it appears in: everything from
-        # epoch_start up to it verified under the rules its own
-        # canonical_form_from names, the record's attestation joins the two
-        # epochs, and the next record starts the new epoch. The prev_hash
-        # chain is never broken by the join - it links THROUGH the
-        # supersession record like any other, which is what keeps one
-        # unbroken chain instead of two stitched ones.
+        # THE EPOCH WALK (D-051/W1d), deliberately small. One pass, two
+        # record kinds. A supersession record marks a join: its attestation
+        # covers the whole event, its old_head must match the running head
+        # of everything before it, and its claimed remap must have actually
+        # happened. The prev_hash chain is NOT broken by the join - it links
+        # THROUGH the supersession record like any other record, which is
+        # what keeps one unbroken chain rather than two stitched ones.
+        #
+        # What an epoch selects, honestly stated: which canonical form a
+        # record's hashes speak. Today exactly one form exists (v1, D-055),
+        # so there is one code path and the selection is proven by
+        # construction, not by a second form existing. A future second form
+        # adds a branch here and nowhere else. No epoch bookkeeping is
+        # carried in the meantime, because dead machinery is harder to
+        # audit than absent machinery - the contract's bound warning cuts
+        # toward removing concepts, not keeping them warm.
         if finding.get("record_type") == RECORD_TYPE_SUPERSESSION:
-            failures.extend(_verify_supersession(finding, findings, i, epoch_start))
-            epoch_start = i + 1
+            failures.extend(_verify_supersession(finding, findings, i))
         provenance = finding.get("provenance") or {}
         stored = provenance.get("content_hash")
         recomputed = content_hash(finding)
@@ -436,12 +442,12 @@ def make_supersession(
     return record
 
 
-def _verify_supersession(record: dict, records: list[dict], i: int, epoch_start: int) -> list[dict]:
+def _verify_supersession(record: dict, records: list[dict], i: int) -> list[dict]:
     """Verify one join. Four checks, each with its own failure detail:
 
     1. the attestation covers the event as written;
-    2. old_head is internally consistent AND matches the head over the
-       records of the epoch this event closes;
+    2. old_head is internally consistent AND matches the RUNNING head of
+       every record before this join (the value head.json holds);
     3. new_head is internally consistent;
     4. every id the remap CLAIMS to have produced actually appears in the
        records after this one - a remap claimed but not performed fails.
@@ -468,7 +474,15 @@ def _verify_supersession(record: dict, records: list[dict], i: int, epoch_start:
             }
         )
     else:
-        actual = chain_head(records[epoch_start:i])
+        # The RUNNING head, i.e. every record before this join - the same
+        # value head.json holds and a reader sees. An earlier version
+        # compared against the current epoch's slice instead; the second
+        # rotation in a store proved that wrong, because the state a
+        # rotation supersedes is the whole ledger's head, not the segment
+        # since the previous rotation. Fixing it REMOVED a concept rather
+        # than adding one, which is the direction the contract's bound
+        # warning asks for.
+        actual = chain_head(records[:i])
         if actual["head_hash"] != old_head.get("head_hash"):
             failures.append(
                 {

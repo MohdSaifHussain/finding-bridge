@@ -74,18 +74,57 @@ def test_supersession_attestation_detected_both_orderings(rotated):
         assert prov.REASON_ATTESTATION_TAMPERED in codes
 
 
-def test_old_head_mismatch_detected_both_orderings(rotated):
-    """Kills provenance L472 ('!=' weakened): old_head's hash comparison."""
+def test_old_head_describes_a_different_chain_and_is_caught(rotated):
+    """Kills provenance L472 ('!=' weakened): old_head's comparison against
+    the epoch it actually closes.
+
+    THE FIRST VERSION OF THIS TEST PASSED FOR THE WRONG REASON. It forged
+    old_head by editing `count` and leaving head_hash inconsistent, so the
+    INTERNAL-consistency check rejected it and the comparison this test
+    names was never reached. The mutation audit proved that by leaving the
+    mutant alive under a green test. Fixed: build an old_head that is
+    internally VALID but describes a different chain, so the comparison is
+    the only thing that can catch it."""
     ledger = rotated.confirmed_findings()
-    for forged_count in (0, 99):
-        chain = copy.deepcopy(ledger)
-        record = chain[-1]
-        record["old_head"] = dict(record["old_head"], count=forged_count)
-        record["old_head"]["head_hash"] = prov.chain_head(chain[: len(chain) - 1])["head_hash"]
-        record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
-        record["provenance"]["content_hash"] = prov.content_hash(record)
-        codes = {f["reason_code"] for f in prov.verify_chain(chain)}
-        assert prov.REASON_SUPERSESSION_INVALID in codes
+    chain = copy.deepcopy(ledger)
+    record = chain[-1]
+    wrong_but_valid = prov.chain_head([])  # self-consistent, wrong chain
+    assert prov.chain_head_internal_ok(wrong_but_valid), "the decoy must be self-consistent"
+    record["old_head"] = wrong_but_valid
+    record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
+    record["provenance"]["content_hash"] = prov.content_hash(record)
+    failures = prov.verify_chain(chain)
+    assert prov.REASON_SUPERSESSION_INVALID in {f["reason_code"] for f in failures}
+    detail = " ".join(f["detail"] for f in failures)
+    assert "epoch it closes" in detail, "the comparison, not the internal check, must fire"
+
+
+def test_epoch_start_advances_across_two_rotations(rotated):
+    """Kills provenance L269 (`epoch_start = i + 1`, 13 arithmetic mutants):
+    with TWO supersessions, the second's old_head covers only ITS epoch, so
+    a wrong epoch_start verifies the second join against the wrong range."""
+    rotated.ingest_garak(HITLOG)
+    rotated.confirm(rotated.list_candidates()[0]["id"], IDENTITY)
+    rotated.rotate_key(IDENTITY, reason="second rotation")
+    ledger = rotated.confirmed_findings()
+    assert [r["record_type"] for r in ledger].count("supersession") == 2
+    assert prov.verify_chain(ledger) == [], "two joins must both verify"
+    assert ledger[-1]["old_head"]["count"] == len(ledger) - 1
+
+
+def test_remap_pointing_backwards_is_not_accepted(rotated):
+    """Kills provenance L495 (`records[i + 1:]`, 12 slice mutants): an id
+    that exists BEFORE the join does not satisfy a remap claiming to have
+    produced it after."""
+    ledger = rotated.confirmed_findings()
+    chain = copy.deepcopy(ledger)
+    record = chain[-1]
+    existing_before = [r["id"] for r in chain if r.get("record_type") == "finding"][0]
+    record["remap"] = {"fb-0000000000000000": existing_before}
+    record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
+    record["provenance"]["content_hash"] = prov.content_hash(record)
+    codes = {f["reason_code"] for f in prov.verify_chain(chain)}
+    assert prov.REASON_SUPERSESSION_INVALID in codes
 
 
 # --- the record_type dispatch (provenance L267/L276, schema L95) ---
