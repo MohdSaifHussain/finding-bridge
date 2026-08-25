@@ -375,3 +375,16 @@ bright line.
 
 **Handoff note:** everything committed; nothing uncommitted after the
 ritual commit. Next: the director's ritual result, then W7.
+
+**DEV-21 (W6c, real-data validation, ordered by the director at stop two,
+D-078):** before W7, examples/04-real-data proves the pipeline against
+data this project did not write: a real garak run (llama3.2:1b on local
+Ollama; dan and promptinject; time-boxed) and one published adversarial
+dataset via the transcript path (alternatives recorded). D-012 absolute:
+raw data fetched by a committed script (URL + checksum) to a documented
+path outside the tree; committed: transcript, sealed previews, dedup,
+verify, emitted artifacts, and a run-time control scanning the committed
+artifacts against real strings sampled from the local copy. OB-5 fires
+(30-minute fuzzing pass or the structured alternative, reported). Every
+crash, mis-parse, silent field loss or wrong refusal is a finding for
+ruling. Then STOP for the director's read of example 04.

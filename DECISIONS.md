@@ -1399,6 +1399,54 @@ the digest is read BACK from the pulled image on the runner and compared
 to the Dockerfile's pin, recorded in evidence with the run URL; the local
 rehearsal (daemon now running) is the first half of the pair.
 
+## D-078 — STOP TWO closed; F-7, F-8, the layer-scan replacement ratified; W6c real-data validation ordered before W7 (director, 2026-08-25)
+
+**Verified by the director:** remote at 2d97085, 101 commits, tree clean;
+the STOP TWO run pair and the newest pair all success from the director's
+own `gh run list`. The Ubuntu-executes-the-skip deliverable, the digest
+read-back pair, the layer scan with positive control, and the private GHCR
+package accepted on the evidence plus the green runs.
+
+**Open item, for comparison:** the director's own `docker login ghcr.io`
+from the reviewing session was refused on the v2 ping with a token
+carrying write:packages. The builder's successful rehearsal used the OAuth
+token from `gh auth login` (scopes as listed by `gh api -i user`, including
+write:packages and delete:packages), piped as
+`gh auth token | docker login ghcr.io -u MohdSaifHussain --password-stdin`
+on this machine with Docker Desktop 29.7.2. If the CMD ritual fails the
+same way, that is F-9 for investigation.
+
+**Ratified:** F-7 (the 3.12 lock gap; the Python matrix earning its place
+before it ran on CI); F-8 (no git, no human gate; the read-only gitconfig
+mount is the right shape); the layer-scan replacement including its own
+SCAN BLIND arc and the sealing.py false positive fixed against a planted
+real keyring; the wrong-token audit row kept beside its correction.
+
+**W6c ordered, before W7 (contract DEV-21):** real-data validation. Every
+store so far came from synthetic fixtures; v1.0 does not launch on that.
+Sources: (1) a REAL garak run against llama3.2:1b on the local Ollama
+0.32.15, dan and promptinject families, time-boxed; (2) one published
+2026-relevant adversarial dataset through the transcript path. D-012
+absolute: the raw dataset and the real hitlog never enter the tree; a
+committed script with source URL and checksum fetches them (the FLARE-PDF
+pattern); example 04 commits only the transcript, sealed previews, dedup,
+verify output and emitted artifacts, plus one stronger control: a scan of
+the committed artifacts against real strings sampled at run time from the
+local copy, never committed. **Findings law:** any crash, mis-parse,
+silent field loss, or wrong refusal against real data is a FINDING for
+ruling before W7; unmapped garak fields are the finding most expected.
+
+## OB-5 FIRES (director, 2026-08-25)
+
+The recorded trigger, "the first time we parse data at volume that the
+project did not generate", is met by W6c by definition. A time-boxed
+fuzzing pass (30 minutes, budget stated) runs against the two ingest
+parsers with Atheris; if Atheris is unusable on Windows with this Python
+(checked before promising), an honest structured alternative: a
+randomised malformed-input generator over the boundary table's refusal
+families, seeded from real-data shapes, every crash a finding. If nothing
+runs, OB-5 is not quietly re-parked: a numbered ruling names the attempts.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1431,7 +1479,7 @@ Nothing here is proposed; each waits on the director's word.
 | ~~OB-2~~ | ~~Key rotation path~~ **DISCHARGED 2026-08-25 (D-064)**: implemented as a supersession event per D-052, evidenced by the three controls (red-then-green) AND the director's two independent double-rotation runs. | closed | closed |
 | ~~OB-3~~ | ~~Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons~~ **DISCHARGED 2026-08-24 by adoption** (STEP-02 D1, ruling Q3(a), five DEV-6 conditions met; DEV-2 discharged with it; migration note docs/decisions/canonical-jcs-migration.md; measured impact on existing data: none, forms byte-identical on the current value space) | was: v1-completion phase | explicit entry, as the condition demanded |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
-| OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
+| OB-5 | Coverage-guided fuzzing of parsers (D-027). **FIRED 2026-08-25 (D-078): W6c parses real data.** Owner: STEP-06 W6c; 30-minute time-boxed pass, Atheris or the structured alternative, reported with what it does not prove. | STEP-06 W6c | fired |
 | OB-6 | Resolve finding-identity stability under key rotation (D-028). Candidate direction to EVALUATE, not decided: separate the ref-derivation key from the encryption key so encryption rotates under MultiFernet while ref identity stays pinned. Options with trade-offs proposed when due. | must resolve before OB-2 | opened at STEP-01 close; **OB-2 is blocked on OB-6**; STEP-02 must not quietly start either |
 | OB-7 | GitHub Code Scanning ingestion test (D-033/Q1): real ingestion of our SARIF, including the named assumption that the emitted findings artifact lives in the scanned repository and alerts render against it. **Explicitly NOT discharged by the private remote (D-058):** a private URL is not readable by the ecosystem. | due when a PUBLIC repository exists (publishing is a separate future ruling) | opened at STEP-02 ratification; trigger narrowed at D-058 |
 
