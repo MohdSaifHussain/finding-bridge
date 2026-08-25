@@ -95,8 +95,12 @@ def test_forged_supersession_fails(ws: pipeline.Workspace):
     ws.rotate_key(IDENTITY, reason="scheduled rotation")
     ledger = ws.confirmed_findings()
     ledger[-1]["reason"] = "forged reason, attestation not recomputed"
-    codes = {f["reason_code"] for f in prov.verify_chain(ledger)}
-    assert prov.REASON_ATTESTATION_TAMPERED in codes
+    failures = prov.verify_chain(ledger)
+    assert prov.REASON_ATTESTATION_TAMPERED in {f["reason_code"] for f in failures}
+    # D-061: prove we reached THIS check, not an earlier one that shares
+    # the reason code
+    detail = " ".join(f["detail"] for f in failures)
+    assert "supersession attestation does not match the event as written" in detail
 
 
 def test_supersession_with_wrong_old_head_fails(ws: pipeline.Workspace):
@@ -107,8 +111,13 @@ def test_supersession_with_wrong_old_head_fails(ws: pipeline.Workspace):
     record = ledger[-1]
     record["old_head"] = dict(record["old_head"], count=99)
     record["provenance"]["attestation_hash"] = prov.supersession_attestation(record)
-    codes = {f["reason_code"] for f in prov.verify_chain(ledger)}
-    assert prov.REASON_SUPERSESSION_INVALID in codes
+    failures = prov.verify_chain(ledger)
+    assert prov.REASON_SUPERSESSION_INVALID in {f["reason_code"] for f in failures}
+    # D-061: this forgery leaves old_head internally INCONSISTENT, so the
+    # internal check is the one that must fire. Named, so the test cannot
+    # silently start passing for a different reason.
+    detail = " ".join(f["detail"] for f in failures)
+    assert "own head_hash does not match its fields" in detail
 
 
 # --- D-052 control 3: a claimed-but-unperformed remap fails ---
@@ -124,7 +133,7 @@ def test_claimed_but_unperformed_remap_fails(ws: pipeline.Workspace):
     codes = {f["reason_code"] for f in failures}
     assert prov.REASON_SUPERSESSION_INVALID in codes
     detail = " ".join(f["detail"] for f in failures)
-    assert "remap" in detail
+    assert "a remap claimed but not performed is not a remap" in detail
 
 
 # --- the supersession record itself ---
