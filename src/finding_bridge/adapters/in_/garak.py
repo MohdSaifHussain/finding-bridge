@@ -29,7 +29,7 @@ REASON_INVALID_HITLOG = "invalid-hitlog"
 # the boundary the untrusted data enters.
 MAX_SAFE_INTEGER = 2**53 - 1
 
-SCHEMA_VERSION = "0.4.0"
+SCHEMA_VERSION = "0.5.0"
 
 
 class GarakAdapterError(Exception):
@@ -130,7 +130,8 @@ def _candidate_from_record(record: dict) -> dict:
         "raw_response_sealed": None,
         "preview": None,
         "harm_flags": [f"garak-detector:{detector}"] if detector else [],
-        "taxonomy": {"owasp_llm": [], "saif": []},
+        "taxonomy": {"owasp_llm": [], "saif": [], "atlas": []},
+        "remediation": None,
         "severity": {
             "score": None,
             "rubric": {

@@ -38,7 +38,11 @@ TAMPER_BOUND = (
     "write access to both the ledger and its head."
 )
 
-TAXONOMY_NAMES = {"owasp_llm": "OWASP LLM Top 10", "saif": "Google SAIF risk map"}
+TAXONOMY_NAMES = {
+    "owasp_llm": "OWASP LLM Top 10",
+    "saif": "Google SAIF risk map",
+    "atlas": "MITRE ATLAS",
+}
 
 
 class SarifAdapterError(Exception):
@@ -152,6 +156,10 @@ def _result(finding: dict, artifact_uri: str, line: int, taxonomy_index: dict[st
             )
     if taxa:
         result["taxa"] = taxa
+    if finding.get("remediation") is not None:
+        # schema 0.5.0 (D-071): a human-written remediation maps to a SARIF fix
+        # object (spec 3.55); absent when null, never invented.
+        result["fixes"] = [{"description": {"text": finding["remediation"]}}]
     return result
 
 

@@ -16,12 +16,12 @@ invalid-transcript: line 2: suspected marker that is not the exact token (check 
 [exit 1]
 
 $ finding-bridge list
-fb-20727861f31c334a  manual-transcript  [sealed content: 43 chars, 1 lines, keyed digest ccef321e; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
-fb-53d706ddb913b4be  manual-transcript  [sealed content: 53 chars, 1 lines, keyed digest 72e16836; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
+fb-bd795cd3a724693b  manual-transcript  [sealed content: 43 chars, 1 lines, keyed digest bb2dc792; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
+fb-2d3abb007bee12c6  manual-transcript  [sealed content: 53 chars, 1 lines, keyed digest ab3681d6; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
 [exit 0]
 
-$ finding-bridge confirm fb-20727861f31c334a
-confirmed fb-20727861f31c334a by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-bd795cd3a724693b
+confirmed fb-bd795cd3a724693b by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge verify
@@ -36,17 +36,17 @@ $ finding-bridge emit-sarif output/findings.sarif
 wrote output\findings.sarif and output\findings.fb.jsonl
 [exit 0]
 
-$ finding-bridge unseal sealed/ccef321e17787290
-unseal-not-explicit: unseal of 'sealed/ccef321e17787290' requires explicit=True (charter: unsealing is always explicit and logged)
+$ finding-bridge unseal sealed/bb2dc792433b8cd6
+unseal-not-explicit: unseal of 'sealed/bb2dc792433b8cd6' requires explicit=True (charter: unsealing is always explicit and logged)
 [exit 1]
 
-$ finding-bridge unseal sealed/ccef321e17787290 --explicit
+$ finding-bridge unseal sealed/bb2dc792433b8cd6 --explicit
 SENTINEL-HARM-E2b second synthetic stand-in
 [exit 0]
 
 $ [driver step] read the exposure log
-{"actor": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>", "at": "2026-08-25T06:37:48.919554+00:00", "ref": "sealed/ccef321e17787290", "row": 1, "type": "attempt"}
-{"at": "2026-08-25T06:37:48.937075+00:00", "attempt_row": 1, "outcome": "succeeded", "row": 2, "type": "outcome"}
+{"actor": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>", "at": "2026-08-25T07:06:41.471812+00:00", "ref": "sealed/bb2dc792433b8cd6", "row": 1, "type": "attempt"}
+{"at": "2026-08-25T07:06:41.489469+00:00", "attempt_row": 1, "outcome": "succeeded", "row": 2, "type": "outcome"}
 [driver step done]
 
 ```

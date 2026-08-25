@@ -2,7 +2,7 @@
 
 1 confirmed finding(s). Sealed content is stored encrypted and referenced, never inlined.
 
-## Finding fb-20727861f31c334a
+## Finding fb-bd795cd3a724693b
 
 - Source tool: manual-transcript (version unknown)
 - Target model: synthetic-model (version unknown)
@@ -15,20 +15,20 @@
 
 ### Preview (sealed content is never emitted)
 
-> [sealed content: 43 chars, 1 lines, keyed digest ccef321e; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
+> [sealed content: 43 chars, 1 lines, keyed digest bb2dc792; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]
 
-Sealed references: probe sealed/8a68ddf1b216902d, response sealed/ccef321e17787290. Unsealing is explicit and logged.
+Sealed references: probe sealed/3c41f87ef9d7fd32, response sealed/bb2dc792433b8cd6. Unsealing is explicit and logged.
 
 ### Reproduction
 1. Replay the captured 5-turn transcript against the target.
 
-Environment: context_sealed_ref=sealed/91315e96d35fef68, turn_count=5
+Environment: context_sealed_ref=sealed/133636f521503be2, turn_count=5
 
 ### Provenance
-- Content hash: `20727861f31c334ac0440893a4abfda1539729aec7393dbedf0f30f9ae849595`
+- Content hash: `bd795cd3a724693ba0de85b3bd0f147d3a869b7345ff7a7c88084b305a7c9021`
 - Previous hash: `unknown`
-- Confirmed by: MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com> at 2026-08-25T06:37:47.879130+00:00
-- Attestation hash: `cd08a52a02e6053adb7a86c648db76d5b8abb35ff57202667fbb33c493feac71`
+- Confirmed by: MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com> at 2026-08-25T07:06:40.292121+00:00
+- Attestation hash: `56a4816aee13fdf67362bb9f988c24e376cb756f406ef25780cc3e786e742ebc`
 
 ---
 

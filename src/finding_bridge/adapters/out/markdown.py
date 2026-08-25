@@ -62,6 +62,11 @@ def render_finding(finding: dict) -> str:
         "### Taxonomy",
         *_taxonomy_lines(finding["taxonomy"]),
         "",
+        *(
+            ["### Remediation (human-written)", "", finding["remediation"], ""]
+            if finding.get("remediation") is not None
+            else []
+        ),
         "### Preview (sealed content is never emitted)",
         "",
         f"> {finding['preview'] or 'no preview recorded'}",

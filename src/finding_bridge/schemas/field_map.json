@@ -1,6 +1,6 @@
 {
   "description": "Field-mapping table: canonical finding schema to SARIF 2.1.0 and FLARE-AI (ruling D-003). Keys are dotted leaf paths of finding.schema.json under the leaf rule documented in tests/test_schema.py; the drift test fails when schema and this table diverge in either direction. A null target means 'no fitting target field, stated deliberately', which is a recorded decision, not an omission.",
-  "canonical_schema_version": "0.4.0",
+  "canonical_schema_version": "0.5.0",
   "sources": {
     "sarif": "OASIS SARIF v2.1.0 (https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html, fetched 2026-08-24). Fields SARIF lacks use the spec's property-bag mechanism (result.properties).",
     "flare_ai": "PROVISIONAL. Derived from the JSON-LD example and field vocabulary in arXiv 2606.31567 (local evidence: docs/FLARE AI Flaw Reporting for AI.pdf). No canonical machine-readable schema was locatable at ai-reports.org or github.com/ai-flaw-reporting/ai-flaw-reporting (both fetched 2026-08-24). The director searched independently (2026-08-24) and also found none: a two-route confirmed absence. Provisional-from-paper ruled the project's approach (D-014). Carried obligation OB-1 (narrowed by D-014): resolve against a canonical schema when FLARE-AI publishes one; owner is the v1.x FLARE-AI out-adapter phase."
@@ -129,6 +129,14 @@
     "record_type": {
       "sarif": "run.properties.recordType",
       "flare_ai": null
+    },
+    "taxonomy.atlas": {
+      "sarif": "result.taxa + run.taxonomies (MITRE ATLAS 5.6.0 as a third SARIF taxonomy)",
+      "flare_ai": "flare:classification (PROVISIONAL, same vocabulary slot as the other taxonomies)"
+    },
+    "remediation": {
+      "sarif": "result.fixes[0].description.text when non-null (SARIF 2.1.0 section 3.27.30 fix objects); absent when null",
+      "flare_ai": "flare:proposedMitigation (PROVISIONAL)"
     }
   },
   "null_target_notes": {

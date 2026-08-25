@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/finding-bridge/schemas/supersession.schema.json/0.4.0",
+  "$id": "https://github.com/finding-bridge/schemas/supersession.schema.json/0.5.0",
   "title": "Supersession record (finding-bridge)",
   "description": "One identity-lifecycle event: key rotation, canonical-form change, or store merge. Human-confirmed and attested like any finding, chained in the same ledger, and walked THROUGH by verification (D-051).",
   "type": "object",

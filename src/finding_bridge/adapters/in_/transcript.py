@@ -27,7 +27,7 @@ import re
 
 REASON_INVALID_TRANSCRIPT = "invalid-transcript"
 
-SCHEMA_VERSION = "0.4.0"
+SCHEMA_VERSION = "0.5.0"
 SOURCE_TOOL = "manual-transcript"
 
 ROLE_TOKENS = {"USER:": "user", "ASSISTANT:": "assistant", "SYSTEM:": "system"}
@@ -180,7 +180,8 @@ def to_candidate(text: str, metadata: dict | None = None) -> dict:
         "raw_response_sealed": None,
         "preview": None,
         "harm_flags": [],
-        "taxonomy": {"owasp_llm": [], "saif": []},
+        "taxonomy": {"owasp_llm": [], "saif": [], "atlas": []},
+        "remediation": None,
         "severity": {
             "score": None,
             "rubric": {

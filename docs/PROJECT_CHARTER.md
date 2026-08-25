@@ -350,6 +350,10 @@ not discovered at export time. [Added: see A9, ruling D-003]
 - [ ] Out-adapter: FLARE-AI export format
 - [ ] In-adapter: promptfoo
 - [ ] Optional `--ai` taxonomy suggestions + severity rationale (caged, off by default)
+- [ ] Optional `--ai` suggested remediation, parked beside the semantic
+      preview (ruling D-071, 2026-08-25): the human-written `remediation`
+      field exists since schema 0.5.0; a suggestion job is a future `--ai`
+      capability, never built in the launch arc. [Added: see A14]
 
 ### Identity lifecycle: the OB-2 supersession phase [Added: see A13]
 
@@ -574,6 +578,12 @@ family's ruled mechanism into the roadmap: the supersession record type is
 the OB-2 phase's first deliverable, rotation is an instance of it, the
 canonical form carries its own version, and the phase inherits the
 identity paper's quoted limit.
+
+**A14 (§8 v1.x, suggested remediation parked; ruling D-071, 2026-08-25).**
+Addition, no original text replaced. The canonical record gained a
+human-written `remediation` field at schema 0.5.0 because the OWASP GenAI
+Red Teaming Guide asks each finding to carry remediation advice; an AI
+suggestion for it is parked as a named future `--ai` job.
 
 **A12 (§8, post-v1 parked roadmap + language governance; rulings D-017 and
 D-018, 2026-08-24).** Addition, no original text replaced. Parks the

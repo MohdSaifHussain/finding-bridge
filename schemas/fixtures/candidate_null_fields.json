@@ -1,6 +1,6 @@
 {
   "record_type": "finding",
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "id": "fb-candidate-null-0002",
   "source_tool": "garak",
   "source_tool_version": null,
@@ -16,7 +16,8 @@
   "harm_flags": [],
   "taxonomy": {
     "owasp_llm": [],
-    "saif": []
+    "saif": [],
+    "atlas": []
   },
   "severity": {
     "score": null,
@@ -43,5 +44,6 @@
   "dedup": {
     "cluster_id": null,
     "duplicate_of": null
-  }
+  },
+  "remediation": null
 }

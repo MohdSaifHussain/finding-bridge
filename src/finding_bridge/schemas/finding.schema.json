@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/finding-bridge/schemas/finding.schema.json/0.4.0",
+  "$id": "https://github.com/finding-bridge/schemas/finding.schema.json/0.5.0",
   "title": "Canonical finding (finding-bridge)",
   "description": "One AI red-team finding. Charter section 7. Raw harmful content is NEVER inline: raw_response_sealed is a reference into the sealed store. Unknown values are null, never invented (charter: never fabricate).",
   "type": "object",
@@ -26,8 +26,8 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "0.4.0",
-      "description": "Version of this canonical schema. Minor bump adds fields; major bump changes or removes them (charter section 7). 0.2.0 added provenance.attestation_hash (review finding R-1). 0.3.0 made discovered_at nullable (D-024, breaking change within pre-1.0; migration note in docs/decisions/schema-0.3.0-migration.md). 0.4.0 added record_type (major: a new required field), so the ledger can hold supersession records beside findings (D-051)."
+      "const": "0.5.0",
+      "description": "Version of this canonical schema. Minor bump adds fields; major bump changes or removes them (charter section 7). 0.2.0 added provenance.attestation_hash (review finding R-1). 0.3.0 made discovered_at nullable (D-024, breaking change within pre-1.0; migration note in docs/decisions/schema-0.3.0-migration.md). 0.4.0 added record_type (major: a new required field), so the ledger can hold supersession records beside findings (D-051). 0.5.0 added taxonomy.atlas, remediation, and id patterns on every taxonomy array (D-071; minor: fields added, nothing required; migration note in docs/decisions/schema-0.5.0-migration.md)."
     },
     "id": {
       "type": "string",
@@ -120,16 +120,24 @@
         "owasp_llm": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/taxonomy_entry"
+            "$ref": "#/$defs/owasp_llm_entry"
           }
         },
         "saif": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/taxonomy_entry"
+            "$ref": "#/$defs/saif_entry"
           }
+        },
+        "atlas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/atlas_entry"
+          },
+          "description": "MITRE ATLAS technique ids (0.5.0, D-071). Optional; absent or empty means no claim. Populated at the human gate or as suggested by the caged --ai path, never invented by an adapter."
         }
-      }
+      },
+      "description": "Each array constrains the SHAPE of what is claimed and never requires a claim: empty and absent are always legal (D-071)."
     },
     "severity": {
       "type": "object",
@@ -290,10 +298,25 @@
     "record_type": {
       "const": "finding",
       "description": "Discriminates ledger record kinds. Findings are 'finding'; identity-lifecycle events are 'supersession' and validate against supersession.schema.json (D-051)."
+    },
+    "remediation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Recommended remediation, written only by a human at the gate (0.5.0, D-071; the OWASP GenAI Red Teaming Guide 1.0 asks each finding to carry 'specific recommendations for remediation', printed page 44). Null until a human writes it: never-fabricate. The caged --ai path has no remediation capability; a suggested remediation is a parked future --ai job."
     }
   },
   "$defs": {
-    "taxonomy_entry": {
+    "rubric_dimension": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 3
+    },
+    "owasp_llm_entry": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -303,7 +326,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "minLength": 1
+          "pattern": "^LLM(0[1-9]|10):2026$",
+          "description": "OWASP Top 10 for LLM Applications 2026 id, edition pinned in the value (LLM01:2026 .. LLM10:2026; official PDF fetched 2026-08-25, docs/STANDARDS.md; the 2025 edition is superseded, F-5). A new edition is a deliberate schema bump, never a silent drift."
         },
         "status": {
           "enum": [
@@ -313,13 +337,47 @@
         }
       }
     },
-    "rubric_dimension": {
-      "type": [
-        "integer",
-        "null"
+    "saif_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status"
       ],
-      "minimum": 0,
-      "maximum": 3
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(DP|UTD|MST|EDH|MXF|MDT|DMS|MRE|IIC|PIJ|MEV|SDD|ISD|IMO|RA)$",
+          "description": "Google SAIF risk id, pinned to saif-data commit fe77c44481528b42d01516db9eb75d08054ca21f (15 risks, yaml/risks.yaml, fetched 2026-08-25)."
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "suggested"
+          ]
+        }
+      }
+    },
+    "atlas_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^AML\\.T[0-9]{4}(\\.[0-9]{3})?$",
+          "description": "MITRE ATLAS technique id in the 5.6.0 grammar: AML.T#### or sub-technique AML.T####.### (dist/ATLAS.yaml fetched 2026-08-25)."
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "suggested"
+          ]
+        }
+      }
     }
   }
 }

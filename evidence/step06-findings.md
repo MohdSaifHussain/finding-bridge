@@ -64,3 +64,11 @@ stale or misspelled id refuses with schema-invalid). Nothing applied.
 ## Q-1: no remediation field (question, not a finding)
 
 Raised by docs/STANDARDS.md; no proposal, the director's call.
+
+## F-5: the OWASP pin was stale (director's finding, corrected, D-076)
+
+STANDARDS.md pinned the 2025 edition as current on 2026-08-25; the 2026
+edition had been published 2026-08-03. Re-fetched from OWASP (page and
+PDF), re-pinned, 2025 row kept as superseded, delta stated. Finder: the
+director, from outside the record. Builder's failure class, named: I
+pinned what I fetched without asking whether it was the latest.

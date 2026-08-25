@@ -30,7 +30,7 @@ def test_source_facts_mapped_and_missing_fields_null():
     assert c["target_model"] == "test synthetic-model"
     assert c["discovered_at"] is None, "hitlog has no timestamp; never invent (D-024)"
     assert c["harm_flags"] == ["garak-detector:mitigation.SyntheticDetector"]
-    assert c["taxonomy"] == {"owasp_llm": [], "saif": []}, "no invented taxonomy"
+    assert c["taxonomy"] == {"owasp_llm": [], "saif": [], "atlas": []}, "no invented taxonomy"
     assert c["severity"]["score"] is None, "severity is the human gate's call"
     assert c["reproduction"]["environment"]["run_id"] == "11111111-2222-3333-4444-555555555555"
 

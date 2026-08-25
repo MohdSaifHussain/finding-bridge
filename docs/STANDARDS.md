@@ -14,50 +14,85 @@ safe metadata preview"; the chain is tamper-evident with the OB-4 bound.
 
 | Standard | Version pinned | Fetched | From | What was fetched |
 |---|---|---|---|---|
-| OWASP Top 10 for LLM Applications 2025 | "Version 2025", dated November 18, 2024 (title page of the PDF; build stamp `OWASP PDF v4.2.0a 20241114-202703`) | 2026-08-25 | https://genai.owasp.org/llm-top-10/ and the PDF behind https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/ (download id 43299) | HTML list page (912,998 bytes) and the PDF (8,768,341 bytes, 45 pages) |
-| OWASP GenAI Red Teaming Guide | Version 1.0, January 23, 2025 (title page) | 2026-08-25 | https://genai.owasp.org/resource/genai-red-teaming-guide/ (download id 44859) | PDF, 2,738,142 bytes, 77 pages |
-| Google Secure AI Framework (SAIF) risks | saif-data repository at commit `fe77c44481528b42d01516db9eb75d08054ca21f` (main, 2026-08-25); the risks page at saif.google | 2026-08-25 | https://github.com/google/saif-data (`yaml/risks.yaml`, 39,743 bytes) and https://saif.google/secure-ai-framework/risks | 15 risks with ids |
-| MITRE ATLAS | 5.6.0 (`version:` line of the data file) | 2026-08-25 | https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/ATLAS.yaml | 452,399 bytes; 170 techniques and sub-techniques under `matrices[0].techniques` |
-| NIST AI 600-1, Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile | July 2024, DOI 10.6028/NIST.AI.600-1 | 2026-08-25 | https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf | PDF, 1,174,643 bytes, 64 pages |
+| OWASP Top 10 for LLM Applications 2026 (current) | "Version 2026"; the resource page dates it August 3, 2026; the PDF's own title page reads "[Publication date to be set]" (both facts stated, neither invented) | 2026-08-25 | https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/ (page 350,399 bytes; PDF download id 56857) | PDF, 2,402,520 bytes, 122 pages; successor last checked 2026-08-25 (none newer on the OWASP resources index that day) |
+| OWASP Top 10 for LLM Applications 2025 (SUPERSEDED 2026-08-03; kept per the corrections law, F-5) | "Version 2025", November 18, 2024 (title page; build stamp `OWASP PDF v4.2.0a 20241114-202703`) | 2026-08-25 | https://genai.owasp.org/llm-top-10/ and the PDF behind https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/ (download id 43299) | HTML list page (912,998 bytes) and the PDF (8,768,341 bytes, 45 pages); successor: the 2026 edition above |
+| OWASP GenAI Red Teaming Guide | Version 1.0, January 23, 2025 (title page) | 2026-08-25 | https://genai.owasp.org/resource/genai-red-teaming-guide/ (download id 44859) | PDF, 2,738,142 bytes, 77 pages; successor last checked 2026-08-25 (none) |
+| Google Secure AI Framework (SAIF) risks | saif-data repository at commit `fe77c44481528b42d01516db9eb75d08054ca21f` (main, 2026-08-25); the risks page at saif.google | 2026-08-25 | https://github.com/google/saif-data (`yaml/risks.yaml`, 39,743 bytes) and https://saif.google/secure-ai-framework/risks | 15 risks with ids; successor last checked 2026-08-25 (main branch head is the pin) |
+| MITRE ATLAS | 5.6.0 (`version:` line of the data file) | 2026-08-25 | https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/ATLAS.yaml | 452,399 bytes; 170 techniques and sub-techniques under `matrices[0].techniques`; successor last checked 2026-08-25 (main branch head is the pin) |
+| NIST AI 600-1, Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile | July 2024, DOI 10.6028/NIST.AI.600-1 | 2026-08-25 | https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf | PDF, 1,174,643 bytes, 64 pages; successor last checked 2026-08-25 (none) |
 
 Fetch note: OWASP's site returned 403 to a plain fetcher in the prior
-session. With a browser user-agent every OWASP page and both PDFs
+session. With a browser user-agent every OWASP page and all three PDFs
 returned 200. No source in this table is claimed from memory.
+
+Standing rule (D-076): every pinned edition row carries its publication
+date AND the date we last checked for a successor, and the release
+checklist re-checks every pin within days of the flip.
 
 ## Field-by-field alignment
 
-The canonical record (schema 0.4.0) carries two taxonomy arrays,
+The canonical record (schema 0.5.0) carries three taxonomy arrays,
 `taxonomy.owasp_llm` and `taxonomy.saif`, each entry `{id, status}` with
 `status` either `confirmed` or `suggested` (charter rule 2: a suggestion
 is never a finding until a human confirms it).
 
-### taxonomy.owasp_llm, pinned to the 2025 edition
+### taxonomy.owasp_llm, pinned to the 2026 edition
 
-The id vocabulary is the ten 2025 entries, written the way the standard
-writes them, edition included, so the pin is in the value:
+The id vocabulary is the ten 2026 entries, written the way the standard
+writes them, edition included, so the pin is in the value, and the
+schema's `pattern` (0.5.0, D-071) refuses anything else with
+`schema-invalid`:
 
-| id | Name (from the 2025 list) |
+| id | Name (from the 2026 PDF's table of contents) |
 |---|---|
-| LLM01:2025 | Prompt Injection |
-| LLM02:2025 | Sensitive Information Disclosure |
-| LLM03:2025 | Supply Chain |
-| LLM04:2025 | Data and Model Poisoning |
-| LLM05:2025 | Improper Output Handling |
-| LLM06:2025 | Excessive Agency |
-| LLM07:2025 | System Prompt Leakage |
-| LLM08:2025 | Vector and Embedding Weaknesses |
-| LLM09:2025 | Misinformation |
-| LLM10:2025 | Unbounded Consumption |
+| LLM01:2026 | Prompt Injection |
+| LLM02:2026 | Sensitive Information Disclosure |
+| LLM03:2026 | Excessive Agency |
+| LLM04:2026 | Supply Chain |
+| LLM05:2026 | Data and Model Poisoning |
+| LLM06:2026 | Unbounded Consumption |
+| LLM07:2026 | Misinformation |
+| LLM08:2026 | Hidden Context Exposure |
+| LLM09:2026 | Vector and Embedding Weaknesses |
+| LLM10:2026 | Improper Output Handling |
+
+**The vocabulary moved between 2025 and 2026, and an analyst holding
+2025-tagged findings needs to know how.** Prompt Injection and Sensitive
+Information Disclosure keep LLM01 and LLM02. Excessive Agency rises from
+LLM06 to LLM03. Supply Chain moves LLM03 to LLM04, Data and Model
+Poisoning LLM04 to LLM05, Unbounded Consumption LLM10 to LLM06,
+Misinformation LLM09 to LLM07, Vector and Embedding Weaknesses LLM08 to
+LLM09, and Improper Output Handling falls from LLM05 to LLM10. System
+Prompt Leakage (LLM07:2025) does not appear under that name; LLM08:2026
+is Hidden Context Exposure. The 2026 PDF carries an "Appendix A: Related
+Framework Mappings" (page 58 of the PDF) that this document does not yet
+reproduce; a later pass may cite it for the ATLAS and NIST rows. A
+2025-tagged id is refused by the 0.5.0 pattern on purpose: re-tagging is
+a human act at the gate, not a silent renumbering.
+
+**Superseded row, kept (F-5, corrections law: original kept, direction
+named).** This document first pinned the 2025 edition on 2026-08-25 as
+current. It was not: the 2026 edition had been published on 2026-08-03,
+three weeks before the fetch. The finder was the director, by asking
+"why 2025 and not 2026" from outside the record. The 2025 list, as it was
+pinned: LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure,
+LLM03 Supply Chain, LLM04 Data and Model Poisoning, LLM05 Improper Output
+Handling, LLM06 Excessive Agency, LLM07 System Prompt Leakage, LLM08
+Vector and Embedding Weaknesses, LLM09 Misinformation, LLM10 Unbounded
+Consumption. Direction: the correction moved the pin to the newer,
+official edition. The F-4 pattern pin was built against the 2026 grammar
+from the start, because F-5 landed before the 0.5.0 commit existed: it
+cost a re-fetch, not a rework.
 
 Status today: no in-adapter populates this field (garak's hitlog names a
 probe and a detector, not an OWASP category, and the tool never invents
 a mapping). Entries enter at the human gate, or as `suggested` from the
-caged `--ai` path. The schema constrains the entry shape, not the id
-vocabulary: see finding F-4 below.
+caged `--ai` path.
 
 ### taxonomy.saif, pinned to saif-data at commit fe77c44
 
-The id vocabulary is the 15 risk ids in `yaml/risks.yaml`:
+The id vocabulary is the 15 risk ids in `yaml/risks.yaml`, enforced by
+the schema's `pattern` (0.5.0):
 
 | id | Risk |
 |---|---|
@@ -81,7 +116,7 @@ The charter (section 2, Pain-5) cites SAIF for the naming problem this
 field exists to solve. Same status as above: populated at the gate or
 suggested, never invented.
 
-### MITRE ATLAS technique ids: no field exists (finding F-3)
+### taxonomy.atlas (0.5.0, finding F-3 ratified)
 
 ATLAS 5.6.0 carries the techniques a red-team finding would most often
 cite, for example:
@@ -96,18 +131,16 @@ cite, for example:
 | AML.T0068 | LLM Prompt Obfuscation |
 | AML.T0069 | Discover LLM System Information |
 
-The canonical schema has no `taxonomy.atlas` field. Recorded as
-**finding F-3**, with this proposal and nothing applied: add
-`taxonomy.atlas` as a third array of the existing `taxonomy_entry`
-shape, ids in ATLAS form (`AML.T0051`, sub-techniques `AML.T0051.000`);
-schema 0.4.0 to 0.5.0 (a field added is a minor bump per charter
-section 7); two rows in `field_map.json` (SARIF: `result.taxa` plus a
-third `run.taxonomies` entry; FLARE-AI: `flare:classification`,
-provisional); the drift test fires on the change until the rows land;
-the OWASP GenAI Red Teaming Guide names ATLAS beside OWASP and NIST as
-the frameworks a programme aligns to (printed page 9, "frameworks such as
-the NIST AI RMF, OWASP and MITRE ATLAS"). Product-code change: needs the
-director's ruling at stop one.
+`taxonomy.atlas` exists since schema 0.5.0 (D-071): a third array of
+`{id, status}` entries, ids pattern-pinned to the 5.6.0 grammar
+(`AML.T####`, sub-techniques `AML.T####.###`), optional, empty or absent
+meaning no claim, mapped in `field_map.json` to SARIF `result.taxa` plus
+a third `run.taxonomies` entry and to the provisional FLARE-AI
+classification slot. The OWASP GenAI Red Teaming Guide names ATLAS
+beside OWASP and NIST as the frameworks a programme aligns to (printed
+page 9, "frameworks such as the NIST AI RMF, OWASP and MITRE ATLAS").
+Raised as finding F-3 by the first draft of this document; ratified at
+STEP-06 stop one.
 
 ### harm_flags
 
@@ -140,7 +173,7 @@ of the evidence:
 | test case | `reproduction.steps`, `reproduction.environment`, `probe` (sealed) | yes |
 | evidence collected | `raw_response_sealed`, `provenance.content_hash`, `provenance.attestation_hash` | yes, sealed, with a safe metadata preview |
 | impact assessment | `severity` | yes, human-set |
-| recommendations for remediation | none | **not aligned**: the record has no remediation field. Stated limit. Not proposed for the schema now, because remediation is an opinion downstream tools already hold a field for (tracker description, SARIF `fix` objects), and the charter's litmus test is moving a finding, not authoring advice. Raised for the director as a question, not a finding. |
+| recommendations for remediation | `remediation` (0.5.0, D-071) | yes, with binding constraints: optional, null until a human writes it at the gate (never-fabricate), and the `--ai` path has no remediation capability in this arc. Raised as Q-1 by the first draft of this document, which had proposed leaving it out; the director ruled it in because the Guide asks each finding to carry "specific recommendations for remediation" (printed page 44). Limit: no CLI writes the field yet, the same limit `severity.rationale` has today. |
 
 ## NIST AI 600-1: where a red-team finding record sits
 
@@ -173,8 +206,9 @@ alignment into it.
 
 ## Findings raised by this document
 
-| # | Finding | Proposal | Status |
-|---|---|---|---|
-| F-3 | no field for MITRE ATLAS technique ids | `taxonomy.atlas`, schema 0.5.0, two field-map rows, drift test fires until they land | for the director's ruling at stop one; nothing applied |
-| F-4 | `taxonomy.owasp_llm` and `taxonomy.saif` accept any non-empty string; the version pin lives only in this document and in the id convention | add `pattern` constraints: `^LLM(0[1-9]\|10):2025$` and `^(DP\|UTD\|MST\|EDH\|MXF\|MDT\|DMS\|MRE\|IIC\|PIJ\|MEV\|SDD\|ISD\|IMO\|RA)$`, so a stale or misspelled id is refused with `schema-invalid`; a new edition then becomes a deliberate schema bump, which is what a pin should cost | for the director's ruling at stop one; nothing applied |
-| Q-1 | no remediation field | none proposed; question for the director | open |
+| # | Finding | Disposition |
+|---|---|---|
+| F-3 | no field for MITRE ATLAS technique ids | RATIFIED, built in 0.5.0 (D-071) |
+| F-4 | taxonomy ids were unconstrained strings | RATIFIED, pattern pins in 0.5.0 (D-071), built against the 2026 OWASP grammar |
+| Q-1 | no remediation field | RATIFIED as a field in 0.5.0 (D-071), human-written, null default |
+| F-5 | the OWASP pin was stale on the day it was written (2025 pinned; 2026 published 2026-08-03) | corrected above; finder the director; standing rule D-076 |

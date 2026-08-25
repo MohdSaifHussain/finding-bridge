@@ -2,7 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
-[![Canonical schema 0.4.0](https://img.shields.io/badge/canonical%20schema-0.4.0-informational)](src/finding_bridge/schemas/finding.schema.json)
+[![Canonical schema 0.5.0](https://img.shields.io/badge/canonical%20schema-0.5.0-informational)](src/finding_bridge/schemas/finding.schema.json)
 [![SARIF 2.1.0](https://img.shields.io/badge/emits-SARIF%202.1.0-informational)](docs/USAGE.md)
 [![AI in the evidence path: none](https://img.shields.io/badge/AI%20in%20the%20evidence%20path-none-success)](tests/test_environment.py)
 

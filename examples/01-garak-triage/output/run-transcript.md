@@ -8,13 +8,13 @@ $ finding-bridge ingest-garak input/garak.synthetic.hitlog.jsonl
 [exit 0]
 
 $ finding-bridge list
-fb-7517ad07312806d2  garak  [sealed content: 77 chars, 1 lines, keyed digest 330cd48e; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
-fb-b4a25d13c613ed7d  garak  [sealed content: 77 chars, 1 lines, keyed digest 330cd48e; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-7517ad07312806d2
-fb-d0c074b608144bfd  garak  [sealed content: 47 chars, 1 lines, keyed digest ef1d8268; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-72ccc26214a8a4be  garak  [sealed content: 77 chars, 1 lines, keyed digest b4eb6e07; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-0da4d174c557273e  garak  [sealed content: 77 chars, 1 lines, keyed digest b4eb6e07; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-72ccc26214a8a4be
+fb-4628a190ffbe5cff  garak  [sealed content: 47 chars, 1 lines, keyed digest bb736fe0; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
 [exit 0]
 
-$ finding-bridge confirm fb-7517ad07312806d2
-confirmed fb-7517ad07312806d2 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-72ccc26214a8a4be
+confirmed fb-72ccc26214a8a4be by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge confirm fb-0000000000000000

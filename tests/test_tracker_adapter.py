@@ -70,7 +70,7 @@ def test_priority_bands():
 def test_suggested_taxonomy_is_marked_in_labels():
     finding = json.loads((FIXTURES / "candidate_full.json").read_text(encoding="utf-8"))
     labels = tracker._labels(finding)
-    assert "owasp_llm:LLM01?" in labels, "a suggested mapping must not look confirmed"
+    assert "owasp_llm:LLM01:2026?" in labels, "a suggested mapping must not look confirmed"
     assert any(label.startswith("harm:") for label in labels)
     assert "source:garak" in labels
 

@@ -78,7 +78,7 @@ def test_every_readme_badge_is_a_checked_fact():
 def test_badge_check_detects_a_stale_badge():
     """Negative control: a wrong schema version must be refused."""
     text = README.read_text(encoding="utf-8").replace(
-        "canonical%20schema-0.4.0", "canonical%20schema-9.9.9"
+        "canonical%20schema-0.5.0", "canonical%20schema-9.9.9"
     )
     assert any("schema badge" in p for p in _check(text))
 

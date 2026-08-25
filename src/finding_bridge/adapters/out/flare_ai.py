@@ -104,11 +104,14 @@ def _report(finding: dict) -> dict:
     if severity["score"] is not None:
         report["flare:severity"] = severity["score"]
     owasp = [e["id"] for e in finding["taxonomy"]["owasp_llm"]]
+    owasp += [e["id"] for e in finding["taxonomy"].get("atlas", [])]  # 0.5.0: same slot
     saif = [e["id"] for e in finding["taxonomy"]["saif"]]
     if owasp:
         report["flare:classification"] = owasp
     if saif:
         report["flare:ThreatClassification"] = saif
+    if finding.get("remediation") is not None:
+        report["flare:proposedMitigation"] = finding["remediation"]  # 0.5.0, PROVISIONAL
     return report
 
 

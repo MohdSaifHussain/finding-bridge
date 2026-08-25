@@ -1,6 +1,6 @@
 {
   "record_type": "finding",
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "id": "fb-candidate-full-0001",
   "source_tool": "garak",
   "source_tool_version": "0.9.0",
@@ -19,13 +19,19 @@
   "taxonomy": {
     "owasp_llm": [
       {
-        "id": "LLM01",
+        "id": "LLM01:2026",
         "status": "suggested"
       }
     ],
     "saif": [
       {
-        "id": "prompt-injection",
+        "id": "PIJ",
+        "status": "suggested"
+      }
+    ],
+    "atlas": [
+      {
+        "id": "AML.T0051",
         "status": "suggested"
       }
     ]
@@ -60,5 +66,6 @@
   "dedup": {
     "cluster_id": null,
     "duplicate_of": null
-  }
+  },
+  "remediation": "SENTINEL-REMEDIATION synthetic advice stand-in"
 }

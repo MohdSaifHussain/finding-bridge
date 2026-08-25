@@ -1346,6 +1346,32 @@ The redone-from-scratch honesty of the resume report (naming what died
 with the old session rather than patching around it) noted as done
 right.
 
+## D-076 — F-5: the OWASP pin was stale; re-pinned to the 2026 edition, standing rule for pins (director, STEP-06 stop-one addendum, 2026-08-25)
+
+**Finding, the director's, found by asking a question outside the
+record ("why 2025 and not 2026"):** the OWASP GenAI LLM Top 10 2026
+edition was published 2026-08-03, three weeks before the builder's
+fetch; STANDARDS.md pinned 2025 as current, which it was not on the day
+it was written. **Second confirmed specimen of the outside-the-record
+route working** (the first found the CI blank); the census's
+fourth-quadrant note gains the tally.
+
+**Rulings:** (1) re-fetched from the official OWASP source with a
+browser UA: page and PDF (download 56857, 122 pages) both 200; the pin
+rests on OWASP alone. (2) STANDARDS.md re-pins to 2026 with the delta
+from 2025 stated in one paragraph; the 2025 row kept beside it, marked
+superseded with its date, original kept and direction named. (3) The
+F-4 pattern pins are built against the 2026 grammar from the start:
+F-5 landed before the 0.5.0 commit existed, so it cost a re-fetch, not
+a rework. (4) Finder and route recorded honestly. (5) **Standing rule:**
+every pinned edition row carries its publication date AND the date we
+last checked for a successor; the W7 release checklist gains a row to
+re-check every pin within days of the flip.
+
+**Verification limit, stated:** the 2026 PDF's own title page reads
+"[Publication date to be set]"; the August 3, 2026 date comes from the
+resource page. Both facts are recorded; neither is smoothed over.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1359,6 +1385,7 @@ Nothing here is proposed; each waits on the director's word.
 | OB-7 GitHub ingestion | waits on a remote, which is the director's decision alone |
 | OB-6 cross-store correlation | Option E parked (D-054), gated on real user demand |
 | Semantic preview (grey-scale summary) | future `--ai` job; never claimed until it ships (D-042) |
+| Suggested remediation | future `--ai` job, parked by D-071 beside the semantic preview; the human-written `remediation` field exists since schema 0.5.0 |
 
 ## PROV register (Section D provisional decisions, PENDING RATIFICATION)
 

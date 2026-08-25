@@ -110,6 +110,7 @@ def _issue(finding: dict) -> dict:
         "labels": _labels(finding),
         "priority": _priority(severity.get("score")),
         "fields": {
+            "remediation": finding.get("remediation"),
             "findingBridgeId": finding["id"],
             "contentHash": provenance.get("content_hash"),
             "severityScore": severity.get("score"),
