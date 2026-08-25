@@ -451,3 +451,65 @@ ratified (D-083); nothing further.
 
 **Handoff:** nothing uncommitted. W7 waits on the director's close of
 W6c.
+
+## STOP THREE report (builder, 2026-08-25): the release ritual, then HALT
+
+**State:** origin/master = e98809d (115 commits, pushed under the W7
+word after a clean delta audit); this report is commit 116, local. Tree
+clean. CI on the release commit: gate 32842861253 green on all four
+jobs; container 32842861361 green; GHCR :latest = sha256:ed236168d02d...,
+PRIVATE.
+
+**W7 delivered:** version 1.0.0 (pyproject, package, wheel METADATA
+re-read: `Version: 1.0.0`, `License-Expression: Apache-2.0`,
+`License-File: LICENSE`; SARIF driver version tied by test); CHANGELOG
+(Keep a Changelog 1.1.0, one 1.0.0 entry incl. the real-data numbers);
+SECURITY.md (private reporting, scope, stated-limit pointer, one-operator
+expectation); docs/RELEASE-CHECKLIST.md (20 pre-flip rows, 8 flip rows,
+each naming its check; rows 1-16, 18, 19 green, 17 and 20 pending by
+design); docs/RELEASE-NOTES-1.0.0.md with the two ruled numbers (349
+tests, 261/88; 739/739 sealed, three clean scans) each naming its check;
+the pre-public audit (evidence/pre-public-audit-step06.md: all 111
+history commits at scan time, 451 blobs, 5,141,756 bytes, zero on every
+row, one identity, the 38,358-byte wheel blob named); OB-7 PREPARED
+(informationUri = the repository URL, Multitool warning set now EMPTY,
+meaningless until the flip; the register row says so); Dependabot
+alerts and automated security fixes ON, API-verified (204 / enabled=true).
+
+**Two findings while doing it:** F-14, the SARIF driver advertised
+`canonicalSchemaVersion: "0.4.0"` after the schema moved to 0.5.0 (a
+label no test tied to its source); fixed to read the schema constant,
+with a test. C-012, my own: a settle script failed and a `;`-chained
+commit claimed the figures were settled; the class is named in the row
+(an edit script outside the verdict file's reach). Both on the record.
+
+**Branch protection: platform-blocked while private.** The rulesets API
+answers 403 "Upgrade to GitHub Pro or make this repository public" on a
+private free repository. The precondition (gate.yml has run on master)
+is met; the ruleset is checklist row F2, created immediately after the
+flip and API-verified, with the single-operator admin bypass recorded.
+D-058's never-rewrite sentence becomes that ruleset's non-fast-forward
+rule the moment it exists. Secret scanning, push protection and private
+vulnerability reporting are likewise flip-day rows (F3, F4).
+
+**The director's STOP THREE ritual (read by eye; nothing here acts):**
+1. `git rev-list --count HEAD` = 116 locally, origin at e98809d.
+2. Read docs/RELEASE-CHECKLIST.md row by row against its named checks.
+3. Read CHANGELOG.md, SECURITY.md, docs/RELEASE-NOTES-1.0.0.md,
+   README.md (provenance and honest-numbers sections) for wording.
+4. Read evidence/pre-public-audit-step06.md and re-run any row: the
+   full-history scan command is in it.
+5. `python tools/gate.py --verdict-file v.txt` locally; read v.txt.
+6. Actions tab: both runs green on e98809d.
+
+**The flip, W8, is the director's act alone.** No visibility change, no
+tag, no release, no ruleset creation until the one-line word. On that
+word the builder's sequence is: (a) visibility public, repo and package,
+API-verified; (b) ruleset F2 created and API-verified; (c) F3/F4
+toggled and API-verified; (d) tag v1.0.0 on e98809d (or the then-HEAD
+the director names) and the GitHub Release from the drafted notes;
+(e) OB-7 verified (URL resolves; optional code-scanning upload);
+(f) pins re-checked (row 17); (g) record closed: census, register,
+builder eval; (h) one final push.
+
+**Handoff:** uncommitted: nothing after this commit.

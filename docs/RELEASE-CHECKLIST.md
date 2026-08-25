@@ -11,9 +11,9 @@ otherwise; nothing here performs the flip.
 |---|---|---|---|
 | 1 | Version is 1.0.0 everywhere | `tests/test_release_labels.py` (pyproject == package == SARIF driver) | green, 2026-08-25 |
 | 2 | Gate green locally | `python tools/gate.py --verdict-file` | GATE: PASS, 2026-08-25 |
-| 3 | Gate green on CI, both OSes, both Pythons | the `gate` runs on the release commit, four jobs | pending the W7 push |
-| 4 | Container built, scanned, smoked, pushed private | the `container` run on the release commit | pending the W7 push |
-| 5 | Fresh-wheel proof with the hash lock | the gate's fresh-wheel step; `tools/lock.py --check` | lock IN SYNC 2026-08-25; CI pending |
+| 3 | Gate green on CI, both OSes, both Pythons | the `gate` runs on the release commit, four jobs | green: run 32842861253 on e98809d, 2026-08-25 |
+| 4 | Container built, scanned, smoked, pushed private | the `container` run on the release commit | green: run 32842861361 on e98809d; GHCR :latest = sha256:ed236168d02d..., private |
+| 5 | Fresh-wheel proof with the hash lock | the gate's fresh-wheel step; `tools/lock.py --check` | lock IN SYNC 2026-08-25; the fresh-wheel step green on all four gate jobs |
 | 6 | CHANGELOG has one 1.0.0 entry in Keep a Changelog form | `tests/test_no_overclaim.py` scans it (D-046); read by eye | written 2026-08-25 |
 | 7 | Every user doc passes the wording law | `tests/test_no_overclaim.py` over README, USAGE, SOP, STANDARDS, showcase, examples, CHANGELOG, SECURITY | green, 2026-08-25 |
 | 8 | Badges are true | `tests/test_readme_badges.py` | green |
@@ -27,7 +27,7 @@ otherwise; nothing here performs the flip.
 | 16 | Dependabot alerts and automated security fixes ON, API-verified | `gh api repos/.../vulnerability-alerts` returns 204; `automated-security-fixes` enabled=true | verified 2026-08-25 |
 | 17 | Standards pins re-checked for a newer edition within days of the flip (D-076) | re-fetch the five sources' index pages; update `docs/STANDARDS.md` rows' "successor last checked" dates | pending: run on flip day |
 | 18 | Release notes drafted with the two ruled numbers, each naming its check | `docs/RELEASE-NOTES-1.0.0.md` | drafted 2026-08-25 |
-| 19 | Pre-push delta audit on the release push | the standard delta audit | pending the W7 push |
+| 19 | Pre-push delta audit on the release push | the standard delta audit | clean: evidence/prepush-audit-w7.md (18 blobs, zero on every row) |
 | 20 | Director's STOP THREE read | by hand | pending |
 
 ## At the flip (director's word; then the builder verifies each by API)
