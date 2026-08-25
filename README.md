@@ -5,6 +5,7 @@
 [![Canonical schema 0.5.0](https://img.shields.io/badge/canonical%20schema-0.5.0-informational)](src/finding_bridge/schemas/finding.schema.json)
 [![SARIF 2.1.0](https://img.shields.io/badge/emits-SARIF%202.1.0-informational)](docs/USAGE.md)
 [![AI in the evidence path: none](https://img.shields.io/badge/AI%20in%20the%20evidence%20path-none-success)](tests/test_environment.py)
+[![tests: 357 collected](https://img.shields.io/badge/tests-357%20collected-informational)](tests/)
 [![gate](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml)
 [![container](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml)
 
@@ -22,60 +23,40 @@ provable, sealed, and ready to share.
 
 **It never replaces your tools. It feeds them.**
 
-## Provenance: AI-built, human-governed, measured
-
 Every line of code here was written by an AI (Claude, in Claude Code)
-under a human director who wrote none of it. What makes this repository
-unusual is not that fact but the apparatus around it, which is measured
-below. Every figure names the command or file it is computed from, at
-commit time; a figure that did not compute cleanly is absent, not
-rounded.
+under a human director who wrote none of it. How that was governed,
+measured rather than asserted, is in
+[How this project was built](#how-this-project-was-built).
 
-- **Tests: 349 collected; 261 (74.8 percent) exercise the product, 88
-  (25.2 percent) exercise the governance instruments that keep the AI
-  honest.** Counted by node id from `python -m pytest --collect-only -q`.
-  Governance means the instruments themselves: the gate guard, the
-  overclaim scanner, the digest-comparison scan, the boundary table, the
-  environment scrub, the AI-cage structural test, the badge-truth test,
-  the installed-package proof, and the schema drift tests
-  (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
-  `test_no_inline_digest_compare.py`, `test_boundary_table.py`,
-  `test_environment.py`, `test_ai_caged.py`, `test_readme_badges.py`,
-  `test_installed_package.py`, `test_release_labels.py`, three named
-  drift tests in `test_schema.py`, and the fixture-currency test in
-  `test_real_shapes.py`). RFC 8785 conformance vectors count as product.
-- **Every governance tool was built after its failure class occurred.**
-  The rule census (`docs/RULE-CENSUS.md`, D-068) states it as a
-  measurement: "Seven-for-seven: every rule that is now a check became
-  one after it failed at least once." The method converts failures into
-  instruments; the floor is one instance of each class, and the census
-  says so.
-- **Census: 68 numbered decisions inventoried; of the 23 rules in its
-  classification tables, 18 are CHECK, 1 a partial check, 4 still HABIT
-  (each already broken at least once, counted there); a further section
-  lists the rules ruled correctly sentences.** Counted from the census
-  tables by section. A rule that failed twice
-  became a tool both times (the gate-half-run rule, seven instances,
-  converted to `tools/gate.py`; the digest-comparison rule, three
-  failures, converted to one helper plus a scan).
-- **Corrections: 12 entries, 5 of the director's errors and 7 of the
-  AI's**, each with the original claim quoted, what proved it wrong, and
-  the direction it moved, including the director's own false alarm
-  (C-007). Counted from the corrections table in `DECISIONS.md`.
-- **Rulings: 84 numbered, across 6 phase contracts, each with declared
-  review stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
-  `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in
-  the PROV register, all later ratified.
-- **Escape rate:** the per-phase builder evals (`evidence/builder-eval-*`)
-  record defects that reached the director, with denominators of 15 and
-  6; too small for a trend, and the evals say so themselves. Not
-  restated here as a trajectory.
+## Contents
 
-The full method is on the record: `DECISIONS.md`, the phase contracts in
-`docs/decisions/`, and the corrections table, where both the AI's and
-the director's errors are recorded with direction named. The boundary,
-stated so the method is not overclaimed: the AI wrote the code; the
-human ruled, reviewed, and verified; neither alone produced this.
+- [What it does](#what-it-does)
+- [Architecture](#architecture)
+- [See it in action](#see-it-in-action)
+- [Install](#install)
+- [How this project was built](#how-this-project-was-built)
+- [Notation](#notation)
+- [Where the record lives](#where-the-record-lives)
+- [Honest limits (short form)](#honest-limits-short-form)
+- [License](#license)
+
+## What it does
+
+- **Reads** garak hitlogs and manual attack transcripts.
+- **Seals** harmful content. It is encrypted at rest and shown as a
+  "safe metadata preview": length, line count, a keyed digest, and harm
+  flags. Triagers can score findings without re-reading raw harm.
+  Unsealing is always explicit and always logged.
+- **Stamps** every finding with hashes and a tamper-evident chain, so a
+  finding stays credible after the model changes.
+- **Waits for a human.** Nothing becomes a confirmed finding until a
+  person confirms it. The record shows who and when.
+- **Emits** Markdown packets and SARIF 2.1.0 that real tools accept, plus
+  a provisional FLARE-AI report set (marked provisional in the file,
+  because FLARE-AI has not published a schema yet).
+
+No AI runs anywhere in this pipeline. No API key is needed, ever. The
+test suite proves it on every run.
 
 ## Architecture
 
@@ -123,59 +104,9 @@ flowchart LR
 Nothing to the right of the human gate carries raw content. Every
 emitted artifact carries the preview and metadata only.
 
-## What it does
+## See it in action
 
-- **Reads** garak hitlogs and manual attack transcripts.
-- **Seals** harmful content. It is encrypted at rest and shown as a
-  "safe metadata preview": length, line count, a keyed digest, and harm
-  flags. Triagers can score findings without re-reading raw harm.
-  Unsealing is always explicit and always logged.
-- **Stamps** every finding with hashes and a tamper-evident chain, so a
-  finding stays credible after the model changes.
-- **Waits for a human.** Nothing becomes a confirmed finding until a
-  person confirms it. The record shows who and when.
-- **Emits** Markdown packets and SARIF 2.1.0 that real tools accept, plus
-  a provisional FLARE-AI report set (marked provisional in the file,
-  because FLARE-AI has not published a schema yet).
-
-No AI runs anywhere in this pipeline. No API key is needed, ever. The
-test suite proves it on every run.
-
-## Install
-
-Python 3.12 or newer.
-
-```
-git clone <this repo>
-cd finding-bridge
-pip install -e .
-```
-
-This gives you the `finding-bridge` command.
-
-That is the developer route. The hash-verified route below is the secure
-route; the lock file is what makes it one, not ceremony.
-
-To verify dependency hashes as well, install the locked dependencies
-first, then the wheel without dependencies. This is the route CI runs
-in a fresh venv on every push (`.github/workflows/gate.yml`):
-
-```
-pip install build
-python -m build --wheel
-pip install --require-hashes -r constraints.txt
-pip install --no-deps dist/finding_bridge-1.0.0-py3-none-any.whl
-```
-
-`constraints.txt` locks every runtime dependency to an exact version
-with PyPI's hashes, and `--require-hashes` makes pip refuse anything
-that does not match. Hash-checking needs a wheel and `--no-deps`: pip
-cannot hash-check an install from a source directory, and once any
-requirement carries a hash pip requires one for all of them, so
-`-c constraints.txt` on a wheel install does not work either (finding
-F-6, STEP-06).
-
-## Five-minute tour
+### The five-minute tour
 
 The repo ships synthetic example files. The "harmful" text in them is
 fake. Strings like `SENTINEL-HARM-7001` are labeled stand-ins, never real
@@ -241,22 +172,132 @@ them, are committed under [examples/](examples/).
 See [docs/USAGE.md](docs/USAGE.md) for the full walk-through, every
 command, and the reason-code reference.
 
-## Honest numbers
+### The worked examples
+
+- [examples/01-garak-triage](examples/01-garak-triage/): a garak hitlog
+  through the whole pipeline, with two refusals.
+- [examples/02-transcript-capture](examples/02-transcript-capture/): a
+  manual attack transcript, an explicit unseal, the exposure log read back.
+- [examples/03-rotation-drill](examples/03-rotation-drill/): backup, two
+  key rotations, a hand-tampered ledger refused, restore.
+- [examples/04-real-data](examples/04-real-data/): **real data**, a real
+  garak run and real red-team transcripts, sealed and leak-scanned.
+- [docs/showcase/](docs/showcase/): screenshots, each named for the one
+  claim it proves that text cannot.
+
+## Install
+
+Python 3.12 or newer.
+
+```
+git clone <this repo>
+cd finding-bridge
+pip install -e .
+```
+
+This gives you the `finding-bridge` command.
+
+That is the developer route. The hash-verified route below is the secure
+route; the lock file is what makes it one, not ceremony.
+
+To verify dependency hashes as well, install the locked dependencies
+first, then the wheel without dependencies. This is the route CI runs
+in a fresh venv on every push (`.github/workflows/gate.yml`):
+
+```
+pip install build
+python -m build --wheel
+pip install --require-hashes -r constraints.txt
+pip install --no-deps dist/finding_bridge-1.0.0-py3-none-any.whl
+```
+
+`constraints.txt` locks every runtime dependency to an exact version
+with PyPI's hashes, and `--require-hashes` makes pip refuse anything
+that does not match. Hash-checking needs a wheel and `--no-deps`: pip
+cannot hash-check an install from a source directory, and once any
+requirement carries a hash pip requires one for all of them, so
+`-c constraints.txt` on a wheel install does not work either (finding
+F-6, STEP-06).
+
+The container route (the image is digest-pinned, non-root, and carries
+git because the human gate needs it for identity; the store, the key and
+your gitconfig are mounted from outside):
+
+```
+docker run --rm -v "%CD%\store:/work/store" -v "%CD%\key:/home/fb/key" -v "%USERPROFILE%\.gitconfig:/home/fb/.gitconfig:ro" ghcr.io/mohdsaifhussain/finding-bridge:1.0.0 --store /work/store --key /home/fb/key/fb.key list
+```
+
+## How this project was built
+
+Every line of code here was written by an AI (Claude, in Claude Code)
+under a human director who wrote none of it. What makes this repository
+unusual is not that fact but the apparatus around it, which is measured
+below. Every figure names the command or file it is computed from, at
+commit time; a figure that did not compute cleanly is absent, not
+rounded.
+
+- **Tests: 357 collected; 265 (74.2 percent) exercise the product, 92
+  (25.8 percent) exercise the governance instruments that keep the AI
+  honest.** Counted by node id from `python -m pytest --collect-only -q`.
+  Governance means the instruments themselves: the gate guard, the
+  overclaim scanner, the digest-comparison scan, the boundary table, the
+  environment scrub, the AI-cage structural test, the badge-truth test,
+  the installed-package proof, and the schema drift tests
+  (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
+  `test_no_inline_digest_compare.py`, `test_boundary_table.py`,
+  `test_environment.py`, `test_ai_caged.py`, `test_readme_badges.py`,
+  `test_installed_package.py`, `test_release_labels.py`, three named
+  drift tests in `test_schema.py`, and the fixture-currency test in
+  `test_real_shapes.py`). RFC 8785 conformance vectors count as product.
+- **Every governance tool was built after its failure class occurred.**
+  The rule census (`docs/RULE-CENSUS.md`, D-068) states it as a
+  measurement: "Seven-for-seven: every rule that is now a check became
+  one after it failed at least once." The method converts failures into
+  instruments; the floor is one instance of each class, and the census
+  says so.
+- **Census: 68 numbered decisions inventoried; of the 23 rules in its
+  classification tables, 18 are CHECK, 1 a partial check, 4 still HABIT
+  (each already broken at least once, counted there); a further section
+  lists the rules ruled correctly sentences.** Counted from the census
+  tables by section. A rule that failed twice
+  became a tool both times (the gate-half-run rule, seven instances,
+  converted to `tools/gate.py`; the digest-comparison rule, three
+  failures, converted to one helper plus a scan).
+- **Corrections: 13 entries, 6 of the director's errors and 7 of the
+  AI's**, each with the original claim quoted, what proved it wrong, and
+  the direction it moved, including the director's own false alarm
+  (C-007). Counted from the corrections table in `DECISIONS.md`.
+- **Rulings: 88 numbered, across 7 phase contracts, each with declared
+  review stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
+  `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in
+  the PROV register, all later ratified.
+- **Escape rate:** the per-phase builder evals (`evidence/builder-eval-*`)
+  record defects that reached the director, with denominators of 15 and
+  6; too small for a trend, and the evals say so themselves. Not
+  restated here as a trajectory.
+
+The full method is on the record: `DECISIONS.md`, the phase contracts in
+`docs/decisions/`, and the corrections table, where both the AI's and
+the director's errors are recorded with direction named. The boundary,
+stated so the method is not overclaimed: the AI wrote the code; the
+human ruled, reviewed, and verified; neither alone produced this.
+
+### Honest numbers
 
 Every figure here names the command that produced it and the date. If a
 figure and the tree disagree, the tree wins and the figure is wrong.
 
-- **Tests: 348 passed, 1 skipped**, run by `python tools/gate.py` on
-  2026-08-25 at the 1.0.0 release commit with no API key in the environment (the suite scrubs
+- **Tests: 356 passed, 1 skipped**, run by `python tools/gate.py` on
+  2026-08-25 after the post-release closure phase with no API key in the environment (the suite scrubs
   key-bearing variables and proves it). The one skip is the Windows key
   file permission check, which needs a POSIX file mode.
-- **Product versus governance tests: 261 versus 88.** Governance tests
+- **Product versus governance tests: 265 versus 92.** Governance tests
   check the project's own rules and record rather than finding
   behaviour (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
   `test_no_inline_digest_compare.py`, `test_installed_package.py`,
   `test_environment.py`, `test_readme_badges.py`, and the rest of the
   governance list in the provenance section above). Counted by node id
-  from `python -m pytest --collect-only -q` (88 of 349 collected).
+  from `python -m pytest --collect-only -q` (92 of 357 collected).
 - **Mutation testing, reported both ways** (raw, and excluding the
   annotation-class equivalents, the frozen method of D-066). Last
   audit at the STEP-05 close, `evidence/mutation-audit-step05-close.md`:
@@ -283,6 +324,22 @@ The record uses short prefixes. Decoded once, here:
 | PROV-n | a provisional decision taken alone, pending ratification | PROV register in `DECISIONS.md` |
 | C-nnn | a correction: original claim quoted, correction, proof, direction | corrections table in `DECISIONS.md` |
 | STEP-nn | a phase contract | `docs/decisions/` |
+
+## Where the record lives
+
+Every decision, limit, and open obligation is written down:
+`DECISIONS.md`, `docs/PROJECT_CHARTER.md`, and the phase contracts in
+`docs/decisions/`.
+
+- [SOP.md](SOP.md): the runbook. Every procedure was executed before it
+  was written: init, ingest, the gate with and without `--ai`, verify
+  with a 2am reason-code table, unseal with the exposure log read back,
+  every emit, backup and restore, the rotation walk, and the incident
+  path for a `verify` failure you did not expect.
+- [docs/STANDARDS.md](docs/STANDARDS.md): field-by-field alignment with
+  OWASP Top 10 for LLM Applications 2026, the OWASP GenAI Red Teaming
+  Guide 1.0, Google SAIF, MITRE ATLAS 5.6.0 and NIST AI 600-1, from
+  fetched sources, with the non-alignments stated.
 
 ## Honest limits (short form)
 
@@ -318,24 +375,6 @@ The record uses short prefixes. Decoded once, here:
 The full list, in user language, is in
 [docs/USAGE.md](docs/USAGE.md#limits).
 
-## Operations, examples, standards
+## License
 
-- [SOP.md](SOP.md): the runbook. Every procedure was executed before it
-  was written: init, ingest, the gate with and without `--ai`, verify
-  with a 2am reason-code table, unseal with the exposure log read back,
-  every emit, backup and restore, the rotation walk, and the incident
-  path for a `verify` failure you did not expect.
-- [examples/](examples/): three worked examples with the real emitted
-  artifacts and complete run transcripts committed, refusals included.
-- [docs/STANDARDS.md](docs/STANDARDS.md): field-by-field alignment with
-  OWASP Top 10 for LLM Applications 2025, the OWASP GenAI Red Teaming
-  Guide 1.0, Google SAIF, MITRE ATLAS 5.6.0 and NIST AI 600-1, from
-  fetched sources, with the non-alignments stated.
-- [docs/showcase/](docs/showcase/): screenshots, each named for the one
-  claim it proves that text cannot.
-
-## Project record
-
-Every decision, limit, and open obligation is written down:
-`DECISIONS.md`, `docs/PROJECT_CHARTER.md`, and the phase contracts in
-`docs/decisions/`.
+Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

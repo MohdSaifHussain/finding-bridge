@@ -1611,6 +1611,27 @@ lives in the README's provenance section and the release notes). No
 website field: none exists yet. All three verified by
 `gh api repos/MohdSaifHussain/finding-bridge` after the edit.
 
+## D-088 — README move-and-reorder to the lineage's section order (director, STEP-07, 2026-08-25)
+
+Correction C-013 first. Target order, achieved: title and badges; the
+pandoc description; ONE short AI-method paragraph with a pointer and no
+numbers; Contents; What it does; Architecture; See it in action (the
+five-minute tour, the four examples with one line each, 04 flagged as
+real data, the showcase); Install (hash-locked route and the container
+route); How this project was built (the entire orchestration section
+with its numbers, the honest numbers, the record pointer); Notation;
+Where the record lives; Honest limits; License. Execution law: a
+move-and-reorder under the preservation rule; ratified sentences travel
+verbatim; the only new prose is the Contents block, headings, one-line
+pointers, the shrunken top paragraph (a cut-down of existing sentences),
+the container route (copied from the SOP), and the License line.
+Rule-4 corrections found while slicing, listed: "three worked examples"
+to four; "OWASP Top 10 for LLM Applications 2025" to 2026 (D-076).
+A tests badge with the collected count joins the badges (director's
+addendum), checked by re-deriving the count from pytest; it fired on its
+first run (349 in the paragraph, 357 collected after STEP-07's tests),
+and the figures are settled at 357 here.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1659,6 +1680,7 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-007 | Director's mid-verification belief at STEP-05 stop one: that a finding id had CHANGED across rotation. | It had not. The measurement compared the first row of `list` before and after, and the confirmed finding leaving the candidates listing shifted the row - a single witness measuring the wrong object. Re-derived from the store itself and killed. No product change. Recorded under the director's name at their instruction. | The director's own re-derivation from the ledger rather than the listing. | False alarm raised AND killed by the same reviewer; a live specimen of why rituals re-derive instead of restate. |
+| C-013 | Director's addendum (2026-08-25): "README: the built-by-AI sentence moves up, directly under the opening description, before the architecture." | Wrong placement. The reader of a README is a stranger evaluating the TOOL; the method is the second story, not the first. The orchestration section moves down whole, renamed "How this project was built", after Install; one short paragraph and a pointer stay at the top, with no numbers. Recorded under the director's name at their instruction. | The director's own structural read of the finished README, overruling the reviewer's placement ruling. | The director's own structural read overruled the reviewer's placement ruling; toward the reader's need, not the author's pride. |
 | C-012 | Commit 112's message: "README figures settled at the release total." | They were not: the settle script's last anchor (a parenthetical that an earlier rewrite had already removed) failed, the script asserted before writing, and the chain ran the commit anyway because the script and the commit were joined with `;`, not `&&`. C-008's mechanism, seventh instance of the gate-half-run family, hours after D-074 gave the gate a verdict file: the mask this time was around an EDIT script, which no verdict file covers. Applied in the next commit. | The builder re-reading its own output before reporting. | Toward the less flattering answer for the builder. Census note: the class is "a claim outlives a failed step in the same shell line"; the verdict file closed it for the gate only. |
 | C-011 | examples/04-real-data/README.md and the W6c report, first pass: "253 of 699 real hits were exact duplicates ... the Pain-4 feature did what it exists for on real data." | The prompts were null on all 699 (F-12), so dedup keyed on responses alone; different attacks drawing the same reply counted as duplicates. With prompts sealed the real figure is 62 of 699. The feature worked; the number it produced was inflated by the very bug the workstream found. | The post-fix re-run of example 04 (probe sealed 739/739, duplicates 62). | Toward the less flattering answer for the earlier report: a measurement made on a broken object was quoted as a feature result. |
 | C-010 | README at D-050: "To verify dependency hashes as well, build and install a wheel. This is the route we test:" followed by `pip install dist/...whl -c constraints.txt`. | The route was never tested. The STEP-04 proof installed the wheel without `-c`; the command fails in a fresh venv (pip requires hashes for all requirements once any has one). Corrected to pip's secure-installs route with a full lock, rehearsed with a negative control (F-6). | The W5 rehearsal of gate.yml's fresh-wheel step, run locally before the workflow was pushed. | Toward the less flattering answer for the builder: a D-057 claim ("the route we test") that named no check, for two phases. |

@@ -13,6 +13,8 @@ plants a wrong schema version and asserts refusal.
 """
 
 import re
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
 
@@ -60,6 +62,18 @@ def _check(text: str) -> list[str]:
         elif label.startswith("emits-SARIF"):
             if not (REPO / "schemas" / "sarif-schema-2.1.0.json").exists():
                 problems.append("SARIF badge without the 2.1.0 schema file")
+        elif label.startswith("tests-"):
+            # the number is the collected count, re-derived from pytest itself
+            proc = subprocess.run(
+                [sys.executable, "-m", "pytest", "--collect-only", "-q", str(REPO / "tests")],
+                capture_output=True,
+                text=True,
+                cwd=REPO,
+            )
+            m = re.search(r"(\d+) tests? collected", proc.stdout)
+            assert m, proc.stdout[-300:]
+            if f"tests-{m.group(1)}%20collected-" not in label:
+                problems.append(f"tests badge says {label}, pytest collects {m.group(1)}")
         elif label.startswith("AI%20in%20the%20evidence%20path-none"):
             if not (REPO / "tests" / "test_environment.py").exists():
                 problems.append("no-AI badge without the environment scrub test")
