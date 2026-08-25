@@ -230,3 +230,49 @@ Nothing has gone to CI.
 is clean at this commit. Next is the director's stop-one reading and
 rulings on F-2, F-3, F-4, Q-1, PROV-3 and the quotation question, then
 W5. Uncommitted: nothing.
+
+## STOP TWO, pre-push report (builder, 2026-08-25, after W5-W6 built locally)
+
+**Commits:** `git rev-list --count HEAD` = 96. Tree clean. NOTHING PUSHED:
+origin/master is still 40e4df6 (83). The push is a Section C act
+("anything remote", D-034); the workflows cannot run, badges cannot land,
+and the container cannot be built on GHCR until the director says push.
+
+**Since stop one, by ruling:** D-070 F-2 fixed (4 emitters green after
+rotation, controls red first; ledger_records() is the raw reader);
+D-071/D-076 schema 0.5.0 (atlas, patterns against OWASP 2026 / SAIF
+fe77c44 / ATLAS 5.6.0, remediation; emit side extended after a hand-caught
+SARIF KeyError on an ATLAS claim); D-073 quotation exemption, mechanical,
+all user docs scanned; D-074 gate --verdict-file; W5 gate.yml; W5b
+dependabot.yml; W6 Dockerfile, .dockerignore, container.yml.
+
+**Findings since stop one:** F-5 (director; OWASP pin stale; corrected,
+D-076). F-6 (builder, W5 rehearsal; the documented hash-verified install
+route never ran; fixed with a full lock and pip's secure-installs route,
+negative control captured; C-010; PROV-4 pending ratification).
+
+**DEV-19 rephrasing list (rule 4, defects only):** README install block,
+two paragraphs ("To verify dependency hashes as well ... the route we
+test" and "Hash verification needs a wheel ..."), reason: the command
+failed (F-6). USAGE install block, two paragraphs, same reason. Diffstat
+against the last push now: README +186/-10, USAGE +12/-6; every deleted
+line is in those four paragraphs.
+
+**What the push will do:** gate.yml runs on both OSes and Pythons;
+container.yml builds, scans, smokes, and pushes ghcr.io/mohdsaifhussain/
+finding-bridge:<sha> and :latest as a PRIVATE package (the first run may
+need the package's visibility confirmed private in GHCR settings; the
+builder API-verifies after). Dependabot activates on the default branch.
+No badge lands until a run is observed green.
+
+**Rehearsed locally before the push:** the fresh-wheel route (fresh venv,
+import from site-packages, pip check clean, negative control); the three
+YAML files parse; the gate passes via the verdict file. NOT rehearsed
+locally: the container build (Docker daemon not running on this machine;
+the digest was read from the registry API and the CI pull is the
+read-back) and the layer scan / smoke rows, which run first on CI.
+
+**Handoff note:** everything committed; nothing uncommitted. Next: the
+director's push go, then observe the runs, record run URLs and the
+read-back digest in evidence/, land badges in the same commit as the first
+observed green, then STOP TWO proper (director's docker run from ghcr).
