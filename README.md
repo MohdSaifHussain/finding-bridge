@@ -22,27 +22,59 @@ provable, sealed, and ready to share.
 
 **It never replaces your tools. It feeds them.**
 
-## Provenance: AI-built, human-governed
+## Provenance: AI-built, human-governed, measured
 
 Every line of code here was written by an AI (Claude, in Claude Code)
-under a human director who wrote none of it and instead ruled on
-contracts, reviewed at declared stops, and verified every phase by hand.
-The project is as much a study in governed AI orchestration as in
-red-team tooling. The full method is on the record: `DECISIONS.md`
-(78 numbered rulings at this commit, counted by `grep -c "^## D-0" DECISIONS.md`), the phase contracts in
+under a human director who wrote none of it. What makes this repository
+unusual is not that fact but the apparatus around it, which is measured
+below. Every figure names the command or file it is computed from, at
+commit time; a figure that did not compute cleanly is absent, not
+rounded.
+
+- **Tests: 324 collected; 242 (74.7 percent) exercise the product, 82
+  (25.3 percent) exercise the governance instruments that keep the AI
+  honest.** Counted by node id from `python -m pytest --collect-only -q`.
+  Governance means the instruments themselves: the gate guard, the
+  overclaim scanner, the digest-comparison scan, the boundary table, the
+  environment scrub, the AI-cage structural test, the badge-truth test,
+  the installed-package proof, and the schema drift tests
+  (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
+  `test_no_inline_digest_compare.py`, `test_boundary_table.py`,
+  `test_environment.py`, `test_ai_caged.py`, `test_readme_badges.py`,
+  `test_installed_package.py`, and three named tests in
+  `test_schema.py`). RFC 8785 conformance vectors count as product.
+- **Every governance tool was built after its failure class occurred.**
+  The rule census (`docs/RULE-CENSUS.md`, D-068) states it as a
+  measurement: "Seven-for-seven: every rule that is now a check became
+  one after it failed at least once." The method converts failures into
+  instruments; the floor is one instance of each class, and the census
+  says so.
+- **Census: 68 numbered decisions inventoried; of the 23 rules in its
+  classification tables, 18 are CHECK, 1 a partial check, 4 still HABIT
+  (each already broken at least once, counted there); a further section
+  lists the rules ruled correctly sentences.** Counted from the census
+  tables by section. A rule that failed twice
+  became a tool both times (the gate-half-run rule, seven instances,
+  converted to `tools/gate.py`; the digest-comparison rule, three
+  failures, converted to one helper plus a scan).
+- **Corrections: 10 entries, 5 of the director's errors and 5 of the
+  AI's**, each with the original claim quoted, what proved it wrong, and
+  the direction it moved, including the director's own false alarm
+  (C-007). Counted from the corrections table in `DECISIONS.md`.
+- **Rulings: 78 numbered, across 6 phase contracts, each with declared
+  review stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
+  `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in
+  the PROV register, all later ratified.
+- **Escape rate:** the per-phase builder evals (`evidence/builder-eval-*`)
+  record defects that reached the director, with denominators of 15 and
+  6; too small for a trend, and the evals say so themselves. Not
+  restated here as a trajectory.
+
+The full method is on the record: `DECISIONS.md`, the phase contracts in
 `docs/decisions/`, and the corrections table, where both the AI's and
-the director's errors are recorded with the direction of each error
-named.
-
-The boundary, stated so the method is not overclaimed: the AI wrote the
-code; the human ruled, reviewed, and verified; neither alone produced
-this.
-
-```
-garak hitlogs  ──┐                              ┌──> Markdown packet
-                 ├──> seal + hash + dedup + ────┤
-transcripts    ──┘    human confirm             └──> SARIF 2.1.0
-```
+the director's errors are recorded with direction named. The boundary,
+stated so the method is not overclaimed: the AI wrote the code; the
+human ruled, reviewed, and verified; neither alone produced this.
 
 ## Architecture
 
