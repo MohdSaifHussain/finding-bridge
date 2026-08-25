@@ -1,0 +1,15 @@
+# Line endings: files that machines parse are LF everywhere (F-7, STEP-06 W6
+# rehearsal: CRLF in constraints.txt broke pip's line continuation inside the
+# Linux image). Text files are normalised on commit; these are forced LF on
+# checkout too, on every platform.
+* text=auto
+constraints.txt text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.md text eol=lf
+*.txt text eol=lf

@@ -7,6 +7,9 @@
 #
 # Actions pinned to full-length commit SHAs (GitHub security hardening guide,
 # fetched 2026-08-25). The base image is digest-pinned in the Dockerfile.
+# Rehearsed locally on 2026-08-25 before the first push
+# (evidence/w6-local-rehearsal.md); this run is the second half of the
+# measured-not-remembered pair for the base digest.
 
 name: container
 
@@ -37,53 +40,66 @@ jobs:
           load: true
           tags: ${{ env.IMAGE }}:candidate
 
-      - name: Read the base digest back from the built image
+      # DIGEST READ-BACK (D-077): the pin in the Dockerfile is the remembered
+      # half; the digest of the base image THIS RUNNER pulled is the measured
+      # half. They must match, and the run log is the evidence.
+      - name: Read the base digest back from the pulled image and compare to the pin
         run: |
-          docker image inspect "${IMAGE}:candidate" --format '{{ index .Config.Labels "org.opencontainers.image.title" }}'
-          grep -o 'python:3.12-slim@sha256:[0-9a-f]\{64\}' Dockerfile | sort -u
+          pin=$(grep -o 'python:3.12-slim@sha256:[0-9a-f]\{64\}' Dockerfile | sort -u)
+          echo "pinned:   $pin"
+          test "$(echo "$pin" | wc -l)" = "1"
+          docker pull -q "$pin" > /dev/null
+          got=$(docker image inspect "$pin" --format '{{ index .RepoDigests 0 }}')
+          echo "pulled:   $got"
+          test "python@${pin#python:3.12-slim@}" = "$got"
+          echo "digest read-back matches the pin"
 
-      # LAYER SCAN CONTROL: the key is never in the image. Export every layer
-      # and look for key files and Fernet-shaped tokens. A Fernet token is
-      # 44 base64url chars ending in '='; the keyring JSON carries two of
-      # them. Positive control first: the scan must FIND a planted token in
-      # a throwaway image, or it proves nothing (skill rule 5).
-      - name: Layer scan, positive control (a planted key must be found)
+      # LAYER SCAN (tools/layer_scan.py): the key is never in the image.
+      # Order, by rule 5: the scanner's selftest (a planted keyring must be
+      # found), then a real docker-save positive control (a planted key file
+      # in a throwaway image), then the candidate.
+      - name: Layer scan, selftest and positive control
         run: |
-          set -e
+          python3 tools/layer_scan.py --selftest
           mkdir -p /tmp/planted && cd /tmp/planted
           printf 'FROM scratch\nCOPY fb.key /fb.key\n' > Dockerfile
-          python3 -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())" > fb.key
+          printf '{"keyring_version": 1, "ref_key": "%s", "encryption_keys": ["%s"]}\n' "$(head -c 32 /dev/urandom | base64 | tr '+/' '-_')" "$(head -c 32 /dev/urandom | base64 | tr '+/' '-_')" > fb.key
           docker build -q -t planted:control . > /dev/null
-          docker save planted:control -o planted.tar
-          if tar -xOf planted.tar 2>/dev/null | grep -aEo '[A-Za-z0-9_-]{43}=' | head -1 | grep -q .; then echo "positive control: planted token found"; else echo "SCAN CANNOT SEE A PLANTED TOKEN"; exit 1; fi
+          docker save planted:control -o /tmp/planted.tar
+          if python3 "${GITHUB_WORKSPACE}/tools/layer_scan.py" /tmp/planted.tar; then echo "SCAN BLIND: planted key not found"; exit 1; fi
+          echo "positive control: planted key found (scanner exit 1 as required)"
 
-      - name: Layer scan (no key file, no Fernet-shaped token, in any layer)
+      - name: Layer scan, candidate image
         run: |
-          set -e
           docker save "${IMAGE}:candidate" -o /tmp/image.tar
-          mkdir -p /tmp/layers && tar -xf /tmp/image.tar -C /tmp/layers
-          if find /tmp/layers -type f -name '*.tar' -exec tar -tf {} \; | grep -Ei '(^|/)(fb\.key|.*\.key|exposure_log\.jsonl)$'; then echo "KEY-SHAPED FILE IN A LAYER"; exit 1; fi
-          if find /tmp/layers -type f -name '*.tar' -exec tar -xOf {} \; 2>/dev/null | grep -aEo '"(ref_key|encryption_keys)"' | head -1 | grep -q .; then echo "KEYRING JSON IN A LAYER"; exit 1; fi
-          echo "layer scan: no key material"
+          python3 tools/layer_scan.py /tmp/image.tar
 
-      # SMOKE ROW: run the real pipeline in the container with a key mounted
-      # from outside, and assert the sealed sentinel never reaches stdout.
-      - name: Smoke (mounted key; no sealed sentinel on stdout)
+      # SMOKE ROW: the real pipeline in the container, key and gitconfig
+      # mounted from outside (F-8: the human gate needs git for identity),
+      # and the sealed sentinel must never reach stdout across
+      # ingest / list / confirm / verify / emit / refused unseal.
+      - name: Smoke (mounted key and gitconfig; no sealed sentinel on stdout)
         run: |
           set -e
           mkdir -p /tmp/smoke/store /tmp/smoke/key /tmp/smoke/in
           cp schemas/fixtures/garak.synthetic.hitlog.jsonl /tmp/smoke/in/
+          printf '[user]\n\tname = smoke-operator\n\temail = smoke@example.invalid\n' > /tmp/smoke/gitconfig
           chmod -R a+rwX /tmp/smoke
-          run() { docker run --rm -v /tmp/smoke/store:/work/store -v /tmp/smoke/key:/home/fb/key -v /tmp/smoke/in:/work/in:ro "${IMAGE}:candidate" --store /work/store --key /home/fb/key/fb.key "$@"; }
+          run() { docker run --rm -v /tmp/smoke/store:/work/store -v /tmp/smoke/key:/home/fb/key -v /tmp/smoke/in:/work/in:ro -v /tmp/smoke/gitconfig:/home/fb/.gitconfig:ro "${IMAGE}:candidate" --store /work/store --key /home/fb/key/fb.key "$@"; }
           run ingest-garak in/garak.synthetic.hitlog.jsonl | tee /tmp/smoke/out.txt
-          run list | tee -a /tmp/smoke/out.txt
+          id=$(run list | tee -a /tmp/smoke/out.txt | grep -o 'fb-[0-9a-f]\{16\}' | head -1)
+          run confirm "$id" | tee -a /tmp/smoke/out.txt
           run verify | tee -a /tmp/smoke/out.txt
+          run emit-markdown store/packet.md | tee -a /tmp/smoke/out.txt
+          ref=$(grep -o 'response sealed/[0-9a-f]*' /tmp/smoke/store/packet.md | cut -d' ' -f2)
+          run unseal "$ref" 2>&1 | tee -a /tmp/smoke/out.txt || true
           if grep -q "SENTINEL-HARM" /tmp/smoke/out.txt; then echo "SEALED SENTINEL ON STDOUT"; exit 1; fi
           grep -q "sealed content" /tmp/smoke/out.txt
+          grep -q "unseal-not-explicit" /tmp/smoke/out.txt
           test -f /tmp/smoke/key/fb.key && echo "key was created OUTSIDE the image, in the mounted folder"
-          # negative direction: an explicit unseal DOES print it, proving the sentinel was present and sealed
-          ref=$(run list | grep -o 'keyed digest [0-9a-f]*' | head -1 | cut -d' ' -f3)
-          echo "smoke ok (digest prefix $ref)"
+          # the positive direction, NOT captured into out.txt: an explicit unseal returns the sentinel,
+          # proving the content was present and sealed rather than absent.
+          run unseal "$ref" --explicit | grep -q "SENTINEL-HARM-7001" && echo "explicit unseal returned the sealed sentinel"
 
       - name: Log in to GHCR (GITHUB_TOKEN only)
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0

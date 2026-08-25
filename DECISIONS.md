@@ -1372,6 +1372,33 @@ re-check every pin within days of the flip.
 "[Publication date to be set]"; the August 3, 2026 date comes from the
 resource page. Both facts are recorded; neither is smoothed over.
 
+## D-077 — C-010 and PROV-4 ratified; the wrong-object measurement class named (director, STEP-06 pre-push word, 2026-08-25)
+
+C-010 ratified as recorded. F-6 survived one director read, one
+D-049-class check, and a fresh-venv proof because **the STEP-04 proof
+tested a similar command, not the documented command: the wrong-object
+measurement class wearing an install script's clothes.** The first tamper
+control proving nothing (one hash of two zeroed) and saying so is the
+control-that-proves-it-can-fail discipline applied to the control itself.
+The four listed rephrasings are within DEV-19 as written.
+
+PROV-4 ratified: the widened lock is the correct cost of
+--require-hashes; it converts the install from trust-the-index to
+verify-every-byte. **Two conditions:** (1) the lock is maintained by the
+W5b machinery: whether Dependabot's pip ecosystem reads a file named
+constraints.txt could not be confirmed from the fetched docs (the
+supported-ecosystems page is script-rendered), so tools/lock.py (with
+--check as the drift detector and a selftest) is the maintenance path
+until the first Dependabot run shows which manifests it found, recorded
+as a verification limit; (2) README, USAGE and SOP state in one line
+that the lock is the secure route and `pip install -e .` the developer
+route.
+
+Docker-daemon limit accepted as stated. Instruction: on CI's first build
+the digest is read BACK from the pulled image on the runner and compared
+to the Dockerfile's pin, recorded in evidence with the run URL; the local
+rehearsal (daemon now running) is the first half of the pair.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1393,7 +1420,7 @@ Nothing here is proposed; each waits on the director's word.
 |---|---|---|---|---|---|
 | ~~PROV-2~~ **CLOSED: ratified as Apache-2.0 (D-048)** | pyproject ships WITHOUT a license field or license classifier | (a) omit, all-rights-reserved by legal default, director picks at stop one; (b) builder picks a permissive license | (a): adding a license later is one line; un-granting a wrongly-granted one is practically impossible. A rights decision belongs to the owner. | one pyproject edit once ruled | OPEN, pending ratification at STEP-04 stop one |
 | PROV-3 | The W3 showcased-equals-current control compares committed example artifacts to a fresh re-run AFTER normalising the fields that derive from the store key, the clock and the operator (ids, cluster ids, sealed refs, keyed digests, 64-hex hashes, timestamps, identity, path separators), instead of the byte-match the director's word asked for | (a) normalised comparison, volatile list short and visible in examples/run_example.py, docstring states exactly what a pass proves; (b) commit a fixed example key and inject a clock so bytes match; (c) no control | (a): byte identity is impossible without key material in the tree, which key-inside-repo and the D-058 secret scan both exist to refuse, and the tool has no clock injection (a product change, Section C). (a) is reversible by editing one list. | one file if ruled the other way | **RATIFIED (a)** by the director at STEP-06 stop one (D-072) |
-| PROV-4 | constraints.txt widened from the single rfc8785 pin to a full runtime lock (11 packages, PyPI hashes, all platforms), and the documented verified route becomes `--require-hashes -r constraints.txt` then `--no-deps <wheel>` | (a) full lock, pip's own secure-installs route; (b) keep the single pin and drop the hash-verified route from the docs; (c) keep the docs as they were | (a): additive, reversible by trimming the file; (b) narrows a promise the docs had made for two phases; (c) leaves a broken command in the first thing a user reads (D-050's class) | trim one file, reword two paragraphs | OPEN, pending ratification at STEP-06 stop two |
+| PROV-4 | constraints.txt widened from the single rfc8785 pin to a full runtime lock (11 packages, PyPI hashes, all platforms), and the documented verified route becomes `--require-hashes -r constraints.txt` then `--no-deps <wheel>` | (a) full lock, pip's own secure-installs route; (b) keep the single pin and drop the hash-verified route from the docs; (c) keep the docs as they were | (a): additive, reversible by trimming the file; (b) narrows a promise the docs had made for two phases; (c) leaves a broken command in the first thing a user reads (D-050's class) | trim one file, reword two paragraphs | **RATIFIED (a)** by the director before the push (D-077), two conditions |
 | PROV-1 | schema_version stays 0.3.0 at JCS adoption | (a) no bump: no schema FIELD changed, canonical serialization is provenance machinery not schema shape; (b) minor/major bump to signal the hash-behaviour change | (a) chosen: bumping is a one-line change that can be applied later without migration (no stores exist); un-bumping after consumers saw 0.4.0 could not be undone | one Edit + fixture updates if ratified the other way | **RATIFIED (a)** by the director at stop one; note added to OB-6 and §4d via DEV-9: canonical form and schema can change independently and only one has a version - the identity problem's fourth hat |
 
 ## Obligations register (carried by name until discharged)

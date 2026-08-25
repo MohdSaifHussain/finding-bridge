@@ -15,8 +15,9 @@ Python 3.12 or newer.
 pip install -e .
 ```
 
-For a hash-verified install, install the locked dependencies first, then
-the wheel without dependencies:
+`pip install -e .` is the developer route. For the secure route, a
+hash-verified install, install the locked dependencies first, then the
+wheel without dependencies:
 
 ```
 pip install build

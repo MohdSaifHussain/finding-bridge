@@ -8,11 +8,11 @@
 #   pip install --require-hashes -r constraints.txt
 #   pip install --no-deps dist/finding_bridge-<version>-py3-none-any.whl
 #
-# Hashes from https://pypi.org/pypi/<name>/<version>/json (every file of
-# the release, all platforms), fetched 2026-08-25. rfc8785 and cryptography
-# sit in the hash/sealing path: a MAJOR bump of either stops for the
-# director's ruling regardless of a green gate (STEP-06 W5b standing rule).
-# The rfc8785 hashes below are byte-identical to the 2026-08-24 pin.
+# Maintained by tools/lock.py (--check detects drift). Hashes from
+# https://pypi.org/pypi/<name>/<version>/json (every file of the release,
+# all platforms), fetched 2026-08-25. rfc8785 and cryptography sit in the
+# hash/sealing path: a MAJOR bump of either stops for the director's
+# ruling regardless of a green gate (STEP-06 W5b standing rule).
 attrs==26.1.0 \
     --hash=sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309 \
     --hash=sha256:d03ceb89cb322a8fd706d4fb91940737b6642aa36998fe130a9bc96c985eff32
@@ -304,3 +304,6 @@ rpds-py==2026.6.3 \
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
+typing-extensions==4.16.0 \
+    --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
+    --hash=sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5

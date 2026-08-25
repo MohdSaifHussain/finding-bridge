@@ -97,3 +97,25 @@ hashes and passed, because pip accepts a match on either; the control was
 wrong, not the lock.) README and USAGE reworded (listed for the stop-two
 report as rule-4 rephrasings), gate.yml and the Dockerfile use the route,
 the overclaim check bans the broken form.
+
+## F-7: the dependency lock was incomplete on Python 3.12 (builder, local W6 build; FIXED)
+
+The lock's versions were resolved in a Python 3.14 venv; the 3.12 image
+exposed `typing-extensions>=4.4.0` (a conditional dependency of
+`referencing`). Pinned for every Python. Evidence: evidence/w6-local-rehearsal.md.
+Class: the resolving environment was not the target environment.
+
+## F-8: the container image could not run the human gate (builder, local W6 smoke; FIXED)
+
+`confirm` and `unseal` inside the image refused with `identity-missing:
+git is not available`: the slim base has no git and the gate never falls
+back to a default identity (D-011). git is now in the runtime stage;
+the operator mounts a gitconfig read-only. Cost: image 53 MB to 88 MB,
+stated. Class: a runtime dependency (git) that no test declares, because
+every test machine has it.
+
+## The first layer scan was blind (builder; replaced by tools/layer_scan.py)
+
+Recorded in evidence/w6-local-rehearsal.md section 3: the shell scan
+reported clean while its positive control reported SCAN BLIND. Not
+believed; replaced by a tool with a selftest and a shape-precise marker.

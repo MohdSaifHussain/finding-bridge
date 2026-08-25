@@ -101,6 +101,9 @@ pip install -e .
 
 This gives you the `finding-bridge` command.
 
+That is the developer route. The hash-verified route below is the secure
+route; the lock file is what makes it one, not ceremony.
+
 To verify dependency hashes as well, install the locked dependencies
 first, then the wheel without dependencies. This is the route CI runs
 in a fresh venv on every push (`.github/workflows/gate.yml`):

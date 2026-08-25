@@ -17,6 +17,23 @@ takes (`--store $STORE --key $KEY`). Put both OUTSIDE the repository.
 The tool refuses a key inside the repo tree (`key-inside-repo`). On
 Windows CMD write `%STORE%` and `%KEY%`.
 
+## 0. Install
+
+Developer route: `pip install -e .`. Secure route (hash-verified, the
+one CI and the container use): `pip install --require-hashes -r
+constraints.txt`, then `pip install --no-deps <wheel>`. The lock file
+`constraints.txt` is maintained by `python tools/lock.py`; `--check`
+reports drift against PyPI. See README for the full block.
+
+Container route (after the first CI run publishes the image): the store,
+the key and your gitconfig are mounted from outside; nothing persists in
+the image, and the image carries git because the gate needs it for
+identity (F-8):
+
+```
+docker run --rm -v "%CD%\store:/work/store" -v "%CD%\key:/home/fb/key" -v "%USERPROFILE%\.gitconfig:/home/fb/.gitconfig:ro" ghcr.io/mohdsaifhussain/finding-bridge --store /work/store --key /home/fb/key/fb.key list
+```
+
 ## 1. Initialise a workspace
 
 There is no `init` command. The first command that touches a store
