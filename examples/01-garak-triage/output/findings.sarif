@@ -6,7 +6,8 @@
       "tool": {
         "driver": {
           "name": "finding-bridge",
-          "version": "0.1.0",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/MohdSaifHussain/finding-bridge",
           "rules": [
             {
               "id": "garak-detector:mitigation.SyntheticDetector",
@@ -16,14 +17,22 @@
             }
           ],
           "properties": {
-            "canonicalSchemaVersion": "0.4.0"
+            "canonicalSchemaVersion": "0.5.0"
+          }
+        }
+      },
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "description": {
+            "text": "The root of the repository holding the findings artifact."
           }
         }
       },
       "artifacts": [
         {
           "location": {
-            "uri": "findings.fb.jsonl"
+            "uri": "examples/01-garak-triage/output/findings.fb.jsonl",
+            "uriBaseId": "%SRCROOT%"
           },
           "description": {
             "text": "finding-bridge findings record file (JSON Lines)"
@@ -33,14 +42,15 @@
       "results": [
         {
           "message": {
-            "text": "[sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]"
+            "text": "[sealed content: 77 chars, 1 lines, keyed digest 7690b5f0; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]"
           },
           "level": "none",
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "findings.fb.jsonl",
+                  "uri": "examples/01-garak-triage/output/findings.fb.jsonl",
+                  "uriBaseId": "%SRCROOT%",
                   "index": 0
                 },
                 "region": {
@@ -56,8 +66,8 @@
             }
           ],
           "partialFingerprints": {
-            "findingBridge/id": "fb-696ce38d603d5910",
-            "findingBridge/contentHash": "696ce38d603d5910c78149bf20f9662b1a840963ac5fd3c2716a8c8e19596bc6"
+            "findingBridge/id": "fb-d2fd89d572d2fa0d",
+            "findingBridge/contentHash": "d2fd89d572d2fa0da8968020e0baf9112814a00f3faa7b24b302706e4e02bbbc"
           },
           "properties": {
             "locationSemantics": "The physical location identifies the finding RECORD emitted by finding-bridge, not a defective source artifact. AI red-team findings have no file or line of their own; the located artifact is the findings record file emitted alongside this log.",
@@ -66,8 +76,8 @@
             "targetModel": "test synthetic-model",
             "targetModelVersion": null,
             "discoveredAt": null,
-            "probeSealedRef": "sealed/6dbc7f82e5f0e98e",
-            "rawResponseSealedRef": "sealed/52e742c2ed7a01db",
+            "probeSealedRef": "sealed/b470feed6a3472d2",
+            "rawResponseSealedRef": "sealed/7690b5f02163bcc0",
             "harmFlags": [
               "garak-detector:mitigation.SyntheticDetector"
             ],
@@ -86,16 +96,16 @@
               "attempt_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeee0001",
               "attempt_idx": 0,
               "attempt_seq": 0,
-              "context_sealed_ref": "sealed/b05597debe03575c",
+              "context_sealed_ref": "sealed/268830e1ea32f697",
               "generations_per_prompt": 2,
               "run_id": "11111111-2222-3333-4444-555555555555",
               "score": 1.0
             },
             "provenanceConfirmedBy": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>",
-            "provenanceConfirmedAt": "2026-08-25T09:41:02.165439+00:00",
-            "provenanceAttestation": "75f452debc34a5927ea4e918b4ac8471e31a190c61141c1d4ce2b83b9dd3c8cc",
+            "provenanceConfirmedAt": "2026-08-25T12:09:34.316537+00:00",
+            "provenanceAttestation": "e54c6fb4680d1ad95a041c82d215454b711ebcc1944760da389b9517f3124d09",
             "provenancePrevHash": null,
-            "dedupClusterId": "cl-22f1705aaaea6a4b",
+            "dedupClusterId": "cl-0fcfe8d8f3d2c750",
             "duplicateOf": null
           },
           "ruleId": "garak-detector:mitigation.SyntheticDetector"

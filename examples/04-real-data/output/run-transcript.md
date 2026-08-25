@@ -16,16 +16,16 @@ candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplic
 [driver step done]
 
 $ [driver step] list: the first 5 lines of N (safe metadata previews only)
-fb-cbfc5d19b96c31c8  garak  [sealed content: 16 chars, 1 lines, keyed digest 2ca88bbc; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-6e64e6fbee23414c  garak  [sealed content: 1208 chars, 8 lines, keyed digest fc8e0e0a; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-6ad12d0cc4c9a35e  garak  [sealed content: 646 chars, 3 lines, keyed digest 0f0fdbe2; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-8f12faf5904fdcb3  garak  [sealed content: 840 chars, 3 lines, keyed digest 242ebcaf; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-bd907040c0da1c97  garak  [sealed content: 234 chars, 1 lines, keyed digest 992ca849; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-08ffda1ca7b0f5b8  garak  [sealed content: 16 chars, 1 lines, keyed digest 5b55cb71; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-ee8c59033d619b20  garak  [sealed content: 1208 chars, 8 lines, keyed digest 3f3c5688; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-af04b8dfa948262d  garak  [sealed content: 646 chars, 3 lines, keyed digest a9dba8f1; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-9733f84b885863d1  garak  [sealed content: 840 chars, 3 lines, keyed digest 20c6e7da; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-bd6ca81034055d15  garak  [sealed content: 234 chars, 1 lines, keyed digest 072a2402; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
 ... 739 lines in total
 [driver step done]
 
-$ finding-bridge confirm fb-cbfc5d19b96c31c8
-confirmed fb-cbfc5d19b96c31c8 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-08ffda1ca7b0f5b8
+confirmed fb-08ffda1ca7b0f5b8 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge ingest-garak <DATA_DIR>/red_team_attempts.jsonl.gz
@@ -40,7 +40,7 @@ $ finding-bridge emit-markdown output/packet.md
 wrote output/packet.md
 [exit 0]
 
-$ finding-bridge emit-sarif output/findings.sarif
+$ finding-bridge emit-sarif output/findings.sarif --artifact-uri-base examples/04-real-data/output
 wrote output\findings.sarif and output\findings.fb.jsonl
 [exit 0]
 

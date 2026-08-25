@@ -8,13 +8,13 @@ $ finding-bridge ingest-garak input/garak.synthetic.hitlog.jsonl
 [exit 0]
 
 $ finding-bridge list
-fb-611ea38573724557  garak  [sealed content: 77 chars, 1 lines, keyed digest 0eda8780; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
-fb-351d3ccd6928e403  garak  [sealed content: 77 chars, 1 lines, keyed digest 0eda8780; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-611ea38573724557
-fb-99f072864d0eb97b  garak  [sealed content: 47 chars, 1 lines, keyed digest d56e638c; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-a8b4fcd352a4a76e  garak  [sealed content: 77 chars, 1 lines, keyed digest 73f400e4; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-2745c107094ac10f  garak  [sealed content: 77 chars, 1 lines, keyed digest 73f400e4; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-a8b4fcd352a4a76e
+fb-af23afdc6b79c6fa  garak  [sealed content: 47 chars, 1 lines, keyed digest f4c689e7; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
 [exit 0]
 
-$ finding-bridge confirm fb-611ea38573724557
-confirmed fb-611ea38573724557 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-a8b4fcd352a4a76e
+confirmed fb-a8b4fcd352a4a76e by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge verify
@@ -38,7 +38,7 @@ $ finding-bridge verify
 chain verifies clean
 [exit 0]
 
-$ finding-bridge unseal sealed/0eda87805e1caac6 --explicit
+$ finding-bridge unseal sealed/73f400e4997c4d61 --explicit
 SENTINEL-HARM-7001 synthetic harmful response stand-in, not real model output
 [exit 0]
 
@@ -52,8 +52,8 @@ chain verifies clean
 [exit 0]
 
 $ finding-bridge list
-fb-351d3ccd6928e403  garak  [sealed content: 77 chars, 1 lines, keyed digest 0eda8780; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-611ea38573724557
-fb-99f072864d0eb97b  garak  [sealed content: 47 chars, 1 lines, keyed digest d56e638c; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-2745c107094ac10f  garak  [sealed content: 77 chars, 1 lines, keyed digest 73f400e4; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-a8b4fcd352a4a76e
+fb-af23afdc6b79c6fa  garak  [sealed content: 47 chars, 1 lines, keyed digest f4c689e7; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
 [exit 0]
 
 $ [driver step] INCIDENT: flip one byte inside the ledger by hand
@@ -61,9 +61,9 @@ ledger.jsonl: one byte changed inside a confirmed record (source_tool)
 [driver step done]
 
 $ finding-bridge verify
-attestation-tampered: attestation_hash '16dda7fc88865f33623574f4dd0c53a08903299747a783bc7ab4179345fa115a' does not match (content_hash, confirmed_by, confirmed_at); the gate record was edited after confirmation
-content-tampered: stored content_hash '611ea38573724557d0ab154d182fd6e8b9fed834dc4772d1635278ad2ec7b90a' != recomputed 'b98e0a0fa5786dbcc7ae824002f2b5b7d27a8934f7404392022619a74e41b5d8'
-id-mismatch: id 'fb-611ea38573724557' != derived 'fb-b98e0a0fa5786dbc'
+attestation-tampered: attestation_hash '656448abafff3b2aaf4c42bc5819735660d00cac96ca5360899bbae9d3cf8d5a' does not match (content_hash, confirmed_by, confirmed_at); the gate record was edited after confirmation
+content-tampered: stored content_hash 'a8b4fcd352a4a76ed0efecbad1f89e094fc3d8c94e757eeb51f6c5bcb8f4689c' != recomputed '1d971418a6f88a6b8ac51fa22a59c10e1c1930ecedc7dbf979c9bc7acfdea30d'
+id-mismatch: id 'fb-a8b4fcd352a4a76e' != derived 'fb-1d971418a6f88a6b'
 [exit 1]
 
 $ [driver step] RESTORE: copy backup/ back over the store folder and the key file

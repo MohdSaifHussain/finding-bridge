@@ -37,7 +37,7 @@ finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key confirm fb-00000000000
 finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key ingest-garak input/garak.hostile.hitlog.jsonl
 finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key verify
 finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key emit-markdown output/packet.md
-finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key emit-sarif output/findings.sarif
+finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key emit-sarif output/findings.sarif --artifact-uri-base examples/01-garak-triage/output
 finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key emit-tracker output/findings.tracker.json
 finding-bridge --store /tmp/fb/store --key /tmp/fb/fb.key emit-flare output/findings.flare.json
 ```
@@ -56,7 +56,7 @@ The real artifacts of a real run on 2026-08-25, unedited:
 |---|---|
 | `run-transcript.md` | every command, its output and its exit code, refusals included |
 | `packet.md` | the Markdown finding packet |
-| `findings.sarif` and `findings.fb.jsonl` | SARIF 2.1.0 and the findings artifact its locations point at |
+| `findings.sarif` and `findings.fb.jsonl` | SARIF 2.1.0 and the findings artifact its locations point at; the locations are repository-rooted (`--artifact-uri-base`, `%SRCROOT%`) so GitHub code scanning renders them as alerts against this folder's committed record (F-15) |
 | `findings.tracker.json` | generic tracker issues (Jira, Linear, GitHub Issues shaped) |
 | `findings.flare.json` | the PROVISIONAL FLARE-AI report set |
 

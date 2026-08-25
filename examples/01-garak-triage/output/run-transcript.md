@@ -8,13 +8,13 @@ $ finding-bridge ingest-garak input/garak.synthetic.hitlog.jsonl
 [exit 0]
 
 $ finding-bridge list
-fb-696ce38d603d5910  garak  [sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
-fb-7f200c110c734d0b  garak  [sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-696ce38d603d5910
-fb-c57dc72efb802b7a  garak  [sealed content: 47 chars, 1 lines, keyed digest 13f0ef1f; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-d2fd89d572d2fa0d  garak  [sealed content: 77 chars, 1 lines, keyed digest 7690b5f0; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
+fb-ece56b7eed7d9dda  garak  [sealed content: 77 chars, 1 lines, keyed digest 7690b5f0; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.] duplicate-of fb-d2fd89d572d2fa0d
+fb-97b0d804cdcd1b6d  garak  [sealed content: 47 chars, 1 lines, keyed digest 2e03ca5c; harm flags: garak-detector:promptinject.SyntheticDetector. Content is sealed; unseal is explicit and logged.]
 [exit 0]
 
-$ finding-bridge confirm fb-696ce38d603d5910
-confirmed fb-696ce38d603d5910 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-d2fd89d572d2fa0d
+confirmed fb-d2fd89d572d2fa0d by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge confirm fb-0000000000000000
@@ -33,7 +33,7 @@ $ finding-bridge emit-markdown output/packet.md
 wrote output/packet.md
 [exit 0]
 
-$ finding-bridge emit-sarif output/findings.sarif
+$ finding-bridge emit-sarif output/findings.sarif --artifact-uri-base examples/01-garak-triage/output
 wrote output\findings.sarif and output\findings.fb.jsonl
 [exit 0]
 

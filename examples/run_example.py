@@ -78,7 +78,7 @@ EXAMPLES: dict[str, list] = {
         "ingest-garak input/garak.hostile.hitlog.jsonl",
         "verify",
         "emit-markdown output/packet.md",
-        "emit-sarif output/findings.sarif",
+        "emit-sarif output/findings.sarif --artifact-uri-base examples/01-garak-triage/output",
         "emit-tracker output/findings.tracker.json",
         "emit-flare output/findings.flare.json",
     ],
@@ -134,7 +134,7 @@ EXAMPLES: dict[str, list] = {
         "ingest-garak {data}/red_team_attempts.jsonl.gz",
         "verify",
         "emit-markdown output/packet.md",
-        "emit-sarif output/findings.sarif",
+        "emit-sarif output/findings.sarif --artifact-uri-base examples/04-real-data/output",
         "emit-tracker output/findings.tracker.json",
         "emit-flare output/findings.flare.json",
         (

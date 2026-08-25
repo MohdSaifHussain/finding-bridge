@@ -8,7 +8,7 @@
     "notice": "PROVISIONAL. This report follows a mapping derived from the FLARE-AI paper's JSON-LD vocabulary, not a published machine-readable schema. No canonical FLARE-AI schema was locatable on 2026-08-24 (checked: ai-reports.org and github.com/ai-flaw-reporting/ai-flaw-reporting). Treat field names as provisional and re-verify before submission.",
     "mappingSource": "https://arxiv.org/abs/2606.31567",
     "mappingCheckedOn": "2026-08-24",
-    "generator": "finding-bridge 0.1.0",
+    "generator": "finding-bridge 1.0.0",
     "omittedFields": {
       "severity.status": "FLARE-AI has no confirmed/suggested distinction in the vocabulary extracted from the paper; stating it would invent a field.",
       "reproduction.environment": "No fitting FLARE-AI field in the extracted vocabulary; environment facts fold into flare:stepsToReproduce prose at export time if ever needed.",
@@ -24,9 +24,9 @@
     {
       "@type": "flare:AIFlawReport",
       "flare:provisionalMapping": true,
-      "schema:identifier": "fb-696ce38d603d5910",
-      "schema:dateCreated": "2026-08-25T09:41:02.165439+00:00",
-      "schema:description": "[sealed content: 77 chars, 1 lines, keyed digest 52e742c2; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]",
+      "schema:identifier": "fb-d2fd89d572d2fa0d",
+      "schema:dateCreated": "2026-08-25T12:09:34.316537+00:00",
+      "schema:description": "[sealed content: 77 chars, 1 lines, keyed digest 7690b5f0; harm flags: garak-detector:mitigation.SyntheticDetector. Content is sealed; unseal is explicit and logged.]",
       "schema:author": {
         "@type": "schema:Person",
         "schema:name": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>"
@@ -37,11 +37,11 @@
         "@type": "flare:Evidence",
         "flare:rawReport": null,
         "sealedReferences": {
-          "probe": "sealed/6dbc7f82e5f0e98e",
-          "response": "sealed/52e742c2ed7a01db"
+          "probe": "sealed/b470feed6a3472d2",
+          "response": "sealed/7690b5f02163bcc0"
         },
         "note": "Evidence is sealed. This report carries references and a metadata preview only, never the raw model output.",
-        "contentHash": "696ce38d603d5910c78149bf20f9662b1a840963ac5fd3c2716a8c8e19596bc6"
+        "contentHash": "d2fd89d572d2fa0da8968020e0baf9112814a00f3faa7b24b302706e4e02bbbc"
       },
       "flare:stepsToReproduce": [
         "Run garak probe dan.SyntheticProbe against test synthetic-model; detector mitigation.SyntheticDetector scored 1.0."

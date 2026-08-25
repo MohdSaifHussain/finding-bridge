@@ -131,6 +131,15 @@ SARIF writes a second file next to it: `findings.fb.jsonl`. The SARIF
 location points at a line in that file. Both emitters create the output
 folder if it does not exist.
 
+If the SARIF will be uploaded to GitHub code scanning, pass
+`--artifact-uri-base <repository-relative folder>` naming where the
+findings artifact is committed (for example
+`--artifact-uri-base examples/01-garak-triage/output`). Code scanning
+resolves relative paths against the repository root, so without it the
+upload is accepted but no alert renders (finding F-15). With it, the
+locations carry `uriBaseId: %SRCROOT%` and the alert points at the
+committed record line.
+
 No output contains sealed content. They carry the preview, metadata, and
 references only.
 

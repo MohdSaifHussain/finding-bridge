@@ -6,10 +6,11 @@
       "tool": {
         "driver": {
           "name": "finding-bridge",
-          "version": "0.1.0",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/MohdSaifHussain/finding-bridge",
           "rules": [],
           "properties": {
-            "canonicalSchemaVersion": "0.4.0"
+            "canonicalSchemaVersion": "0.5.0"
           }
         }
       },
@@ -26,7 +27,7 @@
       "results": [
         {
           "message": {
-            "text": "[sealed content: 43 chars, 1 lines, keyed digest 4af2f6e4; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]"
+            "text": "[sealed content: 43 chars, 1 lines, keyed digest 22392ff0; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]"
           },
           "level": "none",
           "locations": [
@@ -49,8 +50,8 @@
             }
           ],
           "partialFingerprints": {
-            "findingBridge/id": "fb-2ca4ee930b9e9bb1",
-            "findingBridge/contentHash": "2ca4ee930b9e9bb1b17183d961195b590417e8e65a1451f50b9bad9175dd62d1"
+            "findingBridge/id": "fb-b1ed01896d82ccee",
+            "findingBridge/contentHash": "b1ed01896d82cceeb2ead7b284432d4ded21b969265676f761c4601b555e7c6d"
           },
           "properties": {
             "locationSemantics": "The physical location identifies the finding RECORD emitted by finding-bridge, not a defective source artifact. AI red-team findings have no file or line of their own; the located artifact is the findings record file emitted alongside this log.",
@@ -59,8 +60,8 @@
             "targetModel": "synthetic-model",
             "targetModelVersion": null,
             "discoveredAt": null,
-            "probeSealedRef": "sealed/a917c6af42eb0557",
-            "rawResponseSealedRef": "sealed/4af2f6e4cd8d1099",
+            "probeSealedRef": "sealed/e478d9efae1c0bb7",
+            "rawResponseSealedRef": "sealed/22392ff08267bf5c",
             "harmFlags": [],
             "rubric": {
               "data_sensitivity": null,
@@ -74,13 +75,13 @@
               "Replay the captured 5-turn transcript against the target."
             ],
             "reproductionEnvironment": {
-              "context_sealed_ref": "sealed/a564f745a06fed87",
+              "context_sealed_ref": "sealed/bc89f3a9caa95560",
               "grammar": "user-assistant",
               "turn_count": 5
             },
             "provenanceConfirmedBy": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>",
-            "provenanceConfirmedAt": "2026-08-25T09:41:04.693210+00:00",
-            "provenanceAttestation": "2e1000df43508045ee47daed46e1e297f618f10a24e2dccc36710b7772a10e03",
+            "provenanceConfirmedAt": "2026-08-25T12:09:36.860305+00:00",
+            "provenanceAttestation": "f6512443f6fd936f28cb4e7683626504a95096d71377103f75a9e65f474bccf4",
             "provenancePrevHash": null,
             "dedupClusterId": null,
             "duplicateOf": null
