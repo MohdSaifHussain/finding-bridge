@@ -78,3 +78,70 @@ D-042/D-046, and Dependabot cadence details are pre-ruled and need no
 stop. NOT pre-ruled, Section C forever: any product-code change beyond
 W4's ratified path, any new secret, any visibility change, any tag, any
 PyPI act, and anything a document exposes as a product defect.
+
+**DEV-18 (the director's resume word and annex, 2026-08-25, restored
+after the prior session died at 100% context mid-W1):** the committed
+draft above thinned the director's word. Each item below is contract
+language, added by deviation, never in place. Where the draft already
+says it, this row confirms it.
+
+- W1 adds: true-fact badges (build/container badges land only with the
+  first OBSERVED green run); five-minute tour from real captured output;
+  D-046 passes on the final text; every command gate-verified (3.3).
+- W2 adds: owner in the document-control table is Director Mohd Saif
+  Hussain; escalation POC is honestly none / one operator; procedures
+  are init, ingest each source, gate with and without --ai, the full
+  rotation walk, verify with a 2am reason-code table, unseal with the
+  exposure-log read back, every emit, BACKUP AND RESTORE (does not exist
+  yet; must), and the unexpected-verify-failure incident path.
+- W3 adds (proof-artifacts addendum): each example commits an output/
+  folder holding the REAL emitted artifacts (packet, sarif,
+  tracker/flare where relevant), a complete unedited run-transcript.md
+  with at least one refusal, fixture_scan.py sweeping examples/ AND
+  output/, and a control asserting each committed artifact byte-matches
+  a fresh re-run (showcased-equals-current, as a CHECK). Refusals
+  framing, in full: the refusals are the product behaving well and
+  belong in the shop window, not hidden; an analyst evaluating a Trust
+  and Safety tool judges it by how it fails at least as much as by how
+  it succeeds.
+- W4 adds: taxonomy.owasp_llm and taxonomy.saif pinned to a version;
+  MITRE ATLAS technique ids; the NIST AI 600-1 red-team-finding mapping;
+  honest non-alignments as stated limits; every source RE-FETCHED (the
+  dead session's fetches are lost). OWASP's site returned 403 to the
+  fetcher last time: try the official PDF endpoints and OWASP's GitHub
+  mirrors; if an official source truly cannot be fetched, record a
+  verification limit naming the attempts and claim nothing from it.
+- Screenshots plan (new, Part One): docs/showcase/ PNGs, each under
+  200KB, single-digit total, each named for the claim it proves, each
+  caption pointing at the committed artifact or transcript that is the
+  real proof; a screenshot proving nothing specific is not committed.
+  Screenshots prove only what text cannot: SARIF Viewer render, CI
+  green, the post-flip code-scanning tab. GUI captures are listed for
+  the DIRECTOR with exact capture instructions; the builder verifies
+  each file landed and is referenced.
+- W6 adds: ghcr.io/mohdsaifhussain/finding-bridge tagged :sha and
+  :latest; the v1.0.0 tag waits for W8; the digest is read back and
+  recorded.
+- W7 adds: license/NOTICE reread and the 38KB wheel blob (D-058)
+  re-confirmed in the pre-public audit; branch protection blocks
+  force-push and deletion and requires the gate check, single-operator
+  bypass recorded honestly, and D-058's never-rewrite sentence becomes a
+  CHECK; SECURITY.md carries private reporting, scope, and the honest
+  one-operator response expectation; Dependabot alerts now, secret
+  scanning and push protection at the flip, every toggle API-verified
+  (clicked is not confirmed); release notes carry the two published
+  numbers.
+- W8 adds: optional code-scanning ingestion of our own SARIF; the final
+  census, register, and builder-eval update. Bright line unchanged.
+- Wording law (annex 1): D-042 governs EVERY artifact this arc produces
+  (README, SOP, STANDARDS, examples, CHANGELOG, SECURITY.md, release
+  notes): "sealed, with a safe metadata preview", never the
+  semantic-summary claim; the OB-4 bound stated wherever the guarantee
+  is stated; nothing promised that is not shipped. D-046 is the check;
+  the law is broader than the check and both apply.
+- Standing authorization: Sections B-G as recorded in DECISIONS.md
+  (D-034, D-043.1 PROV-at-temptation, five-PROV cap, quality bar, stall
+  protocol). Zero product-code changes except W4's narrow ratified path.
+- Context rule: commit each document as it reaches a reviewable state;
+  on approaching context exhaustion, stop at a clean commit and append a
+  one-paragraph handoff note here (done / next / uncommitted).
