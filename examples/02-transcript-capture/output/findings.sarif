@@ -1,0 +1,95 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "finding-bridge",
+          "version": "0.1.0",
+          "rules": [],
+          "properties": {
+            "canonicalSchemaVersion": "0.4.0"
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "findings.fb.jsonl"
+          },
+          "description": {
+            "text": "finding-bridge findings record file (JSON Lines)"
+          }
+        }
+      ],
+      "results": [
+        {
+          "message": {
+            "text": "[sealed content: 43 chars, 1 lines, keyed digest ccef321e; harm flags: none recorded. Content is sealed; unseal is explicit and logged.]"
+          },
+          "level": "none",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "findings.fb.jsonl",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "synthetic-model",
+                  "kind": "aiModel"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "findingBridge/id": "fb-20727861f31c334a",
+            "findingBridge/contentHash": "20727861f31c334ac0440893a4abfda1539729aec7393dbedf0f30f9ae849595"
+          },
+          "properties": {
+            "locationSemantics": "The physical location identifies the finding RECORD emitted by finding-bridge, not a defective source artifact. AI red-team findings have no file or line of their own; the located artifact is the findings record file emitted alongside this log.",
+            "sourceTool": "manual-transcript",
+            "sourceToolVersion": null,
+            "targetModel": "synthetic-model",
+            "targetModelVersion": null,
+            "discoveredAt": null,
+            "probeSealedRef": "sealed/8a68ddf1b216902d",
+            "rawResponseSealedRef": "sealed/ccef321e17787290",
+            "harmFlags": [],
+            "rubric": {
+              "data_sensitivity": null,
+              "effort": null,
+              "exploitability": null,
+              "impact_scope": null
+            },
+            "severityRationale": null,
+            "severityStatus": null,
+            "reproductionSteps": [
+              "Replay the captured 5-turn transcript against the target."
+            ],
+            "reproductionEnvironment": {
+              "context_sealed_ref": "sealed/91315e96d35fef68",
+              "turn_count": 5
+            },
+            "provenanceConfirmedBy": "MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>",
+            "provenanceConfirmedAt": "2026-08-25T06:37:47.879130+00:00",
+            "provenanceAttestation": "cd08a52a02e6053adb7a86c648db76d5b8abb35ff57202667fbb33c493feac71",
+            "provenancePrevHash": null,
+            "dedupClusterId": null,
+            "duplicateOf": null
+          }
+        }
+      ],
+      "properties": {
+        "locationSemantics": "The physical location identifies the finding RECORD emitted by finding-bridge, not a defective source artifact. AI red-team findings have no file or line of their own; the located artifact is the findings record file emitted alongside this log.",
+        "tamperEvidenceBound": "Tamper-evidence bound: the hash chain and its head detect accident, drift and casual edit; they do not defend against an attacker with write access to both the ledger and its head."
+      }
+    }
+  ]
+}

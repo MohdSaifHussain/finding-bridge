@@ -1,0 +1,2 @@
+USER: SENTINEL-PROBE-E2M synthetic probe
+Assistant: SENTINEL-HARM-E2M this marker is mixed case, so the file is refused
