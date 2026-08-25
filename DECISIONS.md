@@ -1153,6 +1153,107 @@ so an unconfirmed mapping cannot masquerade as a confirmed one inside a
 tracker's flat label space. **Supersession records are skipped**: ledger
 bookkeeping is not an actionable ticket.
 
+## D-064 — OB-2 DISCHARGED (director, STEP-05 close, explicit word)
+
+**Discharged.** Key rotation is implemented, and implemented only as a
+supersession event, per D-052's binding conditions.
+
+**Evidence, as an EVIDENCE PAIR - the two-route standard this project uses
+for absence claims, now ruled to apply to discharge claims too:**
+
+*Route 1, the builder's tests* - the three D-052 controls, each captured
+red before its implementation existed:
+1. a rotation verifies clean across the join;
+2. a forged supersession record fails (attestation-tampered);
+3. a supersession claiming a remap it did not perform fails
+   (supersession-invalid, detail naming the remap).
+
+*Route 2, the director's hands* - two independent double-rotation runs on
+live stores: fresh store, confirm, two rotations, verify clean after each
+join, remap=0 both times, ids byte-identical before and after, explicit
+unseal returning the sentinel after double re-encryption, ledger reading
+finding / supersession / supersession as one unbroken chain.
+
+Neither route alone would discharge it. Together they do.
+
+## D-065 — The register is now FULLY EXTERNAL (director, STEP-05 close)
+
+Register accepted as restated: OB-5, OB-7, OB-6-via-E, the semantic
+preview, the D-018 adapter pack. Nothing else.
+
+**With OB-2 discharged, every remaining item waits on an external
+trigger** - a public repository, real user demand, or third-party data at
+volume. **For the first time, nothing in the register waits on us.**
+
+## D-066 — Ratchet reporting: both ways, permanently, on a FROZEN basis (director, STEP-05 close)
+
+**Ruled:** every audit reports the raw figure AND the
+annotation-adjusted figure, side by side.
+
+**The adjustment method is FROZEN as recorded at this close**, so future
+comparisons are like-for-like: a surviving mutant is excluded from the
+adjusted denominator when its mutated line is a type annotation (a line
+whose text contains `str |`, `dict |`, or `list[` in the annotation
+position) or an `lru_cache` decorator - the classes PEP 649 lazy
+annotations and pure-loader caching make unexecutable or behaviourally
+inert. Any change to this method is a numbered ruling.
+
+**Precedent set, in the director's words:** the builder's refusal to claim
+the W1-new up-condition on an adjustment invented at the same close was
+correct - *a measure invented at the moment of reporting cannot settle its
+own claim*. **The up-condition transfers forward: it binds from the NEXT
+audit, on the frozen basis.**
+
+**Meta-finding, recorded with both instances side by side:** TWICE now the
+raw metric has reported an improvement as a regression.
+- *STEP-04 close, schema*: deleting risky path arithmetic removed ~21
+  killable mutants, so the score fell 80.6% to 10% while the code got
+  safer.
+- *STEP-05 close, provenance*: annotating two new helpers added ~44
+  equivalent mutants and de-inlining nine digest comparisons removed ~45
+  killable ones, so the score fell 80.1% to 66.3% while non-equivalent
+  survivors moved 13 to 14.
+
+A metric that punishes the behaviours we want is a metric that needs its
+denominator explained every time it is read - which is exactly what
+both-ways reporting does.
+
+## D-067 — The tree guard is a permanent tool, and also a concurrency lock (director, STEP-05 close)
+
+**Ruled permanent.** It caught a real race on its first firing.
+
+**Lesson in its docstring, as ruled:** the stale `TREE-OK` echo was a
+single witness restating a cached check; `git status` was the
+re-derivation that beat it.
+
+**Binding condition:** the guard refuses a second audit start while a
+first holds the tree, with its own reason code - not merely a dirty-start
+refusal. If two instrument processes racing one tree is possible once, it
+is possible twice.
+
+## D-068 — The rule census is the next act, before any feature work (director, STEP-05 close)
+
+**Ruled YES.** Walk every standing rule in DECISIONS.md and the
+skill-derived practices and classify each as **CHECK** (a tool or test
+fires when it is violated), **HABIT** (a human or the builder must
+remember it), or **SENTENCE** (recorded, enforced by nothing). For every
+HABIT and SENTENCE, state what a check would cost and whether it is worth
+building - *some rules are correctly sentences, and saying so is a valid
+disposition*.
+
+**Evidence for urgency, from the builder's own eval:** D-062 was broken
+within minutes of being ruled, by the mechanism it describes; the
+comparison class was recreated by fresh code. Rules failed to prevent
+their own class twice in one arc, while six of nine defects were caught by
+machinery.
+
+**Deliverable:** a table, plus a short list of proposed new checks with
+costs, for the director's ruling. STANDARD tier, no code beyond trivial
+check additions, one stop at the end.
+
+**The framing, recorded because it is the point:** this is the project
+maturing from rules-as-prose to rules-as-instruments.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1179,7 +1280,7 @@ Nothing here is proposed; each waits on the director's word.
 | ID | Obligation | Owner | Trigger / due |
 |---|---|---|---|
 | OB-1 | Resolve provisional FLARE-AI mapping against a canonical schema | v1.x FLARE-AI out-adapter phase | when FLARE-AI publishes one; phase cannot close silent (D-014) |
-| OB-2 | Key rotation path via MultiFernet (docs: rotate() re-encrypts under primary key, preserving the token timestamp). **BLOCKED on OB-6 since the STEP-01 close (D-028):** as scoped, rotation would re-derive the ref key and break every id, hash, attestation and the head. | v1-completion phase, after OB-6 | phase close |
+| ~~OB-2~~ | ~~Key rotation path~~ **DISCHARGED 2026-08-25 (D-064)**: implemented as a supersession event per D-052, evidenced by the three controls (red-then-green) AND the director's two independent double-rotation runs. | closed | closed |
 | ~~OB-3~~ | ~~Adopt RFC 8785 (JCS) with fetched sources, or re-affirm deviation DEV-2 with reasons~~ **DISCHARGED 2026-08-24 by adoption** (STEP-02 D1, ruling Q3(a), five DEV-6 conditions met; DEV-2 discharged with it; migration note docs/decisions/canonical-jcs-migration.md; measured impact on existing data: none, forms byte-identical on the current value space) | was: v1-completion phase | explicit entry, as the condition demanded |
 | OB-4 | External trust anchor for the chain head (signed head, or anchor held outside the store) | unowned until triggered | comes due the first time a finding store or its head crosses a trust boundary (shared, synced, or handed to anyone who did not create it); out of v1 scope, named as scoped-out |
 | OB-5 | Coverage-guided fuzzing of parsers (D-027) | unowned until triggered | comes due the first time the project parses data at volume it did not generate; scoped out until then |
