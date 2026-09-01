@@ -180,6 +180,44 @@ original bug. What it demonstrates is the new pull-request trigger, the
 push-guard skipping, and the extraction working against a digest that appears
 nowhere in the code or the record.
 
-**PR #4 is open and is the director's call.** It is a digest refresh on the
-declared floor, which is the update the rule was built to allow, and it is
-green on both gate and container. Nothing here merges it.
+~~**PR #4 is open and is the director's call.**~~ **MERGED on the director's
+word, 2026-09-01T16:54:38Z, merge commit `eba6fc0`.** The sentence above was
+true when written and is kept rather than edited.
+
+### Before the merge: the digest verified by hand, not taken from Dependabot
+
+D-077 asks for a measured half, not a remembered one. The director asked
+whether the merge was safe, so the pin was checked against the official
+registry using the route the Dockerfile header documents (the
+`docker-content-digest` header of `/v2/library/python/manifests/3.12-slim`,
+Docker Hub registry API, read 2026-09-01):
+
+```
+docker-content-digest: sha256:e5c9fa26ffb76e11e0f054f30dc2523a2f9693f0c36c0cf1e39b27e152d899fc
+```
+
+That is byte-for-byte the digest PR #4 pins. The tag was unchanged at
+`3.12-slim`, so the D-092 floor ruling was untouched, and both build stages
+moved together, so the one-pin guard stayed satisfied.
+
+### After the merge (runs on `eba6fc0`)
+
+| Run | Workflow | Result |
+|---|---|---|
+| 33534628248 | gate | success, 4/4 jobs |
+| 33534628294 | container | success, all 11 steps; login, tag and push RAN (this is master, not a PR) |
+
+```
+pinned:   python:3.12-slim@sha256:e5c9fa26ffb76e11e0f054f30dc2523a2f9693f0c36c0cf1e39b27e152d899fc
+pulled:   python@sha256:e5c9fa26ffb76e11e0f054f30dc2523a2f9693f0c36c0cf1e39b27e152d899fc
+digest read-back matches the pin
+```
+
+Contrast with the same workflow on the same content one commit earlier, run
+33533883964, where steps 9 to 11 were `skipped` because the event was
+`pull_request`. Same steps, opposite outcome, decided only by the event: that
+is the D-092 push-guard proved in both directions on real runs.
+
+GHCR `:latest` now points at the `eba6fc0` build on the refreshed base. The
+earlier note in D-092 that `:latest` was still the `bb6a140` image was true
+for the red period it describes and is superseded here, not rewritten.
