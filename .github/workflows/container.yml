@@ -48,15 +48,34 @@ jobs:
       # DIGEST READ-BACK (D-077): the pin in the Dockerfile is the remembered
       # half; the digest of the base image THIS RUNNER pulled is the measured
       # half. They must match, and the run log is the evidence.
+      #
+      # THE VERSION IS NOT WRITTEN INTO THIS STEP (D-092). It was, twice, and
+      # when Dependabot moved the base from 3.12-slim to 3.14-slim the grep
+      # matched nothing, `pin` went empty, and `docker pull ""` failed with
+      # "invalid reference format" instead of the guard firing. The old guard
+      # could not fail for that case: `echo "" | wc -l` is 1, so the one-pin
+      # check passed on an empty pin. Each failure mode below now refuses with
+      # its own reason code (rule 5).
       - name: Read the base digest back from the pulled image and compare to the pin
         run: |
-          pin=$(grep -o 'python:3.12-slim@sha256:[0-9a-f]\{64\}' Dockerfile | sort -u)
+          pin=$(grep -oE 'python:[0-9]+\.[0-9]+-slim@sha256:[0-9a-f]{64}' Dockerfile | sort -u)
+          if [ -z "$pin" ]; then
+            echo "pin-not-found: no digest-pinned python:<x.y>-slim base in Dockerfile"
+            exit 1
+          fi
+          if [ "$(printf '%s\n' "$pin" | wc -l)" != "1" ]; then
+            echo "pin-not-unique: the two stages do not share one base pin"
+            printf '%s\n' "$pin"
+            exit 1
+          fi
           echo "pinned:   $pin"
-          test "$(echo "$pin" | wc -l)" = "1"
           docker pull -q "$pin" > /dev/null
           got=$(docker image inspect "$pin" --format '{{ index .RepoDigests 0 }}')
           echo "pulled:   $got"
-          test "python@${pin#python:3.12-slim@}" = "$got"
+          if [ "python@${pin#*@}" != "$got" ]; then
+            echo "digest-mismatch: the pulled digest does not match the pin"
+            exit 1
+          fi
           echo "digest read-back matches the pin"
 
       # LAYER SCAN (tools/layer_scan.py): the key is never in the image.
