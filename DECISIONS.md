@@ -1696,6 +1696,82 @@ crossing a trust boundary), OB-6 via parked E (a user asking to
 correlate across stores), the D-018 adapter pack (demand), the semantic
 preview (a future --ai job). Nothing is owed.
 
+## D-092 — the 3.14 base bump reverted; the read-back stops naming a version (director, 2026-09-01)
+
+Three Dependabot PRs merged on 2026-08-31. Two were fine and stay: #3
+anthropic 1.0.0 to 1.2.0, and #2 cryptography 50.0.0 to 50.0.1. That
+cryptography bump is a PATCH, so the standing rule in
+`.github/dependabot.yml` (major bumps in the hash path stop for a
+ruling) was not crossed. `container` ran green after both.
+
+#1 moved the container base from `python:3.12-slim` to
+`python:3.14-slim`. Master went red at `1217516`.
+
+**Two separate faults, one visible and one not.**
+
+The visible one is the builder's, from STEP-06. The digest read-back
+step wrote the version into itself twice, in the grep and in the
+compare. When the base moved, the grep matched nothing, `pin` went
+empty, and `docker pull ""` refused with `invalid reference format`.
+The guard that should have caught the empty pin could not: it was
+`test "$(echo "$pin" | wc -l)" = "1"`, and `echo "" | wc -l` is 1, so
+an empty pin PASSED the one-pin check. A gate that cannot fail for its
+own failure mode is rule 5's decoration. Replayed and confirmed before
+the fix, then both controls run against the replacement (four cases,
+`evidence/dependabot-repair-2026-09-01.md`). Each failure mode now
+refuses with its own reason code: `pin-not-found`, `pin-not-unique`,
+`digest-mismatch`.
+
+The invisible one is structural. `gate.yml` runs on `pull_request`;
+`container.yml` did not. So the standing rule "a Dependabot PR merges
+only on a green gate" was FOLLOWED, and still let a Dockerfile change
+through, because no green gate had ever built the image. The three PR
+runs were gate-only; `container` first ran after the merge.
+
+**Ruled: revert to 3.12-slim.** The base tracks the DECLARED FLOOR,
+which is `requires-python >=3.12`, not the newest Python. That was
+already a recorded decision (`evidence/step07-closure.md`: "Not a
+document and deliberately unchanged: the container base
+`python:3.12-slim` (the declared floor; 3.13 and 3.14 slim tags
+exist)"), and PR #1 reversed it with no entry. Options weighed: (a)
+revert; (b) adopt 3.14 with a ruling superseding the floor decision.
+(a) chosen. The gate matrix already covers 3.14 on two operating
+systems, so the container is the only place the floor is exercised at
+all; and F-7 was found precisely because the image was 3.12 while the
+lock had been resolved on 3.14, so moving the image to 3.14 hides that
+whole class. (a) is also the smaller move: the digest reverts to the
+one measured on 2026-08-25, re-derived here from three places in the
+record (the Dockerfile at `41a33ed`, `evidence/w6-local-rehearsal.md`,
+`evidence/ci-first-run-step06.md`), and the Dockerfile's header comment
+becomes true again instead of needing a rewrite. Cost to reverse: two
+FROM lines and this entry.
+
+**The lesson is machinery, not prose (rule 14).** Two checks now carry
+it. `container.yml` runs on pull requests that touch the Dockerfile,
+`container.yml` itself, `constraints.txt` or `pyproject.toml`, with
+login and both push steps disabled on a pull request, so a PR proves
+the image builds, scans and smokes without publishing anything.
+`.github/dependabot.yml` ignores major AND minor updates of the
+`python` image; minor matters because 3.12 to 3.14 is a MINOR bump in
+Dependabot's terms and ignoring major alone would not have stopped it.
+Digest-only refreshes of `3.12-slim` still arrive, which is the update
+worth having. Syntax from GitHub's Dependabot options reference,
+fetched 2026-09-01.
+
+**Stated limit.** Nothing was published while master was red: the push
+steps were skipped, so GHCR `:latest` is still the `bb6a140` image
+(3.12 base, cryptography 50.0.1, anthropic 1.2.0). And the 3.14 image
+BUILT successfully before the read-back failed, so this entry does not
+claim 3.14 is broken. It claims 3.14 was never smoked, because every
+step after the read-back was skipped. Whether the tool runs correctly
+on a 3.14 base is untested either way.
+
+**Carried, not fixed (F-3).** The read-back reads
+`{{ index .RepoDigests 0 }}`, taking entry 0 on faith. On a fresh
+runner with one pull there is only one entry, so it holds today. It is
+pre-existing, was not introduced by this repair, and is recorded here
+rather than changed inside a repair.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
