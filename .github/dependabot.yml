@@ -9,6 +9,12 @@
 # ruling regardless of green. The pinned hashes in constraints.txt make an
 # rfc8785 bump fail the fresh-wheel proof until a human re-pins them, which
 # is the mechanism behind the rule.
+#
+# AMENDED (D-092, 2026-09-01): a green gate is not sufficient for a BASE IMAGE
+# bump either, and for a different reason: gate.yml never built the image.
+# Two things changed so the rule now has machinery behind it rather than only
+# words: container.yml runs on pull requests that touch the Dockerfile, and
+# the python image carries the ignore rule below.
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -29,3 +35,25 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     labels: ["dependencies", "docker"]
+    # D-092. The container base deliberately tracks the DECLARED FLOOR
+    # (pyproject requires-python >=3.12), not the newest Python. That is a
+    # recorded decision: evidence/step07-closure.md, "Not a document and
+    # deliberately unchanged: the container base python:3.12-slim (the
+    # declared floor; 3.13 and 3.14 slim tags exist)." Dependabot cannot see
+    # that rationale, so it proposed 3.14-slim and the bump merged on a green
+    # gate that had never built the image.
+    #
+    # Major AND minor are both ignored because 3.12 -> 3.14 is a MINOR bump in
+    # Dependabot's terms; ignoring major alone would not have stopped it.
+    # Digest-only refreshes of the 3.12-slim tag still arrive, which is the
+    # security update we do want. Raising the floor stays a human act: edit
+    # pyproject, the gate matrix, and this rule together.
+    #
+    # Syntax per GitHub's Dependabot options reference (docs.github.com,
+    # fetched 2026-09-01): dependency-name is the image repository without the
+    # tag, update-types takes version-update:semver-{major,minor,patch}.
+    ignore:
+      - dependency-name: "python"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
