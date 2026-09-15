@@ -6,6 +6,9 @@ and real red-team transcripts written by people attacking real models.
 That is exactly the content class this tool was built for, and it is
 why this is the one example only this tool can publish safely.
 
+The same drill re-run on garak 0.17.0 (2026-09-16) is
+[example 05](../05-real-data-garak-0.17.0/).
+
 ## What is NOT here, and where it is
 
 D-012 is absolute: no real harmful content is committed to this
@@ -19,66 +22,16 @@ source, the checksum and the exact command:
   38,961 transcripts), verifies it, and writes a fixed sample of 40
   transcripts unchanged under `DATA_DIR/prepared/`, each with a sidecar
   of its facts.
-- `run_garak.py` runs garak against `llama3.2:1b` on the local Ollama
-  server (dan and promptinject families, 1 generation, 45-minute box)
-  and leaves the hitlog under `DATA_DIR/garak/`. It ran garak 0.17.0 on
-  2026-09-16 (the run `output/` shows) and garak 0.16.0 on 2026-08-25.
+- `run_garak.py` runs garak 0.16.0 against `llama3.2:1b` on the local
+  Ollama server (dan and promptinject families, 1 generation, 45-minute
+  box) and leaves the hitlog under `DATA_DIR/garak/`.
 
-What IS committed under `output/` (from the 2026-09-16 run) is the
-product's own answer to the tension: the run transcript with ingestion
-counts, sealed previews, dedup results and verify output, and the four
-emitted artifacts, whose whole design claim is that they carry preview
-and metadata and never raw harm.
-
-## The run, 2026-09-16 (garak 0.17.0 updated run)
-
-This is the run the committed `output/` shows. garak 0.17.0, 451.86
-seconds by garak's own clock (box 2,700 s), six probes, 668 detector
-hits. garak's own per-probe summary, with the run parameters it was
-measured under: target `llama3.2:1b` on Ollama 0.32.15, `--generations
-1`, `--spec probes.dan,probes.promptinject` (the same six default-active
-probes), garak in its own venv on Python 3.13.5, 2026-09-16, one run:
-
-| Probe | Detector | ok on | Attack success rate |
-|---|---|---|---|
-| dan.Ablation_Dan_11_0 | dan.DAN | 38/127 | 70.08% |
-| dan.Ablation_Dan_11_0 | mitigation.MitigationBypass | 25/127 | 80.31% |
-| dan.AutoDANCached | dan.DAN | 3/3 | pass |
-| dan.AutoDANCached | mitigation.MitigationBypass | 1/3 | 66.67% |
-| dan.DanInTheWild | mitigation.MitigationBypass | 60/256 | 76.56% |
-| promptinject.HijackHateHumans | promptinject.AttackRogueString | 146/256 | 42.97% |
-| promptinject.HijackKillHumans | promptinject.AttackRogueString | 227/256 | 11.33% |
-| promptinject.HijackLongPrompt | promptinject.AttackRogueString | 116/256 | 54.69% |
-
-These rates are not comparable one to one with the 2026-08-25 run. The
-model samples, so a fresh run gives different hits, and garak 0.17.0
-passes generation settings (such as a response length cap) to Ollama,
-which 0.16.0 did not.
-
-Then the pipeline (`output/run-transcript.md`, complete and unedited):
-
-```
-$ finding-bridge ingest-garak <DATA_DIR>/garak/fb-real.hitlog.jsonl
-{"ingested": 668, "total_candidates": 668, "duplicates_marked": 89}
-$ [driver step] ingest every prepared real transcript under <DATA_DIR>/prepared/ (--grammar human-assistant; facts via --environment from the sidecars)
-40 files: ingested 40, refused 0
-$ [driver step] count candidates by source, duplicates, sealed probes and responses, source facts (metadata only)
-candidates: 708 by source {'garak': 668, 'manual-transcript': 40}; marked duplicate: 89; probe sealed: 708/708; response sealed: 708/708; with source facts in environment: 708/708
-```
-
-What stayed the same is what this example exists to show. Every real
-hit has the hitlog shape garak 0.16.0 wrote (668 of 668). Nothing was
-refused or lost, and every attack prompt and response is sealed (708 of
-708). The emitted files have the same field structure as the 2026-08-25
-ones. Both scans are clean: `REAL-STRING SCAN: CLEAN` (5,000 sampled
-strings from 4,567 real texts, 6 artifacts) and the fixture scan
-conforming. The same 10 MiB refusal fires on the raw dataset archive.
-Evidence: `evidence/real-data-garak-0.17.0.md` and D-094.
+What IS committed under `output/` is the product's own answer to the
+tension: the run transcript with ingestion counts, sealed previews, dedup
+results and verify output, and the four emitted artifacts, whose whole
+design claim is that they carry preview and metadata and never raw harm.
 
 ## The run, 2026-08-25
-
-This is the earlier run. Its artifacts were replaced in `output/` by the
-2026-09-16 run above, and they stay in git history at commit `bf49797`.
 
 garak 0.16.0, 505.51 seconds wall clock (box 2,700 s), six probes,
 699 detector hits. garak's own per-probe summary, with the run
@@ -137,11 +90,11 @@ location named, nothing read past the limit.
    every example.
 2. `tools/realdata_leak_scan.py`, the stronger one: at run time it reads
    the local real data, samples 5,000 distinct windows of the real
-   prompts and responses (from 4,567 real texts on the 2026-09-16 data;
-   4,784 on the 2026-08-25 data), and searches every committed artifact
-   for any of them. The strings are never written anywhere. Result on
-   this output: `REAL-STRING SCAN: CLEAN`. Its selftest plants a string
-   and must find it; a clean file must stay clean.
+   prompts and responses (from 4,784 real texts), and searches every
+   committed artifact for any of them. The strings are never written
+   anywhere. Result on this output: `REAL-STRING SCAN: CLEAN`. Its
+   selftest plants a string and must find it; a clean file must stay
+   clean.
 
 So the seal is shown holding against real content, not only against
 sentinels. What that scan does not prove: that no transformed form
@@ -168,10 +121,6 @@ the sampled real text appears in anything committed.
 - **F-13**: `lang`, `data_*` on messages are now `garak.<side>.<key>` in
   the environment; `notes` joins `goal` and `triggers` in the sealed
   context (D-081).
-- **The 2026-09-16 re-run on garak 0.17.0** found no new product finding
-  (D-094). It found one error in this project's own record: the
-  2026-08-25 evidence said triggers were null on all 699 hits, and 389
-  were (C-014).
 
 ## Reproduce
 

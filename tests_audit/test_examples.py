@@ -23,23 +23,58 @@ SCAN = REPO / "tools" / "fixture_scan.py"
 sys.path.insert(0, str(DRIVER.parent))
 import run_example  # noqa: E402
 
+# D-097: each real-data example reads its OWN local data folder. If two
+# shared one, a leak scan could check one example's artifacts against the
+# other's data and still print CLEAN, which would mean nothing.
+REAL_DATA_EXAMPLES = ("04-real-data", "05-real-data-garak-0.17.0")
+
+
+def _real_data_dir(example: str):
+    return getattr(run_example, "REAL_DATA_DIRS", {}).get(example)
+
 
 @pytest.mark.parametrize("example", sorted(run_example.EXAMPLES))
 def test_committed_example_output_matches_a_fresh_run(example):
-    if (
-        example == "04-real-data"
-        and not (run_example.DATA_DIR / "garak" / "fb-real.hitlog.jsonl").exists()
-    ):
+    data = _real_data_dir(example)
+    if data is not None and not (data / "garak" / "fb-real.hitlog.jsonl").exists():
         # W6c: the real data is never committed (D-012). Without a local
         # copy the re-run cannot happen; this is a stated skip in the AUDIT
         # cadence, not in the gate, and the gate's single-skip deliverable
         # (W5) is unaffected.
-        pytest.skip("no local real data under DATA_DIR; run examples/04-real-data/fetch.py")
+        pytest.skip(f"no local real data under {data}; see examples/{example}/README.md")
     proc = subprocess.run(
         [sys.executable, str(DRIVER), example, "--check"], capture_output=True, text=True
     )
     assert proc.returncode == run_example.EXIT_OK, proc.stdout + proc.stderr
     assert "SHOWCASE CHECK: SAME" in proc.stdout
+
+
+def test_each_real_data_example_has_its_own_data_folder():
+    dirs = [_real_data_dir(e) for e in REAL_DATA_EXAMPLES]
+    assert all(dirs), "a real-data example has no data folder of its own"
+    assert len(set(dirs)) == len(dirs), "two real-data examples share a data folder"
+
+
+@pytest.mark.parametrize("example", REAL_DATA_EXAMPLES)
+def test_leak_scan_step_reads_the_examples_own_folder(example, monkeypatch, tmp_path: Path):
+    """The runner's leak-scan step must hand the scan THIS example's data
+    folder. Intercepted, so no real data is needed."""
+    captured = {}
+
+    def fake_run(argv, **kwargs):
+        captured["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, "REAL-STRING SCAN: CLEAN", "")
+
+    monkeypatch.setattr(run_example.subprocess, "run", fake_run)
+    run = run_example.Run(example, tmp_path, tmp_path / "out")
+    try:
+        run.leak_scan()
+    finally:
+        run.cleanup()
+    env = captured.get("env") or {}
+    assert env.get("FB_REALDATA_DIR") == str(_real_data_dir(example)), (
+        "the leak scan was not told which data folder to read"
+    )
 
 
 def test_check_refuses_a_planted_difference(tmp_path: Path):

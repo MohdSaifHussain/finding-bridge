@@ -49,6 +49,17 @@ DATA_DIR = Path(
     os.environ.get("FB_REALDATA_DIR")
     or Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "finding-bridge-realdata"
 )
+# D-097: each real-data example reads its OWN local data folder, outside the
+# tree (D-012). If two shared one, a leak scan could check one example's
+# artifacts against the other's data and still print CLEAN.
+DATA_DIR_05 = Path(
+    os.environ.get("FB_REALDATA_DIR_05")
+    or Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "finding-bridge-realdata-garak-0.17.0"
+)
+REAL_DATA_DIRS: dict[str, Path] = {
+    "04-real-data": DATA_DIR,
+    "05-real-data-garak-0.17.0": DATA_DIR_05,
+}
 EXIT_OK, EXIT_DIFF, EXIT_COULD_NOT_RUN = 0, 1, 2
 
 # Volatile fields, normalised before comparison. Each derives from the key,
@@ -65,6 +76,40 @@ VOLATILE: list[tuple[str, str]] = [
     (r"(?<=\d{2}:\d{2}:\d{2})\.\d{6}", ""),
     (r"\\", "/"),
 ]
+
+
+def _real_data_steps(example: str) -> list:
+    """The real-data drill (W6c), shared by examples 04 and 05 so the two
+    cannot drift. Only the SARIF artifact base names the example."""
+    return [
+        "ingest-garak {data}/garak/fb-real.hitlog.jsonl",
+        (
+            "driver",
+            "ingest every prepared real transcript under <DATA_DIR>/prepared/ "
+            "(--grammar human-assistant; facts via --environment from the sidecars)",
+            "ingest_prepared",
+        ),
+        (
+            "driver",
+            "count candidates by source, duplicates, sealed probes and responses, "
+            "source facts (metadata only)",
+            "count_candidates",
+        ),
+        ("driver", "list: the first 5 lines of N (safe metadata previews only)", "list_head"),
+        "confirm {id0}",
+        "ingest-garak {data}/red_team_attempts.jsonl.gz",
+        "verify",
+        "emit-markdown output/packet.md",
+        f"emit-sarif output/findings.sarif --artifact-uri-base examples/{example}/output",
+        "emit-tracker output/findings.tracker.json",
+        "emit-flare output/findings.flare.json",
+        (
+            "driver",
+            "real-string leak scan of every emitted artifact (tools/realdata_leak_scan.py)",
+            "leak_scan",
+        ),
+    ]
+
 
 # Command lists. {id0} = first candidate id from the last `list`;
 # {ref0} = first response ref from the last emitted packet. Steps that
@@ -113,42 +158,18 @@ EXAMPLES: dict[str, list] = {
         ("driver", "RESTORE: copy backup/ back over the store folder and the key file", "restore"),
         "verify",
     ],
-    # Real data (W6c). Inputs live OUTSIDE the tree at DATA_DIR (D-012); the
-    # transcript shows them as <DATA_DIR>/... and never a local path.
-    "04-real-data": [
-        "ingest-garak {data}/garak/fb-real.hitlog.jsonl",
-        (
-            "driver",
-            "ingest every prepared real transcript under <DATA_DIR>/prepared/ "
-            "(--grammar human-assistant; facts via --environment from the sidecars)",
-            "ingest_prepared",
-        ),
-        (
-            "driver",
-            "count candidates by source, duplicates, sealed probes and responses, "
-            "source facts (metadata only)",
-            "count_candidates",
-        ),
-        ("driver", "list: the first 5 lines of N (safe metadata previews only)", "list_head"),
-        "confirm {id0}",
-        "ingest-garak {data}/red_team_attempts.jsonl.gz",
-        "verify",
-        "emit-markdown output/packet.md",
-        "emit-sarif output/findings.sarif --artifact-uri-base examples/04-real-data/output",
-        "emit-tracker output/findings.tracker.json",
-        "emit-flare output/findings.flare.json",
-        (
-            "driver",
-            "real-string leak scan of every emitted artifact (tools/realdata_leak_scan.py)",
-            "leak_scan",
-        ),
-    ],
+    # Real data (W6c). Inputs live OUTSIDE the tree in each example's own
+    # data folder (D-012, D-097); the transcript shows them as <DATA_DIR>/...
+    # and never a local path.
+    "04-real-data": _real_data_steps("04-real-data"),
+    "05-real-data-garak-0.17.0": _real_data_steps("05-real-data-garak-0.17.0"),
 }
 
 
 class Run:
     def __init__(self, example: str, workdir: Path, out_dir: Path):
         self.example = example
+        self.data_dir = REAL_DATA_DIRS.get(example, DATA_DIR)
         self.cwd = workdir
         self.scratch = Path(tempfile.mkdtemp(prefix="fb-example-"))
         self.store = self.scratch / "store"
@@ -170,7 +191,7 @@ class Run:
         command = command.replace("{id0}", self.ids[0] if self.ids else "{id0}")
         command = command.replace("{ref0}", self.refs[0] if self.refs else "{ref0}")
         shown = command.replace("{data}", "<DATA_DIR>")
-        command = command.replace("{data}", DATA_DIR.as_posix())
+        command = command.replace("{data}", self.data_dir.as_posix())
         argv = ["finding-bridge", "--store", str(self.store), "--key", str(self.key)]
         argv += _split(command)
         proc = subprocess.run(argv, cwd=self.cwd, capture_output=True, text=True, encoding="utf-8")
@@ -199,7 +220,7 @@ class Run:
         return subprocess.run(argv, cwd=self.cwd, capture_output=True, text=True, encoding="utf-8")
 
     def ingest_prepared(self) -> str:
-        files = sorted((DATA_DIR / "prepared").glob("*.txt"))
+        files = sorted((self.data_dir / "prepared").glob("*.txt"))
         ok, refused = 0, {}
         for f in files:
             args = ["ingest-transcript", str(f), "--grammar", "human-assistant"]
@@ -262,6 +283,7 @@ class Run:
             capture_output=True,
             text=True,
             encoding="utf-8",
+            env={**os.environ, "FB_REALDATA_DIR": str(self.data_dir)},
         )
         return (proc.stdout + proc.stderr).strip() + f"\n[exit {proc.returncode}]"
 
@@ -335,10 +357,11 @@ def run_one(example: str, check: bool) -> int:
     if shutil.which("finding-bridge") is None:
         print("could-not-run: finding-bridge is not on PATH (pip install -e .)", file=sys.stderr)
         return EXIT_COULD_NOT_RUN
-    if example == "04-real-data" and not (DATA_DIR / "garak" / "fb-real.hitlog.jsonl").exists():
+    data_dir = REAL_DATA_DIRS.get(example)
+    if data_dir is not None and not (data_dir / "garak" / "fb-real.hitlog.jsonl").exists():
         print(
-            f"could-not-run: no real data under {DATA_DIR}; run examples/04-real-data/fetch.py "
-            "and run_garak.py first (the data is never committed, D-012)",
+            f"could-not-run: no real data under {data_dir}; see examples/{example}/README.md "
+            "(fetch.py and run_garak.py; the data is never committed, D-012)",
             file=sys.stderr,
         )
         return EXIT_COULD_NOT_RUN

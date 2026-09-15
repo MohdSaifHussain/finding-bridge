@@ -5,7 +5,7 @@
 [![Canonical schema 0.5.0](https://img.shields.io/badge/canonical%20schema-0.5.0-informational)](src/finding_bridge/schemas/finding.schema.json)
 [![SARIF 2.1.0](https://img.shields.io/badge/emits-SARIF%202.1.0-informational)](docs/USAGE.md)
 [![AI in the evidence path: none](https://img.shields.io/badge/AI%20in%20the%20evidence%20path-none-success)](tests/test_environment.py)
-[![tests: 357 collected](https://img.shields.io/badge/tests-357%20collected-informational)](tests/)
+[![tests: 359 collected](https://img.shields.io/badge/tests-359%20collected-informational)](tests/)
 [![garak fixtures: 0.17.0](https://img.shields.io/badge/garak%20fixtures-0.17.0-informational)](docs/FIXTURE-VERSIONS.md)
 [![gate](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/gate.yml)
 [![container](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml/badge.svg?branch=master)](https://github.com/MohdSaifHussain/finding-bridge/actions/workflows/container.yml)
@@ -178,6 +178,8 @@ command, and the reason-code reference.
   key rotations, a hand-tampered ledger refused, restore.
 - [examples/04-real-data](examples/04-real-data/): **real data**, a real
   garak run and real red-team transcripts, sealed and leak-scanned.
+- [examples/05-real-data-garak-0.17.0](examples/05-real-data-garak-0.17.0/):
+  the same real-data drill re-run on garak 0.17.0, with its own data.
 - [docs/showcase/](docs/showcase/): screenshots, each named for the one
   claim it proves that text cannot.
 
@@ -232,8 +234,8 @@ below. Every figure names the command or file it is computed from, at
 commit time; a figure that did not compute cleanly is absent, not
 rounded.
 
-- **Tests: 357 collected; 265 (74.2 percent) exercise the product, 92
-  (25.8 percent) exercise the governance instruments that keep the AI
+- **Tests: 359 collected; 265 (73.8 percent) exercise the product, 94
+  (26.2 percent) exercise the governance instruments that keep the AI
   honest.** Counted by node id from `python -m pytest --collect-only -q`.
   Governance means the instruments themselves: the gate guard, the
   overclaim scanner, the digest-comparison scan, the boundary table, the
@@ -283,17 +285,17 @@ human ruled, reviewed, and verified; neither alone produced this.
 Every figure here names the command that produced it and the date. If a
 figure and the tree disagree, the tree wins and the figure is wrong.
 
-- **Tests: 356 passed, 1 skipped**, run by `python tools/gate.py` on
-  2026-08-25 after the post-release closure phase with no API key in the environment (the suite scrubs
+- **Tests: 358 passed, 1 skipped**, run by `python tools/gate.py` on
+  2026-09-16 (D-097) with no API key in the environment (the suite scrubs
   key-bearing variables and proves it). The one skip is the Windows key
   file permission check, which needs a POSIX file mode.
-- **Product versus governance tests: 265 versus 92.** Governance tests
+- **Product versus governance tests: 265 versus 94.** Governance tests
   check the project's own rules and record rather than finding
   behaviour (`tests/test_gate_guard.py`, `test_no_overclaim.py`,
   `test_no_inline_digest_compare.py`, `test_installed_package.py`,
   `test_environment.py`, `test_readme_badges.py`, and the rest of the
   governance list in the provenance section above). Counted by node id
-  from `python -m pytest --collect-only -q` (92 of 357 collected).
+  from `python -m pytest --collect-only -q` (94 of 359 collected).
 - **Mutation testing, reported both ways** (raw, and excluding the
   annotation-class equivalents, the frozen method of D-066). Last
   audit at the STEP-05 close, `evidence/mutation-audit-step05-close.md`:

@@ -1954,6 +1954,49 @@ README's release-time figures and its fuzzing sentence (lines 361-362,
 stale since D-091), left alone under rule 15 unless the director says
 otherwise.
 
+## D-097: example 05, the garak 0.17.0 run with its own data (director, 2026-09-16)
+
+The director ruled for a separate example (option B):
+`examples/05-real-data-garak-0.17.0/` holds the 2026-09-16 run, and
+example 04 returns to its release state. This replaces D-094's "updated
+in place". D-094 stays as written, and so do the dated records that name
+example 04's output for the 0.17.0 run
+(`evidence/real-data-garak-0.17.0.md`).
+
+**The risk it closes.** The runner and the leak scan assumed one
+real-data folder, so a second real-data example could have been
+leak-scanned against the first one's data and still printed CLEAN.
+`examples/run_example.py` now maps each real-data example to its own
+folder (04: `FB_REALDATA_DIR` or `%LOCALAPPDATA%\finding-bridge-realdata`,
+unchanged; 05: `FB_REALDATA_DIR_05` or
+`%LOCALAPPDATA%\finding-bridge-realdata-garak-0.17.0`), both examples
+share one step list, and the leak-scan step hands the scan its example's
+folder. The scan itself did not change. Two new tests in
+`tests_audit/test_examples.py` failed on the old runner ("the leak scan
+was not told which data folder to read") and pass now. The committed
+transcripts carry the witness: 04's scan read 4,784 real texts, 05's
+read 4,567.
+
+**Controls.** Example 04's six output files are byte-identical to
+`bf49797`, and its showcase check says SAME on the 2026-08-25 data.
+Example 05's check says SAME on the 0.17.0 data. Both leak scans are
+CLEAN, the fixture scan is CONFORMING (24 example outputs), and no local
+path appears in either output.
+
+**Figures that moved.** Example 05's README adds two wording tests
+(`test_no_overclaim.py`, a governance file). Tests: 357 to 359 collected,
+governance 92 to 94, product 265. The count method reproduced the old
+figures (357; 265 and 92) before it was trusted for the new ones. The
+README badge and its test figures follow; the badge test failed until
+they did.
+
+**Also.** The main README lists example 05 (director). Example 04's
+README gains one pointer line to 05. On the development machine the data
+folders were renamed back: the default holds the 2026-08-25 data again,
+and the 0.17.0 data has its own folder; nothing was deleted. Example 05
+reuses example 04's `fetch.py` and `run_garak.py` with its folder set, so
+the D-012 guard code exists once.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
