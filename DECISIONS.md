@@ -1906,6 +1906,54 @@ content. The dated records that name the old config paths
 (`DECISIONS.md`, `evidence/mutation-audit-step02.md`) keep them: they say
 what was true then.
 
+## D-096: PR #8 merged; the record of the 2026-09-16 push (director, 2026-09-16)
+
+**PR #8 (anthropic 1.3.0 to 1.5.0), merged on the director's word.** No CI
+job installs anthropic, so the PR's five green checks proved only that
+`pyproject.toml` still parses. The check that installed it: a worktree of
+the PR head `1afcff1` and a fresh Python 3.14 venv with `.[dev,ai]`. Gate
+PASS (356 passed, 1 skipped), the same with no API keys, and six controls
+against the real 1.5.0 package with no network call: no key refuses with
+`ai-key-missing`, no model refuses with `ai-unavailable`, a dummy key
+builds a client, and the response blocks read the way `_ask` reads them.
+Merged as `9588940` with `--match-head-commit` pinned to the tested head;
+CI on `9588940`: `gate` (run 35027374063) and `container` (run
+35027374035) green. Measured half: `evidence/pr8-anthropic-1.5.0.md`. Limits: no live API
+call; Python 3.12 not exercised locally.
+
+**The push of 2026-09-16 (`bf49797..a454253`).** The delta audit ran in
+two versions, both kept. Version 1 flagged 3 secret shapes and 4
+local-path blobs; each was looked at, and none was a secret or a real
+path (a NIST URL, and prose naming the pattern). Version 2 narrowed the
+two patterns, proved the narrowing against those exact hits, and read 0
+and 0. Capture: `evidence/prepush-audit-2026-09-16.md`. CI on `a454253`:
+all four gate jobs and `container` green; GHCR `:latest` moved to the
+`a454253` image; `:1.0.0` unchanged. The push went past ruleset
+21420275's required checks by the owner's bypass (RepositoryRole,
+always); the checks then ran and passed. Issue #7 closed as completed,
+with a comment naming the commits.
+
+**Two instrument notes, the builder's.** (1) The first CI watcher
+filtered runs by a short commit hash, found none, and ended as a
+failure; the result came from direct queries, and the second watcher
+used the full hash. (2) One second after #7 closed, the forced currency
+check still answered `already-open`; thirty seconds later, with an empty
+open-issue list before and after, it answered `WOULD-OPEN`. The list at
+the first moment was not captured.
+
+**Found, recorded, not changed.** The `dev` extra pins `ruff>=0.6` with no
+upper bound. ruff 0.16.0 formats Python code blocks in Markdown files by
+default (its release notes, 2026-07-23), so wherever ruff installs fresh,
+CI included, the gate's format check covers about 71 Markdown files
+beside the 74 Python files. Everything passes; the gate's scope moved
+with an upstream release and no ruling.
+
+**Open, on the director's word.** The two `InstalledFeatures` values in
+HKCU `PythonCore\3.13` left by the cancelled installer (D-094). The
+README's release-time figures and its fuzzing sentence (lines 361-362,
+stale since D-091), left alone under rule 15 unless the director says
+otherwise.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
