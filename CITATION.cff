@@ -1,0 +1,32 @@
+# Citation metadata, Citation File Format 1.2.0
+# (https://citation-file-format.github.io/), validated against its
+# schema.json (D-094). Every value comes from this repository: name and
+# version from pyproject.toml, release date from CHANGELOG.md, licence from
+# LICENSE and NOTICE, author from NOTICE (name split as in the author's own
+# ts-sentry CITATION.cff), abstract and keywords from the GitHub
+# description and topics (D-087).
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "finding-bridge"
+abstract: >-
+  Turn AI red-team tool output into standard, sealed, provenance-stamped
+  findings. Feed them into the systems your team already uses.
+type: software
+authors:
+  - family-names: Hussain
+    given-names: Mohd Saif
+version: 1.0.0
+date-released: "2026-08-25"
+license: Apache-2.0
+repository-code: "https://github.com/MohdSaifHussain/finding-bridge"
+keywords:
+  - red-team
+  - red-teaming-tools
+  - ai-red-teaming
+  - ai-safety
+  - garak
+  - llm-security
+  - provenance
+  - sarif
+  - security-tools
+  - trust-and-safety

@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parent.parent
-AUDIT_CONFIGS = sorted(REPO.glob("cr-*.toml"))
+AUDIT_CONFIGS = sorted((REPO / "mutation").glob("cr-*.toml"))
 
 
 def collected_count(pytest_args: list[str]) -> int:

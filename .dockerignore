@@ -10,7 +10,7 @@ dist/
 *.whl
 **/__pycache__/
 cr-*.sqlite
-cr-*.toml
+mutation/
 tests/
 tests_audit/
 evidence/

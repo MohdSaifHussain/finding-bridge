@@ -1871,6 +1871,41 @@ replaced for this work by a substring scan with a selftest. The earlier
 delta audits do not record their commands, so whether their local-path
 row had the same blind spot is unknown.
 
+## D-095: repository structure after reading ts-sentry (director, 2026-09-16)
+
+The director asked for a professional structure, read (read only) from
+the ts-sentry repository. Ruled from the side-by-side, then moved into
+this push by the director: one push.
+
+**Done.** (1) `CITATION.cff` at the root, the file GitHub turns into a
+"Cite this repository" link (GitHub's docs on citation files). Format:
+CFF 1.2.0; it validates against the official `schema.json`, and a copy
+without `authors` is refused. Every value comes from this repository
+(`pyproject.toml`, `CHANGELOG.md`, `LICENSE` and `NOTICE`, the GitHub
+description and topics); the author's name is split as in the author's
+own ts-sentry file. (2) The five cosmic-ray configs moved from the root
+to `mutation/`. Their reproduce comments (13 path tokens),
+`.dockerignore` (now `mutation/`, because a bare pattern matches only at
+the context root, per Docker's docs) and `tests_audit/test_audit_guard.py`
+follow. The `cr-*.sqlite` session files stay at the root, where
+`.gitignore` already matches them.
+
+**Controls.** The audit guard failed with "no cr-*.toml audit configs
+found" when the files had moved and its path had not, then passed (7).
+From the root, `cosmic-ray init mutation/cr-dedup.toml` lists 63
+mutations (the dedup denominator the README reports), the old path fails
+(exit 78, no such file), and `cosmic-ray baseline` on the new path
+passes.
+
+**Not moved, with the reason.** `DECISIONS.md` (the charter says "at the
+repo root"; moving it is a charter amendment), `SOP.md`, `tools/`,
+`evidence/` and `tests_audit/` (every workflow and many documents point
+at them). `QUICKSTART.md` and `ARCHITECTURE.md` were not added: the
+README tour, `docs/USAGE.md` and charter section 5 already carry that
+content. The dated records that name the old config paths
+(`DECISIONS.md`, `evidence/mutation-audit-step02.md`) keep them: they say
+what was true then.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

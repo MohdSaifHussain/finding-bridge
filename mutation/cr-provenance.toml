@@ -1,8 +1,8 @@
 # D-027 AUDIT, narrowed to provenance+sealing per the 20-minute budget rule
 # (full-core projection: 425 mutants x ~5-8s > 20 min). Reproduce:
-#   cosmic-ray init cr-provenance.toml cr-provenance.sqlite
-#   cosmic-ray baseline cr-provenance.toml
-#   cosmic-ray exec cr-provenance.toml cr-provenance.sqlite
+#   cosmic-ray init mutation/cr-provenance.toml cr-provenance.sqlite
+#   cosmic-ray baseline mutation/cr-provenance.toml
+#   cosmic-ray exec mutation/cr-provenance.toml cr-provenance.sqlite
 #   cr-report cr-provenance.sqlite
 [cosmic-ray]
 module-path = "src/finding_bridge/core/provenance.py"

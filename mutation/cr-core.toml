@@ -1,9 +1,9 @@
 # cosmic-ray config for the D-027 AUDIT cadence, scoped to the core only.
 # Reproduce with one command sequence (director-runnable, from repo root):
 #   pip install cosmic-ray
-#   cosmic-ray init cr-core.toml cr-core.sqlite
-#   cosmic-ray baseline cr-core.toml
-#   cosmic-ray exec cr-core.toml cr-core.sqlite
+#   cosmic-ray init mutation/cr-core.toml cr-core.sqlite
+#   cosmic-ray baseline mutation/cr-core.toml
+#   cosmic-ray exec mutation/cr-core.toml cr-core.sqlite
 #   cr-report cr-core.sqlite
 [cosmic-ray]
 module-path = "src/finding_bridge/core"
