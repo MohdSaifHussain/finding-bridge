@@ -1772,6 +1772,47 @@ runner with one pull there is only one entry, so it holds today. It is
 pre-existing, was not introduced by this repair, and is recorded here
 rather than changed inside a repair.
 
+## D-093: garak 0.17.0 checked, shape unchanged, pin moved; the rulings for issue #7 and PR #8 (director, 2026-09-16)
+
+`currency.yml` opened issue #7: garak 0.17.0 was released on 2026-09-09
+and the pin was 0.16.0. The D-079 procedure was followed against garak's
+own source at both tags. The hitlog writer (`garak/evaluators/base.py`)
+changed by one comment. `garak/attempt.py`, which defines `Message` and
+`Conversation`, is byte-identical. The two other files that mention the
+hitlog did not change. The shape did not move, so there is no new fixture
+and no drill. The pin line and the README badge move to 0.17.0 together.
+Measured half: `evidence/garak-0.17.0-currency.md`.
+
+Not changed, on purpose: CHANGELOG, example 04, the 1.0.0 release notes,
+STANDARDS and the adapter comments still say 0.16.0. They record the
+dated 0.16.0 run, not the pin, and stay true.
+
+**Rulings (director, all on the builder's recommendation).** (1) LITE
+tier for both items, with this entry and an evidence file. It is the
+first LITE run under the method. (2) The pin gets one dated line saying
+how 0.17.0 was checked; the older rows are not rewritten. (3) The install
+conflict below is recorded here and in `docs/USAGE.md`. (4) PR #8 is
+checked locally on Python 3.14 only, with that stated as a limit. (5) The
+missing Dependabot labels are fixed later, as a separate step. And the
+standing gate for all of it: nothing is committed or pushed until it
+works locally and the director says go.
+
+**Found: garak 0.17.0 and the `ai` extra cannot share one environment.**
+garak 0.17.0 requires `anthropic<1.0.0` (garak PR #2098); 0.16.0 had no
+upper bound. The `ai` extra pins 1.x. garak 0.17.0 causes this, not a
+Dependabot bump: it holds at 1.3.0 and at 1.5.0 alike. The core install is
+not affected.
+
+**Found: the `currency.yml` positive control can fail on a healthy
+tool.** It greps for `WOULD-OPEN`, but while an issue for the same version
+is open the tool correctly answers `already-open`. The builder predicted
+`WOULD-OPEN` for a forced 0.16.0 pin and was wrong for that reason. The
+control gets re-run after #7 closes. It is pre-existing (D-090), and it is
+recorded here, not fixed.
+
+**Stated limit.** This is a source comparison, not a real 0.17.0 run. The
+procedure allows closing on it.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.

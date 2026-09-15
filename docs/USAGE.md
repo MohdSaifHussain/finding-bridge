@@ -163,6 +163,10 @@ set ANTHROPIC_API_KEY=...
 finding-bridge confirm <id> --ai --ai-model <exact-model-id>
 ```
 
+Install garak in its own venv. garak 0.17.0 requires `anthropic<1.0.0`,
+and the `ai` extra pins a 1.x release, so the two cannot share one
+environment. The core install (no `ai` extra) is not affected.
+
 The AI can suggest two things: a severity rationale, and taxonomy
 mappings. Both are **printed for you to weigh, never written**. You accept
 or reject by hand; nothing the AI says enters a finding on its own.
