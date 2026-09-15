@@ -261,12 +261,13 @@ rounded.
   became a tool both times (the gate-half-run rule, seven instances,
   converted to `tools/gate.py`; the digest-comparison rule, three
   failures, converted to one helper plus a scan).
-- **Corrections: 13 entries, 6 of the director's errors and 7 of the
+- **Corrections: 14 entries, 6 of the director's errors and 8 of the
   AI's**, each with the original claim quoted, what proved it wrong, and
   the direction it moved, including the director's own false alarm
   (C-007). Counted from the corrections table in `DECISIONS.md`.
-- **Rulings: 88 numbered, across 7 phase contracts, each with declared
-  review stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
+- **Rulings: 98 numbered, across 7 phase contracts and the
+  post-release maintenance since, each phase with declared review
+  stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
   `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in
   the PROV register, all later ratified.
 - **Escape rate:** the per-phase builder evals (`evidence/builder-eval-*`)
@@ -360,8 +361,9 @@ Every decision, limit, and open obligation is written down:
 - The chain head has no external trust anchor. Verification is against
   the store's own head, so the bound above is the whole guarantee (OB-4,
   due the first time a store crosses a trust boundary).
-- The parsers have not been fuzzed against data at volume that this
-  project did not generate (OB-5, scoped out until that happens).
+- Parser fuzzing is bounded: one structured pass (11,063 inputs, zero
+  escapes) and one 30-minute coverage-guided run (8,101,169
+  executions, 216 edges, 0 crashes) (OB-5, discharged by D-091).
 - The FLARE-AI export is provisional: FLARE-AI has published no
   machine-readable schema, so the field names come from its paper.
 - The grey-scale idea behind the preview is research-informed, not

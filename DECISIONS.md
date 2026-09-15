@@ -1997,6 +1997,26 @@ and the 0.17.0 data has its own folder; nothing was deleted. Example 05
 reuses example 04's `fetch.py` and `run_garak.py` with its folder set, so
 the D-012 guard code exists once.
 
+## D-098: README figures re-derived; the fuzzing limit narrowed; installer leftovers removed (director, 2026-09-16)
+
+The README's own rule is that the tree wins when a figure disagrees.
+Re-derived by the commands it names: rulings 88 to 98 (`grep -c "^## D-0"
+DECISIONS.md`, this entry included), corrections 13 to 14 (C-014, the
+builder's: 6 of the director's errors and 8 of the AI's); phase
+contracts 7, unchanged. The rulings line now says "across 7 phase
+contracts and the post-release maintenance since", because the newer
+rulings were made after the last contract closed.
+
+The limit "The parsers have not been fuzzed against data at volume that
+this project did not generate" was stale since D-091 discharged OB-5. It
+is narrowed, not deleted, to the two runs D-091 names.
+
+The cancelled installer's leftovers in HKCU `PythonCore\3.13` (the two
+`InstalledFeatures` values, then the empty `InstalledFeatures` key) were
+deleted on the director's word, each after a check that it held exactly
+what the installer wrote. Anaconda's registration was untouched and
+`py -0p` unchanged. That closes D-096's open items.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
