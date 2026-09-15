@@ -1813,6 +1813,64 @@ recorded here, not fixed.
 **Stated limit.** This is a source comparison, not a real 0.17.0 run. The
 procedure allows closing on it.
 
+## D-094: the real-data drill on garak 0.17.0; example 04 shows the new run (director, 2026-09-16)
+
+The director ordered the real-data drill on garak 0.17.0 as well, before
+any push. That narrows D-093's stated limit: the check is no longer a
+source comparison only. Tier STANDARD, one stop before the push. Phase 2
+(example 04 updated in place) was ruled before the run; the push still
+waits for the run to work and for the director's check.
+
+**The run.** garak 0.17.0 in its own venv on Python 3.13.5 (Anaconda
+build), `llama3.2:1b` (`baf6a787fdff`) on Ollama 0.32.15, the committed
+`run_garak.py` command and its 2,700 s box. 2026-09-15T20:52:52Z to
+21:00:26Z, garak's own clock 451.86 s, exit 0, 668 hits. Measured half:
+`evidence/real-data-garak-0.17.0.md`.
+
+**Result: no finding against real data (D-078's law).** 668 of 668
+records have the recorded 0.16.0 shape. The pipeline ingested all 668
+hits and the 40 transcripts with 0 refusals. Prompt and response are
+sealed on 708 of 708 candidates, source facts on 708 of 708. Confirm, the
+`input-too-large` refusal, verify and the four emitters behave as before.
+Real-string scan CLEAN (5,000 strings from 4,567 real texts, 6
+artifacts). Fixture scan CONFORMING. The field structure of all five
+compared artifacts is the same as the 2026-08-25 output, and the
+showcase check says SAME. Hits and duplicates differ (668 against 699;
+89 against 62), as the earlier evidence said a fresh run would.
+
+**Example 04 updated in place (director).** `output/` holds the
+2026-09-16 run; its README gains a dated section on top; the 2026-08-25
+section stays, with its artifacts in git history at `bf49797`. The
+default data folder now holds the 0.17.0 data. The 2026-08-25 data was
+renamed aside with its date and nothing was deleted, so the audit test
+re-runs against the data the committed output came from. The main README
+is not touched. CHANGELOG: no entry; the post-release practice stands.
+
+**Python (director).** Ruled: a stable version other than 3.14 if
+possible. The Python devguide lists 3.13 and 3.14 as bugfix; garak
+0.17.0's own CI tests 3.11 to 3.13. The python.org 3.13.15 installer
+(checksum and PSF signature verified) exited 1602, "the user canceled
+installation" in Microsoft's table, during its lib package, and rolled
+back. It left two values (`InstalledFeatures` exe and dev) in the HKCU
+`PythonCore\3.13` key that Anaconda had already registered. The logs do
+not say what sent the cancel. Ruled A: use the Anaconda 3.13.5 already on
+the machine. The two values stay until the director rules on them.
+
+**GHCR (director's question).** No separate update is needed. `:latest`
+is built from `bf49797` (master), its base digest equals Docker Hub's
+current `python:3.12-slim`, and `:1.0.0` is intact. The push rebuilds
+`:latest`, as every master push does.
+
+**Found, recorded, not fixed.** (1) C-014: the W6c evidence says triggers
+were null on all 699 records; 389 were. (2) The garak adapter never reads
+a Conversation's own `notes` or the facts of turns after the first. In
+both real hitlogs every prompt has one turn and every `notes` is empty,
+so no real record has exercised this. (3) A grep version of the
+local-path check did not fire on a planted `C:\Users` path. It was
+replaced for this work by a substring scan with a selftest. The earlier
+delta audits do not record their commands, so whether their local-path
+row had the same blind spot is unknown.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -1861,6 +1919,7 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-007 | Director's mid-verification belief at STEP-05 stop one: that a finding id had CHANGED across rotation. | It had not. The measurement compared the first row of `list` before and after, and the confirmed finding leaving the candidates listing shifted the row - a single witness measuring the wrong object. Re-derived from the store itself and killed. No product change. Recorded under the director's name at their instruction. | The director's own re-derivation from the ledger rather than the listing. | False alarm raised AND killed by the same reviewer; a live specimen of why rituals re-derive instead of restate. |
+| C-014 | `evidence/real-data-step06.md` line 48 (STEP-06 W6c, builder): "triggers null on all" for the 699 records of the real garak 0.16.0 hitlog. | Triggers are null on 389 of 699 and a one-item list on 310. "Null on all" held for the 197-hit mid-run snapshot (`evidence/step06-findings.md`, F-13) and was carried to the full 699 without a recount. No product effect: non-null triggers are sealed into the context blob (`garak.py:140`). The evidence file keeps its wording; this row is the correction. | A type-and-count pass over the real hitlog on 2026-09-16 (D-094). | Toward the less flattering answer for the builder: a snapshot fact restated wider than the data. |
 | C-013 | Director's addendum (2026-08-25): "README: the built-by-AI sentence moves up, directly under the opening description, before the architecture." | Wrong placement. The reader of a README is a stranger evaluating the TOOL; the method is the second story, not the first. The orchestration section moves down whole, renamed "How this project was built", after Install; one short paragraph and a pointer stay at the top, with no numbers. Recorded under the director's name at their instruction. | The director's own structural read of the finished README, overruling the reviewer's placement ruling. | The director's own structural read overruled the reviewer's placement ruling; toward the reader's need, not the author's pride. |
 | C-012 | Commit 112's message: "README figures settled at the release total." | They were not: the settle script's last anchor (a parenthetical that an earlier rewrite had already removed) failed, the script asserted before writing, and the chain ran the commit anyway because the script and the commit were joined with `;`, not `&&`. C-008's mechanism, seventh instance of the gate-half-run family, hours after D-074 gave the gate a verdict file: the mask this time was around an EDIT script, which no verdict file covers. Applied in the next commit. | The builder re-reading its own output before reporting. | Toward the less flattering answer for the builder. Census note: the class is "a claim outlives a failed step in the same shell line"; the verdict file closed it for the gate only. |
 | C-011 | examples/04-real-data/README.md and the W6c report, first pass: "253 of 699 real hits were exact duplicates ... the Pain-4 feature did what it exists for on real data." | The prompts were null on all 699 (F-12), so dedup keyed on responses alone; different attacks drawing the same reply counted as duplicates. With prompts sealed the real figure is 62 of 699. The feature worked; the number it produced was inflated by the very bug the workstream found. | The post-fix re-run of example 04 (probe sealed 739/739, duplicates 62). | Toward the less flattering answer for the earlier report: a measurement made on a broken object was quoted as a feature result. |

@@ -4,7 +4,7 @@ Complete, unedited output of `python examples/run_example.py 04-real-data`. The 
 
 ```
 $ finding-bridge ingest-garak <DATA_DIR>/garak/fb-real.hitlog.jsonl
-{"ingested": 699, "total_candidates": 699, "duplicates_marked": 62}
+{"ingested": 668, "total_candidates": 668, "duplicates_marked": 89}
 [exit 0]
 
 $ [driver step] ingest every prepared real transcript under <DATA_DIR>/prepared/ (--grammar human-assistant; facts via --environment from the sidecars)
@@ -12,20 +12,20 @@ $ [driver step] ingest every prepared real transcript under <DATA_DIR>/prepared/
 [driver step done]
 
 $ [driver step] count candidates by source, duplicates, sealed probes and responses, source facts (metadata only)
-candidates: 739 by source {'garak': 699, 'manual-transcript': 40}; marked duplicate: 62; probe sealed: 739/739; response sealed: 739/739; with source facts in environment: 739/739
+candidates: 708 by source {'garak': 668, 'manual-transcript': 40}; marked duplicate: 89; probe sealed: 708/708; response sealed: 708/708; with source facts in environment: 708/708
 [driver step done]
 
 $ [driver step] list: the first 5 lines of N (safe metadata previews only)
-fb-08ffda1ca7b0f5b8  garak  [sealed content: 16 chars, 1 lines, keyed digest 5b55cb71; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-ee8c59033d619b20  garak  [sealed content: 1208 chars, 8 lines, keyed digest 3f3c5688; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-af04b8dfa948262d  garak  [sealed content: 646 chars, 3 lines, keyed digest a9dba8f1; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-9733f84b885863d1  garak  [sealed content: 840 chars, 3 lines, keyed digest 20c6e7da; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-fb-bd6ca81034055d15  garak  [sealed content: 234 chars, 1 lines, keyed digest 072a2402; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
-... 739 lines in total
+fb-1da4ff55c4c2e136  garak  [sealed content: 685 chars, 1 lines, keyed digest b5494490; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-6fe41d1791619220  garak  [sealed content: 640 chars, 1 lines, keyed digest f384df1a; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-c4d227333d916dfc  garak  [sealed content: 710 chars, 1 lines, keyed digest 8935302c; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-7713b89c0470dcd1  garak  [sealed content: 700 chars, 1 lines, keyed digest e2a35e57; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+fb-f24f4dfb3e009a0e  garak  [sealed content: 312 chars, 1 lines, keyed digest 4ba60584; harm flags: garak-detector:dan.DAN. Content is sealed; unseal is explicit and logged.]
+... 708 lines in total
 [driver step done]
 
-$ finding-bridge confirm fb-08ffda1ca7b0f5b8
-confirmed fb-08ffda1ca7b0f5b8 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
+$ finding-bridge confirm fb-1da4ff55c4c2e136
+confirmed fb-1da4ff55c4c2e136 by MohdSaifHussain <263689115+MohdSaifHussain@users.noreply.github.com>
 [exit 0]
 
 $ finding-bridge ingest-garak <DATA_DIR>/red_team_attempts.jsonl.gz
@@ -53,7 +53,7 @@ wrote output/findings.flare.json (PROVISIONAL mapping; see the provisional block
 [exit 0]
 
 $ [driver step] real-string leak scan of every emitted artifact (tools/realdata_leak_scan.py)
-REAL-STRING SCAN: CLEAN (5000 sampled strings from 4784 real texts, 5 artifacts searched)
+REAL-STRING SCAN: CLEAN (5000 sampled strings from 4567 real texts, 5 artifacts searched)
 [exit 0]
 [driver step done]
 

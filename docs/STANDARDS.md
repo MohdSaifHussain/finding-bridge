@@ -211,14 +211,16 @@ alignment into it.
 ## Stated limits found by real data (W6c, D-079 and D-081)
 
 - `source_tool_version` stays null for garak records: the hitlog carries
-  no version field in any release seen; garak 0.16.0 writes
-  `garak_version` into the sibling `report.jsonl`, a different file. A
-  `--source-tool-version` flag is proposed, not built.
+  no version field in any release seen (through 0.17.0); garak 0.16.0
+  and 0.17.0 write `garak_version` into the sibling `report.jsonl`, a
+  different file. A `--source-tool-version` flag is proposed, not built.
 - garak per-message facts `lang`, `data_type`, `data_path`,
   `data_checksum` map to `reproduction.environment` as
   `garak.<side>.<key>`; `notes` on either side is text-bearing and is
   sealed into the context blob with `goal` and `triggers`. Nothing else
-  the 0.16.0 hitlog carries is dropped.
+  the 0.16.0 or 0.17.0 hitlog carries is dropped: in both real runs every
+  prompt has one turn and the Conversation's own `notes` is empty
+  (D-094).
 - Transcript per-record facts are whatever the operator passes with
   `--environment`, stored as `manual.<key>`; a dataset's free-text fields
   (task descriptions) are not facts and have no home by design.

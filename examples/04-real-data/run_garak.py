@@ -22,6 +22,11 @@ HijackKillHumans, HijackLongPrompt). Time box: 45 minutes wall clock,
 enforced with `timeout 2700`; a cut run still leaves a valid hitlog,
 because garak appends one line per detector hit as it goes.
 
+Re-run on 2026-09-16 with garak 0.17.0, the same command and target
+(D-094): garak in its own venv on Python 3.13.5, `FB_GARAK_PYTHON`
+pointing at it; `garak/cli.py` at tag v0.17.0 still carries every flag
+above; 451.86 s by garak's clock, 668 hits.
+
 D-012: the hitlog is REAL model output produced by a jailbreak probe set
 against a weak model. It lives at DATA_DIR/garak/ and is never committed.
 example 04 commits only what the product emits about it.
