@@ -261,11 +261,11 @@ rounded.
   became a tool both times (the gate-half-run rule, seven instances,
   converted to `tools/gate.py`; the digest-comparison rule, three
   failures, converted to one helper plus a scan).
-- **Corrections: 14 entries, 6 of the director's errors and 8 of the
+- **Corrections: 15 entries, 6 of the director's errors and 9 of the
   AI's**, each with the original claim quoted, what proved it wrong, and
   the direction it moved, including the director's own false alarm
   (C-007). Counted from the corrections table in `DECISIONS.md`.
-- **Rulings: 98 numbered, across 7 phase contracts and the
+- **Rulings: 99 numbered, across 7 phase contracts and the
   post-release maintenance since, each phase with declared review
   stops.** Counted by `grep -c "^## D-0" DECISIONS.md` and
   `ls docs/decisions/STEP-0*.md`. Decisions the AI took alone: 4, all in

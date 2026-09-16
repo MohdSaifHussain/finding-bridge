@@ -2017,6 +2017,43 @@ deleted on the director's word, each after a check that it held exactly
 what the installer wrote. Anaconda's registration was untouched and
 `py -0p` unchanged. That closes D-096's open items.
 
+## D-099: the leak scan reads the data of the example it scans (director, 2026-09-16)
+
+Found while laying example 05 out like example 04: a plain
+`python tools/realdata_leak_scan.py examples/05-real-data-garak-0.17.0/output`
+read example 04's data (4,784 real texts, not 05's 4,567) and still
+printed CLEAN, a pass that meant nothing. D-097 had fixed only the
+runner's own scan step; the standalone tool still defaulted to example
+04's folder. The director ordered the fix.
+
+**The fix.** `tools/realdata_leak_scan.py` holds the one table of
+real-data folders (04: `FB_REALDATA_DIR` or
+`%LOCALAPPDATA%\finding-bridge-realdata`; 05: `FB_REALDATA_DIR_05` or
+`%LOCALAPPDATA%\finding-bridge-realdata-garak-0.17.0`). It reads the
+folder that belongs to the output it scans, found by the example
+folder's name, `Path(output).resolve().parent.name`. Python's pathlib
+docs (https://docs.python.org/3/library/pathlib.html): `resolve()` makes
+the path absolute and is the only method that removes `..`; `name` is the
+final path component; extra slashes collapse. So a relative path, a
+trailing slash and a `--check` copy in a temp folder all resolve the same
+way. An output folder it cannot place is refused with "cannot tell which
+real data belongs to ...". `examples/run_example.py` reads the same table
+instead of keeping its own, and no longer overrides the scan's folder.
+
+**Controls, red first.** `tests_audit/test_realdata_leak_scan.py`: a
+plain scan of 05's output must read 05's data (red on the pushed code:
+4,784 against 4,567); an output it cannot place must be refused (red:
+exit 0); each example resolves to its own folder, also through a
+`--check` copy (red: no table). The D-097 runner test now checks that the
+runner scans this example's output and that the scan resolves it to this
+example's data (red: no lookup). All pass after the fix. Plain scans now
+read 4,784 texts for example 04 and 4,567 for example 05.
+
+**Scope, on the director's word.** Only example 05's README and the scan
+were to change. The builder's other additions (05's own scripts, and
+reverting 04's `run_garak.py`) were undone before they were committed.
+Example 05's README now follows example 04's sections, in order.
+
 ## Open work after the STEP-04 close (the record, so no one needs memory)
 
 Nothing here is proposed; each waits on the director's word.
@@ -2065,6 +2102,7 @@ numbering starts here; no back-written STEP-00.
 | # | Original claim (quoted) | Correction | What proved it | Direction |
 |---|---|---|---|---|
 | C-007 | Director's mid-verification belief at STEP-05 stop one: that a finding id had CHANGED across rotation. | It had not. The measurement compared the first row of `list` before and after, and the confirmed finding leaving the candidates listing shifted the row - a single witness measuring the wrong object. Re-derived from the store itself and killed. No product change. Recorded under the director's name at their instruction. | The director's own re-derivation from the ledger rather than the listing. | False alarm raised AND killed by the same reviewer; a live specimen of why rituals re-derive instead of restate. |
+| C-015 | Example 05's README as pushed at `f680b25`: "The runner hands the scan this example's own data folder (D-097), so it cannot check this output against example 04's data by mistake." And D-097: "example 04 returns to its release state". | The runner did; the standalone scan did not. A plain scan of 05's output read 04's data and printed CLEAN (D-099). And example 04's `run_garak.py` kept the 0.17.0 run note, so only its README and output returned to the release state. | A plain scan of 05's output (4,784 real texts, which is 04's data), and `git diff bf49797` on example 04. | Toward the less flattering answer for the builder: two claims wider than the change behind them. |
 | C-014 | `evidence/real-data-step06.md` line 48 (STEP-06 W6c, builder): "triggers null on all" for the 699 records of the real garak 0.16.0 hitlog. | Triggers are null on 389 of 699 and a one-item list on 310. "Null on all" held for the 197-hit mid-run snapshot (`evidence/step06-findings.md`, F-13) and was carried to the full 699 without a recount. No product effect: non-null triggers are sealed into the context blob (`garak.py:140`). The evidence file keeps its wording; this row is the correction. | A type-and-count pass over the real hitlog on 2026-09-16 (D-094). | Toward the less flattering answer for the builder: a snapshot fact restated wider than the data. |
 | C-013 | Director's addendum (2026-08-25): "README: the built-by-AI sentence moves up, directly under the opening description, before the architecture." | Wrong placement. The reader of a README is a stranger evaluating the TOOL; the method is the second story, not the first. The orchestration section moves down whole, renamed "How this project was built", after Install; one short paragraph and a pointer stay at the top, with no numbers. Recorded under the director's name at their instruction. | The director's own structural read of the finished README, overruling the reviewer's placement ruling. | The director's own structural read overruled the reviewer's placement ruling; toward the reader's need, not the author's pride. |
 | C-012 | Commit 112's message: "README figures settled at the release total." | They were not: the settle script's last anchor (a parenthetical that an earlier rewrite had already removed) failed, the script asserted before writing, and the chain ran the commit anyway because the script and the commit were joined with `;`, not `&&`. C-008's mechanism, seventh instance of the gate-half-run family, hours after D-074 gave the gate a verdict file: the mask this time was around an EDIT script, which no verdict file covers. Applied in the next commit. | The builder re-reading its own output before reporting. | Toward the less flattering answer for the builder. Census note: the class is "a claim outlives a failed step in the same shell line"; the verdict file closed it for the gate only. |

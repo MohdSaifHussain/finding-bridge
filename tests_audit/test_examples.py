@@ -57,23 +57,30 @@ def test_each_real_data_example_has_its_own_data_folder():
 
 @pytest.mark.parametrize("example", REAL_DATA_EXAMPLES)
 def test_leak_scan_step_reads_the_examples_own_folder(example, monkeypatch, tmp_path: Path):
-    """The runner's leak-scan step must hand the scan THIS example's data
-    folder. Intercepted, so no real data is needed."""
+    """The runner's leak-scan step must scan THIS example's output, and the
+    scan must resolve that output to THIS example's data folder (D-099: the
+    example folder's name decides, so a --check copy resolves the same way).
+    Intercepted, so no real data is needed."""
     captured = {}
 
     def fake_run(argv, **kwargs):
-        captured["env"] = kwargs.get("env")
+        captured["argv"] = argv
         return subprocess.CompletedProcess(argv, 0, "REAL-STRING SCAN: CLEAN", "")
 
     monkeypatch.setattr(run_example.subprocess, "run", fake_run)
-    run = run_example.Run(example, tmp_path, tmp_path / "out")
+    out = tmp_path / "fb-check-x" / example / "output"
+    run = run_example.Run(example, out.parent, out)
     try:
         run.leak_scan()
     finally:
         run.cleanup()
-    env = captured.get("env") or {}
-    assert env.get("FB_REALDATA_DIR") == str(_real_data_dir(example)), (
-        "the leak scan was not told which data folder to read"
+    sys.path.insert(0, str(REPO / "tools"))
+    import realdata_leak_scan
+
+    scanned = Path(captured["argv"][-1])
+    assert scanned == out, "the leak scan was not pointed at this example's output"
+    assert realdata_leak_scan.data_dir_for(scanned) == _real_data_dir(example), (
+        "the leak scan would read another example's data"
     )
 
 

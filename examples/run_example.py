@@ -36,7 +36,6 @@ unset).
 from __future__ import annotations
 
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -45,21 +44,12 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-DATA_DIR = Path(
-    os.environ.get("FB_REALDATA_DIR")
-    or Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "finding-bridge-realdata"
-)
-# D-097: each real-data example reads its OWN local data folder, outside the
-# tree (D-012). If two shared one, a leak scan could check one example's
-# artifacts against the other's data and still print CLEAN.
-DATA_DIR_05 = Path(
-    os.environ.get("FB_REALDATA_DIR_05")
-    or Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "finding-bridge-realdata-garak-0.17.0"
-)
-REAL_DATA_DIRS: dict[str, Path] = {
-    "04-real-data": DATA_DIR,
-    "05-real-data-garak-0.17.0": DATA_DIR_05,
-}
+# D-097, D-099: each real-data example reads its OWN local data folder,
+# outside the tree (D-012). The one table lives in the leak scan, which uses
+# it to pick the data for the output it scans; the runner reads the same one.
+sys.path.insert(0, str(HERE.parent / "tools"))
+from realdata_leak_scan import DATA_DIR, REAL_DATA_DIRS  # noqa: E402
+
 EXIT_OK, EXIT_DIFF, EXIT_COULD_NOT_RUN = 0, 1, 2
 
 # Volatile fields, normalised before comparison. Each derives from the key,
@@ -283,7 +273,6 @@ class Run:
             capture_output=True,
             text=True,
             encoding="utf-8",
-            env={**os.environ, "FB_REALDATA_DIR": str(self.data_dir)},
         )
         return (proc.stdout + proc.stderr).strip() + f"\n[exit {proc.returncode}]"
 
