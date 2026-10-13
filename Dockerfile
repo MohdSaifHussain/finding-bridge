@@ -14,14 +14,14 @@
 # smoke row and SOP.md section 1). The layer scan in container.yml proves
 # it: no *.key, no fb.key, no Fernet-shaped token in any layer.
 
-FROM python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea AS builder
+FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS builder
 WORKDIR /src
 COPY pyproject.toml constraints.txt LICENSE NOTICE README.md ./
 COPY src ./src
 RUN python -m pip install --no-cache-dir --upgrade pip build \
  && python -m build --wheel --outdir /wheels
 
-FROM python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea AS runtime
+FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS runtime
 LABEL org.opencontainers.image.title="finding-bridge" \
       org.opencontainers.image.description="Turn AI red-team tool output into standard, sealed, provenance-stamped findings" \
       org.opencontainers.image.licenses="Apache-2.0" \
